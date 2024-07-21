@@ -28,65 +28,28 @@ class _AddUserScreenState extends State<AddUserScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add User'),
+        title: Text(
+          'Add User',
+          style: TextStyle(color: Colors.white), // AppBar title color to white
+        ),
+        backgroundColor: Color(0xFF930000), // AppBar color to match company theme
+        iconTheme: IconThemeData(
+          color: Colors.white, // Back arrow color to white
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              TextFormField(
-                controller: _nameController,
-                decoration: InputDecoration(labelText: 'Name'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a name';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _emailController,
-                decoration: InputDecoration(labelText: 'Email'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter an email';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _passwordController,
-                decoration: InputDecoration(labelText: 'Password'),
-                obscureText: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a password';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _macAddressController,
-                decoration: InputDecoration(labelText: 'MAC Address'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a MAC address';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _companyIdController,
-                decoration: InputDecoration(labelText: 'Company ID'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a company ID';
-                  }
-                  return null;
-                },
-              ),
+              _buildTextField(_nameController, 'Name'),
+              _buildTextField(_emailController, 'Email'),
+              _buildTextField(_passwordController, 'Password', obscureText: true),
+              _buildTextField(_macAddressController, 'MAC Address'),
+              _buildTextField(_companyIdController, 'Company ID'),
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () async {
@@ -98,7 +61,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
                       email: _emailController.text,
                       password: hashedPassword,
                       macAddress: _macAddressController.text,
-                      companyId: _companyIdController.text, // Include companyId
+                      companyId: _companyIdController.text, // Include company ID
                     );
                     await _employeeDao.createEmployee(employee);
 
@@ -110,14 +73,48 @@ class _AddUserScreenState extends State<AddUserScreen> {
                     _emailController.clear();
                     _passwordController.clear();
                     _macAddressController.clear();
-                    _companyIdController.clear(); // Clear companyId field
+                    _companyIdController.clear(); // Clear company ID field
                   }
                 },
-                child: Text('Add User'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFF930000), // Button color to match company theme
+                  padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  textStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                child: Text(
+                  'Add User',
+                  style: TextStyle(color: Colors.white), // Button text color to white
+                ),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildTextField(TextEditingController controller, String label, {bool obscureText = false}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: TextFormField(
+        controller: controller,
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: TextStyle(color: Color(0xFF930000)), // Label color to match company theme
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+        obscureText: obscureText,
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Please enter $label';
+          }
+          return null;
+        },
       ),
     );
   }
