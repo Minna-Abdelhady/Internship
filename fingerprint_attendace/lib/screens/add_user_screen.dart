@@ -15,6 +15,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _macAddressController = TextEditingController();
+  final _companyIdController = TextEditingController(); // Added for company ID
   final EmployeeDao _employeeDao = EmployeeDao();
 
   String _hashPassword(String password) {
@@ -76,6 +77,16 @@ class _AddUserScreenState extends State<AddUserScreen> {
                   return null;
                 },
               ),
+              TextFormField(
+                controller: _companyIdController,
+                decoration: InputDecoration(labelText: 'Company ID'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a company ID';
+                  }
+                  return null;
+                },
+              ),
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () async {
@@ -87,6 +98,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
                       email: _emailController.text,
                       password: hashedPassword,
                       macAddress: _macAddressController.text,
+                      companyId: _companyIdController.text, // Include companyId
                     );
                     await _employeeDao.createEmployee(employee);
 
@@ -98,6 +110,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
                     _emailController.clear();
                     _passwordController.clear();
                     _macAddressController.clear();
+                    _companyIdController.clear(); // Clear companyId field
                   }
                 },
                 child: Text('Add User'),
