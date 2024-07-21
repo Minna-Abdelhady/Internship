@@ -4,15 +4,21 @@ import 'screens/login_screen.dart';
 import 'screens/add_user_screen.dart';
 import 'screens/users_list_screen.dart';
 import 'screens/home_screen.dart';
-import 'database/dao/user_dao.dart';
-import 'models/user.dart';
+import 'models/employee.dart';
+import 'models/location.dart';
+import 'models/attendance.dart';
+import 'models/log.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
-  Hive.registerAdapter(UserAdapter());
-  final userDao = UserDao();
-  await userDao.createTestUser();
+
+  // Registering adapters for all the models
+  Hive.registerAdapter(EmployeeAdapter());
+  Hive.registerAdapter(LocationAdapter());
+  Hive.registerAdapter(AttendanceAdapter());
+  Hive.registerAdapter(LogAdapter());
+
   runApp(MyApp());
 }
 
@@ -25,7 +31,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      debugShowCheckedModeBanner: false, // Set this to false to remove the debug banner
+      debugShowCheckedModeBanner: false, // Remove the debug banner
       home: MainPage(),
     );
   }

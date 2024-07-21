@@ -8,7 +8,7 @@ part of 'log.dart';
 
 class LogAdapter extends TypeAdapter<Log> {
   @override
-  final int typeId = 1;
+  final int typeId = 3;
 
   @override
   Log read(BinaryReader reader) {
@@ -17,22 +17,28 @@ class LogAdapter extends TypeAdapter<Log> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Log(
-      id: fields[0] as int,
-      action: fields[1] as String,
-      timestamp: fields[2] as String,
+      employeeId: fields[0] as int,
+      employeeName: fields[1] as String,
+      branch: fields[2] as String,
+      timestamp: fields[3] as DateTime,
+      transaction: fields[4] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, Log obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(5)
       ..writeByte(0)
-      ..write(obj.id)
+      ..write(obj.employeeId)
       ..writeByte(1)
-      ..write(obj.action)
+      ..write(obj.employeeName)
       ..writeByte(2)
-      ..write(obj.timestamp);
+      ..write(obj.branch)
+      ..writeByte(3)
+      ..write(obj.timestamp)
+      ..writeByte(4)
+      ..write(obj.transaction);
   }
 
   @override

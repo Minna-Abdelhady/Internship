@@ -1,19 +1,34 @@
 import 'package:flutter/material.dart';
 import '../database/dao/attendance_dao.dart';
+import '../database/dao/employee_dao.dart';
+import '../database/dao/location_dao.dart';
 import '../models/attendance.dart';
+import '../models/employee.dart';
+import '../models/location.dart';
 
 class HomeScreen extends StatelessWidget {
   final String username;
   final AttendanceDao attendanceDao = AttendanceDao();
+  final EmployeeDao employeeDao = EmployeeDao();
+  final LocationDao locationDao = LocationDao();
 
   HomeScreen({required this.username});
 
   Future<void> _signIn() async {
+    final employees = await employeeDao.getAllEmployees();
+    final locations = await locationDao.getAllLocations();
+    
+    // Assuming only one location and one employee for simplicity
+    final employee = employees.firstWhere((employee) => employee.name == username);
+    final location = locations.first; // Replace with actual location logic
+    
     final attendance = Attendance(
       id: DateTime.now().millisecondsSinceEpoch,
-      employeeId: 1, // This should be fetched based on the username.
-      locationId: 1, // This can be fetched or set based on the actual location.
-      checkInTime: DateTime.now().toIso8601String(),
+      employeeId: employee.id,
+      employeeName: employee.name,
+      branch: location.branch,
+      timestamp: DateTime.now(),
+      transaction: 'sign in',
     );
     await attendanceDao.createAttendance(attendance);
   }

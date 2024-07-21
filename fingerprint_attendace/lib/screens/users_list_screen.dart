@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import '../database/dao/user_dao.dart';
-import '../models/user.dart';
+import '../database/dao/employee_dao.dart';
+import '../models/employee.dart';
 
 class UsersListScreen extends StatelessWidget {
-  final UserDao userDao = UserDao();
+  final EmployeeDao employeeDao = EmployeeDao();
 
-  Future<List<User>> _fetchUsers() async {
-    return await userDao.getAllUsers();
+  Future<List<Employee>> _fetchEmployees() async {
+    return await employeeDao.getAllEmployees();
   }
 
   @override
@@ -15,8 +15,8 @@ class UsersListScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('Users List'),
       ),
-      body: FutureBuilder<List<User>>(
-        future: _fetchUsers(),
+      body: FutureBuilder<List<Employee>>(
+        future: _fetchEmployees(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
@@ -25,13 +25,22 @@ class UsersListScreen extends StatelessWidget {
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Center(child: Text('No users found'));
           } else {
-            final users = snapshot.data!;
+            final employees = snapshot.data!;
             return ListView.builder(
-              itemCount: users.length,
+              itemCount: employees.length,
               itemBuilder: (context, index) {
-                final user = users[index];
+                final employee = employees[index];
                 return ListTile(
-                  title: Text(user.username),
+                  title: Text(employee.name),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('ID: ${employee.id}'),
+                      Text('Email: ${employee.email}'),
+                      Text('Password (hashed): ${employee.password}'),
+                      Text('MAC Address: ${employee.macAddress}'),
+                    ],
+                  ),
                 );
               },
             );

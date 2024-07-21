@@ -4,10 +4,9 @@ import '../../models/log.dart';
 class LogDao {
   static const String _logBoxName = 'logBox';
 
-  Future<int> createLog(Log log) async {
+  Future<void> createLog(Log log) async {
     var box = await Hive.openBox<Log>(_logBoxName);
     await box.add(log);
-    return log.id; // Assuming `id` is set correctly when the Log is created
   }
 
   Future<List<Log>> getAllLogs() async {
@@ -15,15 +14,21 @@ class LogDao {
     return box.values.toList();
   }
 
-  Future<void> updateLog(int id, Log updatedLog) async {
+  Future<void> updateLog(int employeeId, DateTime timestamp, Log updatedLog) async {
     var box = await Hive.openBox<Log>(_logBoxName);
-    final key = box.keys.firstWhere((k) => (box.get(k) as Log).id == id);
+    final key = box.keys.firstWhere((k) => 
+      (box.get(k) as Log).employeeId == employeeId && 
+      (box.get(k) as Log).timestamp == timestamp
+    );
     await box.put(key, updatedLog);
   }
 
-  Future<void> deleteLog(int id) async {
+  Future<void> deleteLog(int employeeId, DateTime timestamp) async {
     var box = await Hive.openBox<Log>(_logBoxName);
-    final key = box.keys.firstWhere((k) => (box.get(k) as Log).id == id);
+    final key = box.keys.firstWhere((k) => 
+      (box.get(k) as Log).employeeId == employeeId && 
+      (box.get(k) as Log).timestamp == timestamp
+    );
     await box.delete(key);
   }
 }

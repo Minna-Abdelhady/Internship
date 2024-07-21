@@ -13,8 +13,8 @@ class UserDao {
 
   Future<void> createTestUser() async {
     var box = await Hive.openBox<User>(_userBoxName);
-    final testUsername = 'testuser';
-    final testPassword = 'password';
+    final testUsername = 'Test';
+    final testPassword = '123';
     
     final existingUser = box.values.firstWhere(
       (user) => user.username == testUsername,

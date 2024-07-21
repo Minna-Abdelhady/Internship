@@ -2,7 +2,7 @@ import 'package:hive/hive.dart';
 
 part 'attendance.g.dart';
 
-@HiveType(typeId: 3)
+@HiveType(typeId: 2)
 class Attendance {
   @HiveField(0)
   final int id;
@@ -11,28 +11,23 @@ class Attendance {
   final int employeeId;
 
   @HiveField(2)
-  final int locationId;
+  final String employeeName;
 
   @HiveField(3)
-  final String checkInTime;
+  final String branch;
 
-  Attendance({required this.id, required this.employeeId, required this.locationId, required this.checkInTime});
+  @HiveField(4)
+  final DateTime timestamp;
 
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'employeeId': employeeId,
-      'locationId': locationId,
-      'checkInTime': checkInTime,
-    };
-  }
+  @HiveField(5)
+  final String transaction;
 
-  factory Attendance.fromMap(Map<String, dynamic> map) {
-    return Attendance(
-      id: map['id'],
-      employeeId: map['employeeId'],
-      locationId: map['locationId'],
-      checkInTime: map['checkInTime'],
-    );
-  }
+  Attendance({
+    required this.id,
+    required this.employeeId,
+    required this.employeeName,
+    required this.branch,
+    required this.timestamp,
+    required this.transaction,
+  });
 }

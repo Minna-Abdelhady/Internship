@@ -8,7 +8,7 @@ class Location {
   final int id;
 
   @HiveField(1)
-  final String name;
+  final String branch;
 
   @HiveField(2)
   final double latitude;
@@ -16,12 +16,12 @@ class Location {
   @HiveField(3)
   final double longitude;
 
-  Location({required this.id, required this.name, required this.latitude, required this.longitude});
+  Location({required this.id, required this.branch, required this.latitude, required this.longitude});
 
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'name': name,
+      'branch': branch,
       'latitude': latitude,
       'longitude': longitude,
     };
@@ -30,7 +30,7 @@ class Location {
   factory Location.fromMap(Map<String, dynamic> map) {
     return Location(
       id: map['id'],
-      name: map['name'],
+      branch: map['branch'],
       latitude: map['latitude'],
       longitude: map['longitude'],
     );

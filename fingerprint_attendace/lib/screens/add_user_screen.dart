@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import '../database/dao/user_dao.dart';
-import '../models/user.dart';
+import '../database/dao/employee_dao.dart';
+import '../models/employee.dart';
+import 'package:crypto/crypto.dart';
+import 'dart:convert';
 
 class AddUserScreen extends StatefulWidget {
   @override
@@ -9,9 +11,17 @@ class AddUserScreen extends StatefulWidget {
 
 class _AddUserScreenState extends State<AddUserScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _usernameController = TextEditingController();
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final UserDao _userDao = UserDao();
+  final _macAddressController = TextEditingController();
+  final EmployeeDao _employeeDao = EmployeeDao();
+
+  String _hashPassword(String password) {
+    final bytes = utf8.encode(password);
+    final hash = sha256.convert(bytes);
+    return hash.toString();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,11 +36,21 @@ class _AddUserScreenState extends State<AddUserScreen> {
           child: Column(
             children: <Widget>[
               TextFormField(
-                controller: _usernameController,
-                decoration: InputDecoration(labelText: 'Username'),
+                controller: _nameController,
+                decoration: InputDecoration(labelText: 'Name'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter a username';
+                    return 'Please enter a name';
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
+                controller: _emailController,
+                decoration: InputDecoration(labelText: 'Email'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter an email';
                   }
                   return null;
                 },
@@ -46,23 +66,38 @@ class _AddUserScreenState extends State<AddUserScreen> {
                   return null;
                 },
               ),
+              TextFormField(
+                controller: _macAddressController,
+                decoration: InputDecoration(labelText: 'MAC Address'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a MAC address';
+                  }
+                  return null;
+                },
+              ),
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
-                    final hashedPassword = _userDao.hashPassword(_passwordController.text);
-                    final user = User(
-                      username: _usernameController.text,
-                      passwordHash: hashedPassword,
+                    final hashedPassword = _hashPassword(_passwordController.text);
+                    final employee = Employee(
+                      id: DateTime.now().millisecondsSinceEpoch,
+                      name: _nameController.text,
+                      email: _emailController.text,
+                      password: hashedPassword,
+                      macAddress: _macAddressController.text,
                     );
-                    await _userDao.createUser(user);
+                    await _employeeDao.createEmployee(employee);
 
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('User added successfully')),
                     );
 
-                    _usernameController.clear();
+                    _nameController.clear();
+                    _emailController.clear();
                     _passwordController.clear();
+                    _macAddressController.clear();
                   }
                 },
                 child: Text('Add User'),

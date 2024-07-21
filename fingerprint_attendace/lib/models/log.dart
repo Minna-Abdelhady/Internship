@@ -2,32 +2,28 @@ import 'package:hive/hive.dart';
 
 part 'log.g.dart';
 
-@HiveType(typeId: 1)
+@HiveType(typeId: 3)
 class Log {
   @HiveField(0)
-  final int id;
+  final int employeeId;
 
   @HiveField(1)
-  final String action;
+  final String employeeName;
 
   @HiveField(2)
-  final String timestamp;
+  final String branch;
 
-  Log({required this.id, required this.action, required this.timestamp});
+  @HiveField(3)
+  final DateTime timestamp;
 
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'action': action,
-      'timestamp': timestamp,
-    };
-  }
+  @HiveField(4)
+  final String transaction;
 
-  factory Log.fromMap(Map<String, dynamic> map) {
-    return Log(
-      id: map['id'],
-      action: map['action'],
-      timestamp: map['timestamp'],
-    );
-  }
+  Log({
+    required this.employeeId,
+    required this.employeeName,
+    required this.branch,
+    required this.timestamp,
+    required this.transaction,
+  });
 }

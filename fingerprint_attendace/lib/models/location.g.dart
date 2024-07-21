@@ -18,7 +18,7 @@ class LocationAdapter extends TypeAdapter<Location> {
     };
     return Location(
       id: fields[0] as int,
-      name: fields[1] as String,
+      branch: fields[1] as String,
       latitude: fields[2] as double,
       longitude: fields[3] as double,
     );
@@ -31,7 +31,7 @@ class LocationAdapter extends TypeAdapter<Location> {
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
-      ..write(obj.name)
+      ..write(obj.branch)
       ..writeByte(2)
       ..write(obj.latitude)
       ..writeByte(3)

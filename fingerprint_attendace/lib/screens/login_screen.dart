@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
-import '../database/dao/user_dao.dart';
+import '../database/dao/employee_dao.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -9,9 +9,9 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _usernameController = TextEditingController();
+  final _nameController = TextEditingController();
   final _passwordController = TextEditingController();
-  final UserDao _userDao = UserDao();
+  final EmployeeDao _employeeDao = EmployeeDao();
 
   @override
   Widget build(BuildContext context) {
@@ -26,11 +26,11 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Column(
             children: <Widget>[
               TextFormField(
-                controller: _usernameController,
-                decoration: InputDecoration(labelText: 'Username'),
+                controller: _nameController,
+                decoration: InputDecoration(labelText: 'Name'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your username';
+                    return 'Please enter your name';
                   }
                   return null;
                 },
@@ -50,20 +50,20 @@ class _LoginScreenState extends State<LoginScreen> {
               ElevatedButton(
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
-                    bool authenticated = await _userDao.authenticateUser(
-                      _usernameController.text,
+                    bool authenticated = await _employeeDao.authenticateUser(
+                      _nameController.text,
                       _passwordController.text,
                     );
                     if (authenticated) {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => HomeScreen(username: _usernameController.text),
+                          builder: (context) => HomeScreen(username: _nameController.text),
                         ),
                       );
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Invalid username or password')),
+                        SnackBar(content: Text('Invalid name or password')),
                       );
                     }
                   }
