@@ -14,7 +14,6 @@ class _AddUserScreenState extends State<AddUserScreen> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _macAddressController = TextEditingController();
   final _companyIdController = TextEditingController(); // Added for company ID
   final EmployeeDao _employeeDao = EmployeeDao();
 
@@ -49,18 +48,17 @@ class _AddUserScreenState extends State<AddUserScreen> {
               _buildTextField(_nameController, 'Name'),
               _buildTextField(_emailController, 'Email'),
               _buildTextField(_passwordController, 'Password', obscureText: true),
-              _buildTextField(_macAddressController, 'MAC Address'),
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
                     final hashedPassword = _hashPassword(_passwordController.text);
                     final employee = Employee(
+                      id: DateTime.now().millisecondsSinceEpoch,
                       companyId: _companyIdController.text, // Include company ID
                       name: _nameController.text,
                       email: _emailController.text,
                       password: hashedPassword,
-                      macAddress: _macAddressController.text,
                     );
                     await _employeeDao.createEmployee(employee);
 
@@ -72,7 +70,6 @@ class _AddUserScreenState extends State<AddUserScreen> {
                     _nameController.clear();
                     _emailController.clear();
                     _passwordController.clear();
-                    _macAddressController.clear();
                   }
                 },
                 style: ElevatedButton.styleFrom(

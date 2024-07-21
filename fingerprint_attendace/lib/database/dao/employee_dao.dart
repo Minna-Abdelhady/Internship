@@ -1,6 +1,7 @@
-import 'package:hive/hive.dart';
-import 'package:crypto/crypto.dart';
 import 'dart:convert';
+
+import 'package:crypto/crypto.dart';
+import 'package:hive/hive.dart';
 import '../../models/employee.dart';
 
 class EmployeeDao {
@@ -18,13 +19,13 @@ class EmployeeDao {
 
   Future<void> updateEmployee(int id, Employee updatedEmployee) async {
     var box = await Hive.openBox<Employee>(_employeeBoxName);
-    final key = box.keys.firstWhere((k) => (box.get(k) as Employee).companyId == id);
+    final key = box.keys.firstWhere((k) => (box.get(k) as Employee).id == id);
     await box.put(key, updatedEmployee);
   }
 
   Future<void> deleteEmployee(int id) async {
     var box = await Hive.openBox<Employee>(_employeeBoxName);
-    final key = box.keys.firstWhere((k) => (box.get(k) as Employee).companyId == id);
+    final key = box.keys.firstWhere((k) => (box.get(k) as Employee).id == id);
     await box.delete(key);
   }
 
@@ -47,3 +48,4 @@ class EmployeeDao {
     return hash.toString();
   }
 }
+  

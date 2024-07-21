@@ -4,28 +4,26 @@ part 'employee.g.dart';
 
 @HiveType(typeId: 0)
 class Employee {
-
   @HiveField(0)
-  final String companyId; // Added companyId field
+  final int id;
 
   @HiveField(1)
-  final String name;
+  final String companyId;
 
   @HiveField(2)
-  final String email;
+  final String name;
 
   @HiveField(3)
-  final String password;
+  final String email;
 
   @HiveField(4)
-  final String macAddress;
-
+  final String password;
 
   Employee({
-    required this.companyId, 
+    required this.id,
+    required this.companyId,
     required this.name,
     required this.email,
     required this.password,
-    required this.macAddress
   });
 }

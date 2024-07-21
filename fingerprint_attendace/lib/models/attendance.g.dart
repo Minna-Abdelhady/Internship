@@ -28,16 +28,16 @@ class AttendanceAdapter extends TypeAdapter<Attendance> {
   @override
   void write(BinaryWriter writer, Attendance obj) {
     writer
-      ..writeByte(6)
-      ..writeByte(0)
-      ..write(obj.employeeId)
+      ..writeByte(5)
       ..writeByte(1)
-      ..write(obj.employeeName)
+      ..write(obj.employeeId)
       ..writeByte(2)
-      ..write(obj.branch)
+      ..write(obj.employeeName)
       ..writeByte(3)
-      ..write(obj.timestamp)
+      ..write(obj.branch)
       ..writeByte(4)
+      ..write(obj.timestamp)
+      ..writeByte(5)
       ..write(obj.transaction);
   }
 

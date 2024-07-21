@@ -37,22 +37,19 @@ class UsersListScreen extends StatelessWidget {
                   child: ConstrainedBox(
                     constraints: BoxConstraints(minWidth: constraints.maxWidth),
                     child: DataTable(
-                      columnSpacing: constraints.maxWidth * 0.1,
                       columns: const [
                         DataColumn(label: Text('Company ID', style: TextStyle(color: Colors.black))),
                         DataColumn(label: Text('Name', style: TextStyle(color: Colors.black))),
                         DataColumn(label: Text('Password (Encrypted)', style: TextStyle(color: Colors.black))),
                         DataColumn(label: Text('Email', style: TextStyle(color: Colors.black))),
-                        DataColumn(label: Text('MAC Address', style: TextStyle(color: Colors.black))),
                       ],
                       rows: employees.map((employee) {
                         return DataRow(
                           cells: [
-                            DataCell(Text(employee.companyId.toString(), style: TextStyle(color: Colors.black))),
+                            DataCell(Text(employee.companyId, style: TextStyle(color: Colors.black))),
                             DataCell(Text(employee.name, style: TextStyle(color: Colors.black))),
                             DataCell(Text(employee.password, style: TextStyle(color: Colors.black))),
                             DataCell(Text(employee.email, style: TextStyle(color: Colors.black))),
-                            DataCell(Text(employee.macAddress, style: TextStyle(color: Colors.black))),
                           ],
                         );
                       }).toList(),
