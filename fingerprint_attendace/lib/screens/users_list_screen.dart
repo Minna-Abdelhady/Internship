@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../database/dao/employee_dao.dart';
 import '../models/employee.dart';
@@ -40,16 +43,34 @@ class UsersListScreen extends StatelessWidget {
                       columns: const [
                         DataColumn(label: Text('Company ID', style: TextStyle(color: Colors.black))),
                         DataColumn(label: Text('Name', style: TextStyle(color: Colors.black))),
-                        DataColumn(label: Text('Password (Encrypted)', style: TextStyle(color: Colors.black))),
                         DataColumn(label: Text('Email', style: TextStyle(color: Colors.black))),
+                        DataColumn(label: Text('Password (Hidden)', style: TextStyle(color: Colors.black))),
+                        DataColumn(label: Text('Personal Photo', style: TextStyle(color: Colors.black))),
+                        DataColumn(label: Text('Job Title', style: TextStyle(color: Colors.black))),
+                        DataColumn(label: Text('Director ID', style: TextStyle(color: Colors.black))),
                       ],
                       rows: employees.map((employee) {
                         return DataRow(
                           cells: [
                             DataCell(Text(employee.companyId, style: TextStyle(color: Colors.black))),
                             DataCell(Text(employee.name, style: TextStyle(color: Colors.black))),
-                            DataCell(Text(employee.password, style: TextStyle(color: Colors.black))),
                             DataCell(Text(employee.email, style: TextStyle(color: Colors.black))),
+                            DataCell(Text('********', style: TextStyle(color: Colors.black))), // Password hidden
+                            DataCell(employee.personalPhoto.isNotEmpty
+                                ? kIsWeb
+                                    ? Image.network(
+                                        employee.personalPhoto,
+                                        height: 50,
+                                        width: 50,
+                                      )
+                                    : Image.file(
+                                        File(employee.personalPhoto),
+                                        height: 50,
+                                        width: 50,
+                                      )
+                                : Text('No photo', style: TextStyle(color: Colors.black))),
+                            DataCell(Text(employee.jobTitle, style: TextStyle(color: Colors.black))),
+                            DataCell(Text(employee.directorId.toString(), style: TextStyle(color: Colors.black))),
                           ],
                         );
                       }).toList(),
