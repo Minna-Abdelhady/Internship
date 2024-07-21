@@ -20,6 +20,8 @@ dev_dependencies:
     sdk: flutter
   build_runner: ^2.1.7
   hive_generator: ^1.1.0
- 
+
 flutter:
   uses-material-design: true
+  assets:
+    - assets/company_logo.jpg

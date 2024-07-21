@@ -1,35 +1,18 @@
 import 'package:flutter/material.dart';
-import '../database/dao/attendance_dao.dart';
 import '../database/dao/employee_dao.dart';
 import '../database/dao/location_dao.dart';
-import '../models/attendance.dart';
-// import '../models/employee.dart';
-// import '../models/location.dart';
+import '../models/employee.dart';
 
 class HomeScreen extends StatelessWidget {
   final String username;
-  final AttendanceDao attendanceDao = AttendanceDao();
   final EmployeeDao employeeDao = EmployeeDao();
   final LocationDao locationDao = LocationDao();
 
   HomeScreen({required this.username});
 
-  Future<void> _signIn() async {
+  Future<Employee> _fetchEmployeeData() async {
     final employees = await employeeDao.getAllEmployees();
-    final locations = await locationDao.getAllLocations();
-    
-    // Assuming only one location and one employee for simplicity
-    final employee = employees.firstWhere((employee) => employee.name == username);
-    final location = locations.first; // Replace with actual location logic
-    
-    final attendance = Attendance(
-      employeeId: employee.companyId,
-      employeeName: employee.name,
-      branch: location.branch,
-      timestamp: DateTime.now(),
-      transaction: 'sign in',
-    );
-    await attendanceDao.createAttendance(attendance);
+    return employees.firstWhere((employee) => employee.name == username);
   }
 
   @override
@@ -45,37 +28,107 @@ class HomeScreen extends StatelessWidget {
           color: Colors.white, // Back arrow color to white
         ),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Welcome, $username',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF930000), // Text color to match company theme
+      body: FutureBuilder<Employee>(
+        future: _fetchEmployeeData(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}', style: TextStyle(color: Colors.black)));
+          } else if (!snapshot.hasData) {
+            return Center(child: Text('User not found', style: TextStyle(color: Colors.black)));
+          } else {
+            final employee = snapshot.data!;
+            return Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        flex: 3,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Welcome, ${employee.name}',
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF930000), // Text color to match company theme
+                              ),
+                            ),
+                            SizedBox(height: 20),
+                            _buildInfoRow('Company ID:', employee.companyId.toString()),
+                            SizedBox(height: 10),
+                            _buildInfoRow('Email:', employee.email),
+                            SizedBox(height: 10),
+                            _buildInfoRow('Password (Encrypted):', employee.password),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: Align(
+                          alignment: Alignment.topRight,
+                          child: Image.asset(
+                            'assets/company_logo.jpg', // Ensure you have your company's logo in assets folder
+                            height: 100,
+                            width: 100,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Spacer(),
+                  Center(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        // Do nothing
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFF930000), // Button color to match company theme
+                        padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        textStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      child: Text(
+                        'Sign In',
+                        style: TextStyle(color: Colors.white), // Button text color to white
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                ],
               ),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _signIn,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF930000), // Button color to match company theme
-                padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                textStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              child: Text(
-                'Sign In',
-                style: TextStyle(color: Colors.white), // Button text color to white
-              ),
-            ),
-          ],
-        ),
+            );
+          }
+        },
       ),
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value) {
+    return Row(
+      children: [
+        Expanded(
+          flex: 2,
+          child: Text(
+            label,
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+          ),
+        ),
+        Expanded(
+          flex: 3,
+          child: Text(
+            value,
+            style: TextStyle(fontSize: 18, color: Colors.black),
+          ),
+        ),
+      ],
     );
   }
 }
