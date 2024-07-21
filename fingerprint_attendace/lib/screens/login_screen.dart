@@ -1,33 +1,77 @@
-// lib/screens/login_screen.dart
-
 import 'package:flutter/material.dart';
-import '../widgets/login_form.dart';
-import 'users_list_screen.dart';
+import 'home_screen.dart';
+import '../database/dao/user_dao.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
+  @override
+  _LoginScreenState createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final UserDao _userDao = UserDao();
+
   @override
   Widget build(BuildContext context) {
-    print('Building LoginScreen'); // Debug print
     return Scaffold(
       appBar: AppBar(
         title: Text('Login'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: <Widget>[
-            LoginForm(),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => UsersListScreen()),
-                );
-              },
-              child: Text('View Users'),
-            ),
-          ],
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: <Widget>[
+              TextFormField(
+                controller: _usernameController,
+                decoration: InputDecoration(labelText: 'Username'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your username';
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
+                controller: _passwordController,
+                decoration: InputDecoration(labelText: 'Password'),
+                obscureText: true,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your password';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () async {
+                  if (_formKey.currentState!.validate()) {
+                    bool authenticated = await _userDao.authenticateUser(
+                      _usernameController.text,
+                      _passwordController.text,
+                    );
+                    if (authenticated) {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => HomeScreen(username: _usernameController.text),
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Invalid username or password')),
+                      );
+                    }
+                  }
+                },
+                child: Text('Login'),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'screens/login_screen.dart';
 import 'screens/add_user_screen.dart';
-import 'screens/users_list_screen.dart'; // Import the new screen
+import 'screens/users_list_screen.dart';
+import 'screens/home_screen.dart';
 import 'database/dao/user_dao.dart';
 import 'models/user.dart';
 
@@ -24,17 +25,17 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: HomeScreen(),
+      home: MainPage(),
     );
   }
 }
 
-class HomeScreen extends StatelessWidget {
+class MainPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Home'),
+        title: Text('Main Page'),
       ),
       body: Center(
         child: Column(
@@ -56,7 +57,7 @@ class HomeScreen extends StatelessWidget {
                   MaterialPageRoute(builder: (context) => AddUserScreen()),
                 );
               },
-              child: Text('Add User'),
+              child: Text('Create User'),
             ),
             ElevatedButton(
               onPressed: () {
