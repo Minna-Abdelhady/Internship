@@ -22,17 +22,42 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Home'),
+        title: Text(
+          'Home',
+          style: TextStyle(color: Colors.white), // AppBar title color to white
+        ),
+        backgroundColor: Color(0xFF930000), // AppBar color to match company theme
+        iconTheme: IconThemeData(
+          color: Colors.white, // Back arrow color to white
+        ),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Welcome, $username', style: TextStyle(fontSize: 24)),
+            Text(
+              'Welcome, $username',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF930000), // Text color to match company theme
+              ),
+            ),
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: _signIn,
-              child: Text('Sign In'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFF930000), // Button color to match company theme
+                padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                textStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              child: Text(
+                'Sign In',
+                style: TextStyle(color: Colors.white), // Button text color to white
+              ),
             ),
           ],
         ),
