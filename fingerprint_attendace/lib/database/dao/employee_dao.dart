@@ -1,7 +1,6 @@
-import 'dart:convert';
-
-import 'package:crypto/crypto.dart';
 import 'package:hive/hive.dart';
+import 'package:crypto/crypto.dart';
+import 'dart:convert';
 import '../../models/employee.dart';
 
 class EmployeeDao {
@@ -34,7 +33,7 @@ class EmployeeDao {
     final hashedPassword = _hashPassword(password);
     try {
       final employee = box.values.firstWhere(
-        (employee) => employee.name == name && employee.password == hashedPassword,
+        (employee) => employee.name == name.toLowerCase() && employee.password == hashedPassword,
       );
       return employee != null;
     } catch (e) {
@@ -48,4 +47,3 @@ class EmployeeDao {
     return hash.toString();
   }
 }
-  

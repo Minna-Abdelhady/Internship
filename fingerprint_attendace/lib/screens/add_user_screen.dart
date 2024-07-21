@@ -56,7 +56,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
                     final employee = Employee(
                       id: DateTime.now().millisecondsSinceEpoch,
                       companyId: _companyIdController.text, // Include company ID
-                      name: _nameController.text,
+                      name: _nameController.text.toLowerCase(), // Convert name to lowercase
                       email: _emailController.text,
                       password: hashedPassword,
                     );
