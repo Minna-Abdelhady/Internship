@@ -35,7 +35,7 @@ class UsersListScreen extends StatelessWidget {
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('ID: ${employee.id}'),
+                      Text('Company ID: ${employee.companyId}'),
                       Text('Email: ${employee.email}'),
                       Text('Password (hashed): ${employee.password}'),
                       Text('MAC Address: ${employee.macAddress}'),

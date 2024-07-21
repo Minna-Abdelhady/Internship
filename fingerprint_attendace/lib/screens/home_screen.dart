@@ -3,8 +3,8 @@ import '../database/dao/attendance_dao.dart';
 import '../database/dao/employee_dao.dart';
 import '../database/dao/location_dao.dart';
 import '../models/attendance.dart';
-import '../models/employee.dart';
-import '../models/location.dart';
+// import '../models/employee.dart';
+// import '../models/location.dart';
 
 class HomeScreen extends StatelessWidget {
   final String username;
@@ -23,8 +23,7 @@ class HomeScreen extends StatelessWidget {
     final location = locations.first; // Replace with actual location logic
     
     final attendance = Attendance(
-      id: DateTime.now().millisecondsSinceEpoch,
-      employeeId: employee.id,
+      employeeId: employee.companyId,
       employeeName: employee.name,
       branch: location.branch,
       timestamp: DateTime.now(),

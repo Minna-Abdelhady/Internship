@@ -4,11 +4,9 @@ part 'attendance.g.dart';
 
 @HiveType(typeId: 2)
 class Attendance {
-  @HiveField(0)
-  final int id;
-
+ 
   @HiveField(1)
-  final int employeeId;
+  final String employeeId;
 
   @HiveField(2)
   final String employeeName;
@@ -23,7 +21,6 @@ class Attendance {
   final String transaction;
 
   Attendance({
-    required this.id,
     required this.employeeId,
     required this.employeeName,
     required this.branch,

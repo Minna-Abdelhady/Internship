@@ -17,12 +17,11 @@ class EmployeeAdapter extends TypeAdapter<Employee> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Employee(
-      id: fields[0] as int,
+      companyId: fields[0] as String,
       name: fields[1] as String,
       email: fields[2] as String,
       password: fields[3] as String,
-      macAddress: fields[4] as String,
-      companyId: fields[5] as String, // Read the companyId field
+      macAddress: fields[4] as String
     );
   }
 
@@ -31,7 +30,7 @@ class EmployeeAdapter extends TypeAdapter<Employee> {
     writer
       ..writeByte(6) // Updated number of fields
       ..writeByte(0)
-      ..write(obj.id)
+      ..write(obj.companyId)
       ..writeByte(1)
       ..write(obj.name)
       ..writeByte(2)
@@ -39,9 +38,7 @@ class EmployeeAdapter extends TypeAdapter<Employee> {
       ..writeByte(3)
       ..write(obj.password)
       ..writeByte(4)
-      ..write(obj.macAddress)
-      ..writeByte(5) // Write the companyId field
-      ..write(obj.companyId);
+      ..write(obj.macAddress);
   }
 
   @override

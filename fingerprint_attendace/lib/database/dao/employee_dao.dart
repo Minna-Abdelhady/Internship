@@ -18,13 +18,13 @@ class EmployeeDao {
 
   Future<void> updateEmployee(int id, Employee updatedEmployee) async {
     var box = await Hive.openBox<Employee>(_employeeBoxName);
-    final key = box.keys.firstWhere((k) => (box.get(k) as Employee).id == id);
+    final key = box.keys.firstWhere((k) => (box.get(k) as Employee).companyId == id);
     await box.put(key, updatedEmployee);
   }
 
   Future<void> deleteEmployee(int id) async {
     var box = await Hive.openBox<Employee>(_employeeBoxName);
-    final key = box.keys.firstWhere((k) => (box.get(k) as Employee).id == id);
+    final key = box.keys.firstWhere((k) => (box.get(k) as Employee).companyId == id);
     await box.delete(key);
   }
 

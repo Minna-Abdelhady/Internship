@@ -4,8 +4,9 @@ part 'employee.g.dart';
 
 @HiveType(typeId: 0)
 class Employee {
+
   @HiveField(0)
-  final int id;
+  final String companyId; // Added companyId field
 
   @HiveField(1)
   final String name;
@@ -19,15 +20,12 @@ class Employee {
   @HiveField(4)
   final String macAddress;
 
-  @HiveField(5)
-  final String companyId; // Added companyId field
 
   Employee({
-    required this.id,
+    required this.companyId, 
     required this.name,
     required this.email,
     required this.password,
-    required this.macAddress,
-    required this.companyId, // Include companyId in the constructor
+    required this.macAddress
   });
 }

@@ -45,23 +45,22 @@ class _AddUserScreenState extends State<AddUserScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
+              _buildTextField(_companyIdController, 'Company ID'),
               _buildTextField(_nameController, 'Name'),
               _buildTextField(_emailController, 'Email'),
               _buildTextField(_passwordController, 'Password', obscureText: true),
               _buildTextField(_macAddressController, 'MAC Address'),
-              _buildTextField(_companyIdController, 'Company ID'),
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
                     final hashedPassword = _hashPassword(_passwordController.text);
                     final employee = Employee(
-                      id: DateTime.now().millisecondsSinceEpoch,
+                      companyId: _companyIdController.text, // Include company ID
                       name: _nameController.text,
                       email: _emailController.text,
                       password: hashedPassword,
                       macAddress: _macAddressController.text,
-                      companyId: _companyIdController.text, // Include company ID
                     );
                     await _employeeDao.createEmployee(employee);
 
@@ -69,11 +68,11 @@ class _AddUserScreenState extends State<AddUserScreen> {
                       SnackBar(content: Text('User added successfully')),
                     );
 
+                    _companyIdController.clear(); // Clear company ID field
                     _nameController.clear();
                     _emailController.clear();
                     _passwordController.clear();
                     _macAddressController.clear();
-                    _companyIdController.clear(); // Clear company ID field
                   }
                 },
                 style: ElevatedButton.styleFrom(
