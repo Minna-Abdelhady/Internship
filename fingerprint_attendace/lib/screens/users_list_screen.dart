@@ -14,6 +14,10 @@ class UsersListScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Users List'),
+        backgroundColor: Color(0xFF930000), // AppBar color to match company theme
+        iconTheme: IconThemeData(
+          color: Colors.white, // Back arrow color to white
+        ),
       ),
       body: FutureBuilder<List<Employee>>(
         future: _fetchEmployees(),
@@ -26,23 +30,26 @@ class UsersListScreen extends StatelessWidget {
             return Center(child: Text('No users found'));
           } else {
             final employees = snapshot.data!;
-            return ListView.builder(
-              itemCount: employees.length,
-              itemBuilder: (context, index) {
-                final employee = employees[index];
-                return ListTile(
-                  title: Text(employee.name),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Company ID: ${employee.companyId}'),
-                      Text('Email: ${employee.email}'),
-                      Text('Password (hashed): ${employee.password}'),
-                      Text('MAC Address: ${employee.macAddress}'),
+            return SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: DataTable(
+                columns: const [
+                  DataColumn(label: Text('Name')),
+                  DataColumn(label: Text('Company ID')),
+                  DataColumn(label: Text('Email')),
+                  DataColumn(label: Text('MAC Address')),
+                ],
+                rows: employees.map((employee) {
+                  return DataRow(
+                    cells: [
+                      DataCell(Text(employee.name)),
+                      DataCell(Text(employee.companyId.toString())),
+                      DataCell(Text(employee.email)),
+                      DataCell(Text(employee.macAddress)),
                     ],
-                  ),
-                );
-              },
+                  );
+                }).toList(),
+              ),
             );
           }
         },
