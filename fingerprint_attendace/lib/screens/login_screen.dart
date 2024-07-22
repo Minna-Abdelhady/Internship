@@ -20,7 +20,7 @@ class _LoginScreenState extends State<LoginScreen> {
         title: Row(
           children: [
             Image.asset(
-              'assets/company_logo.jpg',
+              'assets/arrow_mm.png',
               height: 40,
               width: 40,
             ),

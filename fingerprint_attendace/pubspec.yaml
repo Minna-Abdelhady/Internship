@@ -24,11 +24,8 @@ dev_dependencies:
   image_picker_for_web: ^2.1.7
 
 flutter:
-  uses-material-design: true
   assets:
     - assets/logo.png
     - assets/arrow_mm.png
     - assets/company_logo.jpg
     - assets/Apartments.PNG
-
-   
