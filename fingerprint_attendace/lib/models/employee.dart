@@ -28,6 +28,9 @@ class Employee {
   @HiveField(7)
   final String directorId;
 
+  @HiveField(8)
+  final bool isAdmin; // New field to indicate if the user is an admin
+
   Employee({
     required this.id,
     required this.companyId,
@@ -37,6 +40,7 @@ class Employee {
     required this.personalPhoto,
     required this.jobTitle,
     required this.directorId,
+    required this.isAdmin, // Initialize the new field
   });
 
   Map<String, dynamic> toMap() {
@@ -49,6 +53,7 @@ class Employee {
       'personalPhoto': personalPhoto,
       'jobTitle': jobTitle,
       'directorId': directorId,
+      'isAdmin': isAdmin, // Include the new field
     };
   }
 }

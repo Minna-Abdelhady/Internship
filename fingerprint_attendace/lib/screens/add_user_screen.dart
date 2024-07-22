@@ -24,6 +24,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
   final EmployeeDao _employeeDao = EmployeeDao();
   File? _personalPhoto;
   Uint8List? _webImage;
+  bool _isAdmin = false; // New field to track if the user is an admin
 
   String _hashPassword(String password) {
     final bytes = utf8.encode(password);
@@ -51,7 +52,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
     if (_formKey.currentState!.validate() && (_personalPhoto != null || _webImage != null)) {
       final hashedPassword = _hashPassword(_passwordController.text);
       final employee = Employee(
-        id: 0, // Placeholder, Hive will manage the key
+        id: DateTime.now().millisecondsSinceEpoch,
         companyId: _companyIdController.text,
         name: _nameController.text.toLowerCase(),
         email: _emailController.text,
@@ -59,6 +60,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
         personalPhoto: kIsWeb ? base64Encode(_webImage!) : base64Encode(await _personalPhoto!.readAsBytes()),
         jobTitle: _jobTitleController.text,
         directorId: _directorIdController.text,
+        isAdmin: _isAdmin, // Set the new field
       );
 
       try {
@@ -78,6 +80,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
         setState(() {
           _personalPhoto = null;
           _webImage = null;
+          _isAdmin = false; // Reset the admin field
         });
       } catch (e) {
         print('Error adding user: $e');
@@ -120,6 +123,39 @@ class _AddUserScreenState extends State<AddUserScreen> {
                 _buildTextField(_passwordController, 'Password', obscureText: true),
                 _buildTextField(_jobTitleController, 'Job Title'),
                 _buildTextField(_directorIdController, 'Director ID'),
+                SizedBox(height: 10),
+                Text(
+                  'Role',
+                  style: TextStyle(color: Color(0xFF930000), fontSize: 16),
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: RadioListTile<bool>(
+                        title: Text('Admin'),
+                        value: true,
+                        groupValue: _isAdmin,
+                        onChanged: (value) {
+                          setState(() {
+                            _isAdmin = value!;
+                          });
+                        },
+                      ),
+                    ),
+                    Expanded(
+                      child: RadioListTile<bool>(
+                        title: Text('Employee'),
+                        value: false,
+                        groupValue: _isAdmin,
+                        onChanged: (value) {
+                          setState(() {
+                            _isAdmin = value!;
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                ),
                 SizedBox(height: 10),
                 Text(
                   'Personal Photo',

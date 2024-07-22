@@ -68,6 +68,7 @@ class EmployeeDao {
         personalPhoto: base64Image,
         jobTitle: 'Software Engineer',
         directorId: '456',
+        isAdmin: true,
       ),
       Employee(
         id: 2,
@@ -78,6 +79,7 @@ class EmployeeDao {
         personalPhoto: base64Image,
         jobTitle: 'Product Manager',
         directorId: '123',
+        isAdmin: true,
       ),
       Employee(
         id: 3,
@@ -88,6 +90,7 @@ class EmployeeDao {
         personalPhoto: base64Image,
         jobTitle: 'UX Designer',
         directorId: '789',
+        isAdmin: false,
       ),
     ];
 

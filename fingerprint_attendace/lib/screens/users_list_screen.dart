@@ -42,6 +42,7 @@ class UsersListScreen extends StatelessWidget {
                   DataColumn(label: Text('Personal Photo', style: TextStyle(color: Colors.black))),
                   DataColumn(label: Text('Job Title', style: TextStyle(color: Colors.black))),
                   DataColumn(label: Text('Director ID', style: TextStyle(color: Colors.black))),
+                  DataColumn(label: Text('Is Admin', style: TextStyle(color: Colors.black))),
                 ],
                 rows: employees.map((employee) {
                   return DataRow(
@@ -61,6 +62,7 @@ class UsersListScreen extends StatelessWidget {
                       ),
                       DataCell(Text(employee.jobTitle, style: TextStyle(color: Colors.black))),
                       DataCell(Text(employee.directorId.toString(), style: TextStyle(color: Colors.black))),
+                      DataCell(Text(employee.isAdmin.toString(), style: TextStyle(color: Colors.black))),
                     ],
                   );
                 }).toList(),
