@@ -41,18 +41,17 @@ class UsersListScreen extends StatelessWidget {
                     constraints: BoxConstraints(minWidth: constraints.maxWidth),
                     child: DataTable(
                       columns: const [
-                        DataColumn(label: Text('Company ID', style: TextStyle(color: Colors.black))),
                         DataColumn(label: Text('Name', style: TextStyle(color: Colors.black))),
                         DataColumn(label: Text('Email', style: TextStyle(color: Colors.black))),
                         DataColumn(label: Text('Password (Hidden)', style: TextStyle(color: Colors.black))),
                         DataColumn(label: Text('Personal Photo', style: TextStyle(color: Colors.black))),
                         DataColumn(label: Text('Job Title', style: TextStyle(color: Colors.black))),
+                        DataColumn(label: Text('Is Director', style: TextStyle(color: Colors.black))),
                         DataColumn(label: Text('Director ID', style: TextStyle(color: Colors.black))),
                       ],
                       rows: employees.map((employee) {
                         return DataRow(
                           cells: [
-                            DataCell(Text(employee.companyId, style: TextStyle(color: Colors.black))),
                             DataCell(Text(employee.name, style: TextStyle(color: Colors.black))),
                             DataCell(Text(employee.email, style: TextStyle(color: Colors.black))),
                             DataCell(Text('********', style: TextStyle(color: Colors.black))), // Password hidden
@@ -70,6 +69,7 @@ class UsersListScreen extends StatelessWidget {
                                       )
                                 : Text('No photo', style: TextStyle(color: Colors.black))),
                             DataCell(Text(employee.jobTitle, style: TextStyle(color: Colors.black))),
+                            DataCell(Text(employee.userType ? 'Yes' : 'No', style: TextStyle(color: Colors.black))),
                             DataCell(Text(employee.directorId.toString(), style: TextStyle(color: Colors.black))),
                           ],
                         );
