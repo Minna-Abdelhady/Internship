@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../database/dao/employee_dao.dart';
 import '../database/dao/location_dao.dart';
 import '../models/employee.dart';
+import 'dart:convert'; // For base64 decoding
 
 class HomeScreen extends StatelessWidget {
   final String username;
@@ -27,6 +28,15 @@ class HomeScreen extends StatelessWidget {
         iconTheme: IconThemeData(
           color: Colors.white, // Back arrow color to white
         ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Image.asset(
+              'assets/company_logo.jpg', // Ensure you have your company's logo in assets folder
+              height: kToolbarHeight - 5, // Adjust height to match AppBar height
+            ),
+          ),
+        ],
       ),
       body: FutureBuilder<Employee>(
         future: _fetchEmployeeData(),
@@ -46,41 +56,33 @@ class HomeScreen extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Expanded(
-                        flex: 3,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Welcome, ${employee.name}',
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF930000), // Text color to match company theme
-                              ),
-                            ),
-                            SizedBox(height: 20),
-                            _buildInfoRow('Company ID:', employee.companyId.toString()),
-                            SizedBox(height: 10),
-                            _buildInfoRow('Email:', employee.email),
-                            SizedBox(height: 10),
-                            _buildInfoRow('Password (Encrypted):', employee.password),
-                          ],
-                        ),
+                      CircleAvatar(
+                        radius: 50,
+                        backgroundImage: MemoryImage(base64Decode(employee.personalPhoto)),
                       ),
+                      SizedBox(width: 20),
                       Expanded(
-                        flex: 1,
-                        child: Align(
-                          alignment: Alignment.topRight,
-                          child: Image.asset(
-                            'assets/company_logo.jpg', // Ensure you have your company's logo in assets folder
-                            height: 100,
-                            width: 100,
+                        child: Text(
+                          'Welcome, ${employee.name}',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF930000), // Text color to match company theme
                           ),
                         ),
                       ),
                     ],
                   ),
+                  SizedBox(height: 5),
+                  _buildInfoRow('Company ID:', employee.companyId),
+                  SizedBox(height: 5),
+                  _buildInfoRow('Email:', employee.email),
+                  SizedBox(height: 5),
+                  _buildInfoRow('Job Title:', employee.jobTitle),
+                  SizedBox(height: 5),
+                  _buildInfoRow('Director ID:', employee.directorId),
+                  SizedBox(height: 5),
+                  _buildInfoRow('Role:', employee.isAdmin ? 'Admin' : 'Employee'),
                   Spacer(),
                   Center(
                     child: ElevatedButton(
