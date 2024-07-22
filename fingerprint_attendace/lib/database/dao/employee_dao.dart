@@ -8,7 +8,7 @@ class EmployeeDao {
 
   Future<void> createEmployee(Employee employee) async {
     var box = await Hive.openBox<Employee>(_employeeBoxName);
-    await box.add(employee);
+    await box.put(employee.id, employee);
   }
 
   Future<List<Employee>> getAllEmployees() async {
