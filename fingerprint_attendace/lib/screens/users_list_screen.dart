@@ -1,9 +1,7 @@
-import 'dart:io';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../database/dao/employee_dao.dart';
 import '../models/employee.dart';
+import 'dart:convert';
 
 class UsersListScreen extends StatelessWidget {
   final EmployeeDao employeeDao = EmployeeDao();
@@ -33,51 +31,40 @@ class UsersListScreen extends StatelessWidget {
             return Center(child: Text('No users found', style: TextStyle(color: Colors.black)));
           } else {
             final employees = snapshot.data!;
-            return LayoutBuilder(
-              builder: (context, constraints) {
-                return SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(minWidth: constraints.maxWidth),
-                    child: DataTable(
-                      columns: const [
-                        DataColumn(label: Text('Company ID', style: TextStyle(color: Colors.black))),
-                        DataColumn(label: Text('Name', style: TextStyle(color: Colors.black))),
-                        DataColumn(label: Text('Email', style: TextStyle(color: Colors.black))),
-                        DataColumn(label: Text('Password (Hidden)', style: TextStyle(color: Colors.black))),
-                        DataColumn(label: Text('Personal Photo', style: TextStyle(color: Colors.black))),
-                        DataColumn(label: Text('Job Title', style: TextStyle(color: Colors.black))),
-                        DataColumn(label: Text('Director ID', style: TextStyle(color: Colors.black))),
-                      ],
-                      rows: employees.map((employee) {
-                        return DataRow(
-                          cells: [
-                            DataCell(Text(employee.companyId, style: TextStyle(color: Colors.black))),
-                            DataCell(Text(employee.name, style: TextStyle(color: Colors.black))),
-                            DataCell(Text(employee.email, style: TextStyle(color: Colors.black))),
-                            DataCell(Text('********', style: TextStyle(color: Colors.black))), // Password hidden
-                            DataCell(employee.personalPhoto.isNotEmpty
-                                ? kIsWeb
-                                    ? Image.network(
-                                        employee.personalPhoto,
-                                        height: 50,
-                                        width: 50,
-                                      )
-                                    : Image.file(
-                                        File(employee.personalPhoto),
-                                        height: 50,
-                                        width: 50,
-                                      )
-                                : Text('No photo', style: TextStyle(color: Colors.black))),
-                            DataCell(Text(employee.jobTitle, style: TextStyle(color: Colors.black))),
-                            DataCell(Text(employee.directorId.toString(), style: TextStyle(color: Colors.black))),
-                          ],
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                );
-              },
+            return SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: DataTable(
+                columns: const [
+                  DataColumn(label: Text('Company ID', style: TextStyle(color: Colors.black))),
+                  DataColumn(label: Text('Name', style: TextStyle(color: Colors.black))),
+                  DataColumn(label: Text('Email', style: TextStyle(color: Colors.black))),
+                  DataColumn(label: Text('Password (Hidden)', style: TextStyle(color: Colors.black))),
+                  DataColumn(label: Text('Personal Photo', style: TextStyle(color: Colors.black))),
+                  DataColumn(label: Text('Job Title', style: TextStyle(color: Colors.black))),
+                  DataColumn(label: Text('Director ID', style: TextStyle(color: Colors.black))),
+                ],
+                rows: employees.map((employee) {
+                  return DataRow(
+                    cells: [
+                      DataCell(Text(employee.companyId, style: TextStyle(color: Colors.black))),
+                      DataCell(Text(employee.name, style: TextStyle(color: Colors.black))),
+                      DataCell(Text(employee.email, style: TextStyle(color: Colors.black))),
+                      DataCell(Text('********', style: TextStyle(color: Colors.black))), // Hides password
+                      DataCell(
+                        employee.personalPhoto.isEmpty
+                            ? Text('No Photo', style: TextStyle(color: Colors.black))
+                            : Image.memory(
+                                base64Decode(employee.personalPhoto),
+                                height: 50,
+                                width: 50,
+                              ),
+                      ),
+                      DataCell(Text(employee.jobTitle, style: TextStyle(color: Colors.black))),
+                      DataCell(Text(employee.directorId.toString(), style: TextStyle(color: Colors.black))),
+                    ],
+                  );
+                }).toList(),
+              ),
             );
           }
         },
