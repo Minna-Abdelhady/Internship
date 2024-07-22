@@ -18,13 +18,13 @@ class EmployeeAdapter extends TypeAdapter<Employee> {
     };
     return Employee(
       id: fields[0] as int,
-      name: fields[1] as String,
-      email: fields[2] as String,
-      password: fields[3] as String,
-      personalPhoto: fields[4] as String,
-      jobTitle: fields[5] as String,
-      directorId: fields[6] as int,
-      userType: fields[7] as bool,
+      companyId: fields[1] as String,
+      name: fields[2] as String,
+      email: fields[3] as String,
+      password: fields[4] as String,
+      personalPhoto: fields[5] as String,
+      jobTitle: fields[6] as String,
+      directorId: fields[7] as int,
     );
   }
 
@@ -35,19 +35,19 @@ class EmployeeAdapter extends TypeAdapter<Employee> {
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
-      ..write(obj.name)
+      ..write(obj.companyId)
       ..writeByte(2)
-      ..write(obj.email)
+      ..write(obj.name)
       ..writeByte(3)
-      ..write(obj.password)
+      ..write(obj.email)
       ..writeByte(4)
-      ..write(obj.personalPhoto)
+      ..write(obj.password)
       ..writeByte(5)
-      ..write(obj.jobTitle)
+      ..write(obj.personalPhoto)
       ..writeByte(6)
-      ..write(obj.directorId)
+      ..write(obj.jobTitle)
       ..writeByte(7)
-      ..write(obj.userType);
+      ..write(obj.directorId);
   }
 
   @override

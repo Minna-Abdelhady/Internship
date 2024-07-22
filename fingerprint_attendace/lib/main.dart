@@ -18,66 +18,6 @@ void main() async {
   Hive.registerAdapter(AttendanceAdapter());
   Hive.registerAdapter(LogAdapter());
 
-  var box = await Hive.openBox<Employee>('employees');
-
-  // Insert 5 rows of data
-  var employees = [
-    Employee(
-      id: 1,
-      name: 'John Doe',
-      email: 'john.doe@example.com',
-      password: 'encryptedPassword1',
-      personalPhoto: 'assets/photos/photo1.jpg',
-      jobTitle: 'Developer',
-      directorId: 0,
-      userType: false,
-    ),
-    Employee(
-      id: 2,
-      name: 'Jane Smith',
-      email: 'jane.smith@example.com',
-      password: 'encryptedPassword2',
-      personalPhoto: 'assets/photos/photo2.jpg',
-      jobTitle: 'Manager',
-      directorId: 1,
-      userType: true,
-    ),
-    Employee(
-      id: 3,
-      name: 'Alice Johnson',
-      email: 'alice.johnson@example.com',
-      password: 'encryptedPassword3',
-      personalPhoto: 'assets/photos/photo3.jpg',
-      jobTitle: 'Designer',
-      directorId: 2,
-      userType: false,
-    ),
-    Employee(
-      id: 4,
-      name: 'Bob Brown',
-      email: 'bob.brown@example.com',
-      password: 'encryptedPassword4',
-      personalPhoto: 'assets/photos/photo4.jpg',
-      jobTitle: 'Analyst',
-      directorId: 2,
-      userType: false,
-    ),
-    Employee(
-      id: 5,
-      name: 'Charlie Davis',
-      email: 'charlie.davis@example.com',
-      password: 'encryptedPassword5',
-      personalPhoto: 'assets/photos/photo5.jpg',
-      jobTitle: 'CEO',
-      directorId: 0,
-      userType: true,
-    ),
-  ];
-
-  for (var employee in employees) {
-    await box.put(employee.id, employee);
-  }
-
   runApp(MyApp());
 }
 
