@@ -29,8 +29,6 @@ flutter:
     - assets/logo.png
     - assets/arrow_mm.png
     - assets/company_logo.jpg
+    - assets/Apartments.PNG
 
-# flutter:
-#   assets:
-#     - assets/logo.png
-#     - assets/company_logo.jpg
+   
