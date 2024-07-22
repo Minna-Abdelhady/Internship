@@ -47,6 +47,51 @@ class _AddUserScreenState extends State<AddUserScreen> {
     }
   }
 
+  Future<void> _addUser() async {
+    if (_formKey.currentState!.validate() && (_personalPhoto != null || _webImage != null)) {
+      final hashedPassword = _hashPassword(_passwordController.text);
+      final employee = Employee(
+        id: 0, // Placeholder, Hive will manage the key
+        companyId: _companyIdController.text,
+        name: _nameController.text.toLowerCase(),
+        email: _emailController.text,
+        password: hashedPassword,
+        personalPhoto: kIsWeb ? base64Encode(_webImage!) : base64Encode(await _personalPhoto!.readAsBytes()),
+        jobTitle: _jobTitleController.text,
+        directorId: _directorIdController.text,
+      );
+
+      try {
+        await _employeeDao.createEmployee(employee);
+        print('User added: ${employee.toMap()}');
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('User added successfully')),
+        );
+
+        _companyIdController.clear();
+        _nameController.clear();
+        _emailController.clear();
+        _passwordController.clear();
+        _jobTitleController.clear();
+        _directorIdController.clear();
+        setState(() {
+          _personalPhoto = null;
+          _webImage = null;
+        });
+      } catch (e) {
+        print('Error adding user: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error adding user')),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please complete the form and upload a photo')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -114,41 +159,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
                           ),
                 SizedBox(height: 20),
                 ElevatedButton(
-                  onPressed: () async {
-                    if (_formKey.currentState!.validate() && (_personalPhoto != null || _webImage != null)) {
-                      final hashedPassword = _hashPassword(_passwordController.text);
-                      final employee = Employee(
-                        id: DateTime.now().millisecondsSinceEpoch,
-                        companyId: _companyIdController.text,
-                        name: _nameController.text.toLowerCase(),
-                        email: _emailController.text,
-                        password: hashedPassword,
-                        personalPhoto: kIsWeb ? base64Encode(_webImage!) : base64Encode(await _personalPhoto!.readAsBytes()),
-                        jobTitle: _jobTitleController.text,
-                        directorId: int.parse(_directorIdController.text),
-                      );
-                      await _employeeDao.createEmployee(employee);
-
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('User added successfully')),
-                      );
-
-                      _companyIdController.clear();
-                      _nameController.clear();
-                      _emailController.clear();
-                      _passwordController.clear();
-                      _jobTitleController.clear();
-                      _directorIdController.clear();
-                      setState(() {
-                        _personalPhoto = null;
-                        _webImage = null;
-                      });
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Please complete the form and upload a photo')),
-                      );
-                    }
-                  },
+                  onPressed: _addUser,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFF930000),
                     padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),

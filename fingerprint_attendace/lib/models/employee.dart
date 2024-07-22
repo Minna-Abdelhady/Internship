@@ -26,7 +26,7 @@ class Employee {
   final String jobTitle;
 
   @HiveField(7)
-  final int directorId;
+  final String directorId;
 
   Employee({
     required this.id,
@@ -38,4 +38,17 @@ class Employee {
     required this.jobTitle,
     required this.directorId,
   });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'companyId': companyId,
+      'name': name,
+      'email': email,
+      'password': password,
+      'personalPhoto': personalPhoto,
+      'jobTitle': jobTitle,
+      'directorId': directorId,
+    };
+  }
 }

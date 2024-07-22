@@ -7,6 +7,7 @@ import 'models/employee.dart';
 import 'models/location.dart';
 import 'models/attendance.dart';
 import 'models/log.dart';
+import 'database/dao/employee_dao.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,6 +18,9 @@ void main() async {
   Hive.registerAdapter(LocationAdapter());
   Hive.registerAdapter(AttendanceAdapter());
   Hive.registerAdapter(LogAdapter());
+
+  final employeeDao = EmployeeDao();
+  await employeeDao.insertDummyData(); // Insert dummy data
 
   runApp(MyApp());
 }

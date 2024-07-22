@@ -24,7 +24,7 @@ class EmployeeAdapter extends TypeAdapter<Employee> {
       password: fields[4] as String,
       personalPhoto: fields[5] as String,
       jobTitle: fields[6] as String,
-      directorId: fields[7] as int,
+      directorId: fields[7] as String,
     );
   }
 

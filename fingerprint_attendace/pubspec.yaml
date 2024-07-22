@@ -27,3 +27,6 @@ flutter:
   uses-material-design: true
   assets:
     - assets/company_logo.jpg
+    - assets/Apartments.PNG
+
+   
