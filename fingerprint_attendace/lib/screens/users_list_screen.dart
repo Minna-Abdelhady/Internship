@@ -20,6 +20,7 @@ class UsersListScreen extends StatelessWidget {
           color: Colors.white, // Back arrow color to white
         ),
       ),
+      backgroundColor: Colors.white, // Set the background color to white
       body: FutureBuilder<List<Employee>>(
         future: _fetchEmployees(),
         builder: (context, snapshot) {
@@ -71,7 +72,6 @@ class UsersListScreen extends StatelessWidget {
           }
         },
       ),
-      backgroundColor: Color(0xFFFFFFFF), // Set the background color to white
     );
   }
 }

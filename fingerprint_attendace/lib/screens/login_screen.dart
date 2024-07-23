@@ -33,9 +33,10 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         backgroundColor: Color(0xFF930000),
         iconTheme: IconThemeData(
-          color: const Color.fromARGB(255, 255, 255, 255),
+          color: Colors.white,
         ),
       ),
+      backgroundColor: Colors.white, // Set the Scaffold background color to white
       body: LayoutBuilder(
         builder: (context, constraints) {
           final isWideScreen = constraints.maxWidth > 600;

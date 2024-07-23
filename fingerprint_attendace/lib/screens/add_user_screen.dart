@@ -144,6 +144,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
           color: Colors.white,
         ),
       ),
+      backgroundColor: Colors.white, // Set the background color to white
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -153,7 +154,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                _buildTextField(_companyIdController, 'Company ID'),
+                _buildTextField(_companyIdController, 'Employee ID'),
                 _buildTextField(
                   _emailController,
                   'Email',

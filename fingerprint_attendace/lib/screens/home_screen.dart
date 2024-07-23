@@ -61,6 +61,7 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
+      backgroundColor: Colors.white, // Set the Scaffold background color to white
       body: FutureBuilder<Employee>(
         future: _fetchEmployeeData(),
         builder: (context, snapshot) {
