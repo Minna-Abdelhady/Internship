@@ -103,7 +103,7 @@ class EmployeeDao {
         name: 'mike johnson',
         email: 'mike@example.com',
         password: _hashPassword('123'),
-        personalPhoto: base64Image1,
+        personalPhoto: base64Image,
         jobTitle: 'UX Designer',
         directorId: '789',
         isAdmin: false,
