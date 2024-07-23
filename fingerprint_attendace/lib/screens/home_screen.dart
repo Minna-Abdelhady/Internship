@@ -3,6 +3,8 @@ import '../database/dao/employee_dao.dart';
 import '../database/dao/location_dao.dart';
 import '../models/employee.dart';
 import 'dart:convert'; // For base64 decoding
+import 'add_user_screen.dart' as add_user_screen; // Import the Add User screen
+import 'users_list_screen.dart'; // Import the Users List screen
 
 class HomeScreen extends StatelessWidget {
   final String username;
@@ -29,6 +31,27 @@ class HomeScreen extends StatelessWidget {
           color: Colors.white, // Back arrow color to white
         ),
         actions: [
+          _buildAppBarButton(context, 'Sign In', () {
+            // Navigate to Sign In screen
+          }),
+          _buildAppBarButton(context, 'History', () {
+            // Navigate to History screen
+          }),
+          _buildAppBarButton(context, 'Vacations', () {
+            // Navigate to Vacations screen
+          }),
+          _buildAppBarButton(context, 'Create User', () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => add_user_screen.AddUserScreen()),
+            );
+          }),
+          _buildAppBarButton(context, 'View Users', () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => UsersListScreen()),
+            );
+          }),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Image.asset(
@@ -54,14 +77,14 @@ class HomeScreen extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Personal photo and welcome text on the left
-                  Row(
+                  // Side profile on the left
+                  Column(
                     children: [
                       CircleAvatar(
                         radius: 50,
                         backgroundImage: MemoryImage(base64Decode(employee.personalPhoto)),
                       ),
-                      SizedBox(width: 20),
+                      SizedBox(height: 10),
                       Text(
                         'Welcome, ${employee.name}',
                         style: TextStyle(
@@ -70,24 +93,25 @@ class HomeScreen extends StatelessWidget {
                           color: Color(0xFF930000), // Text color to match company theme
                         ),
                       ),
+                      SizedBox(height: 20),
+                      _buildInfoColumn(employee),
                     ],
                   ),
-                  SizedBox(width: 50),
-                  // Labels and data on the right
+                  // Vertical divider
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    child: VerticalDivider(
+                      color: Colors.black,
+                      thickness: 1,
+                    ),
+                  ),
+                  // Main content area
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildInfoRow('Company ID:', employee.companyId),
-                        SizedBox(height: 10),
-                        _buildInfoRow('Email:', employee.email),
-                        SizedBox(height: 10),
-                        _buildInfoRow('Job Title:', employee.jobTitle),
-                        SizedBox(height: 10),
-                        _buildInfoRow('Director ID:', employee.directorId),
-                        SizedBox(height: 10),
-                        _buildInfoRow('Role:', employee.isAdmin ? 'Admin' : 'Employee'),
-                      ],
+                    child: Center(
+                      child: Text(
+                        'Main Content Area', // Placeholder for main content
+                        style: TextStyle(fontSize: 18, color: Colors.black),
+                      ),
                     ),
                   ),
                 ],
@@ -99,24 +123,48 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildAppBarButton(BuildContext context, String title, VoidCallback onPressed) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: TextButton(
+        onPressed: onPressed,
+        child: Text(
+          title,
+          style: TextStyle(color: Colors.white),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoColumn(Employee employee) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildInfoRow('Employee ID:', employee.companyId),
+        SizedBox(height: 10),
+        _buildInfoRow('Job Title:', employee.jobTitle),
+        SizedBox(height: 10),
+        _buildInfoRow('Role:', employee.isAdmin ? 'Admin' : 'Employee'),
+        SizedBox(height: 10),
+        _buildInfoRow('Email:', employee.email),
+        SizedBox(height: 10),
+        _buildInfoRow('Director ID:', employee.directorId),
+        SizedBox(height: 10),
+      ],
+    );
+  }
+
   Widget _buildInfoRow(String label, String value) {
     return Row(
       children: [
-        Expanded(
-          flex: 2,
-          child: Text(
-            label,
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
-            textAlign: TextAlign.right,
-          ),
+        Text(
+          label,
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
         ),
         SizedBox(width: 10),
-        Expanded(
-          flex: 3,
-          child: Text(
-            value,
-            style: TextStyle(fontSize: 18, color: Colors.black),
-          ),
+        Text(
+          value,
+          style: TextStyle(fontSize: 18, color: Colors.black),
         ),
       ],
     );

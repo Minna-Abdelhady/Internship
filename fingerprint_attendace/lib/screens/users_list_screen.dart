@@ -62,7 +62,7 @@ class UsersListScreen extends StatelessWidget {
                       ),
                       DataCell(Text(employee.jobTitle, style: TextStyle(color: Colors.black))),
                       DataCell(Text(employee.directorId.toString(), style: TextStyle(color: Colors.black))),
-                      DataCell(Text(employee.isAdmin.toString(), style: TextStyle(color: Colors.black))),
+                      DataCell(Text(employee.isAdmin ? 'Admin' : 'Employee'.toString(), style: TextStyle(color: Colors.black))),
                     ],
                   );
                 }).toList(),

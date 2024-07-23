@@ -46,64 +46,7 @@ class MyApp extends StatelessWidget {
         ),
       ),
       debugShowCheckedModeBanner: false, // Remove the debug banner
-      home: MainPage(),
-    );
-  }
-}
-
-class MainPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Main Page',
-          style: TextStyle(color: Colors.white), // AppBar title color to white
-        ),
-        backgroundColor: Color(0xFF930000), // AppBar color to match company theme
-        iconTheme: IconThemeData(
-          color: Colors.white, // Back arrow color to white
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => LoginScreen()),
-                  );
-                },
-                child: Text('Login'),
-              ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => add_user_screen.AddUserScreen()),
-                  );
-                },
-                child: Text('Create User'),
-              ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => UsersListScreen()),
-                  );
-                },
-                child: Text('View Users'),
-              ),
-            ],
-          ),
-        ),
-      ),
+      home: LoginScreen(), // Set the initial page to be the login screen
     );
   }
 }
