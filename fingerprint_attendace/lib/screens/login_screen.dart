@@ -88,7 +88,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                         Navigator.pushReplacement(
                                           context,
                                           MaterialPageRoute(
-                                            builder: (context) => HomeScreen(username: _emailController.text),
+                                            builder: (context) => HomeScreen(email: _emailController.text),
                                           ),
                                         );
                                       } else {
@@ -175,7 +175,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                         Navigator.pushReplacement(
                                           context,
                                           MaterialPageRoute(
-                                            builder: (context) => HomeScreen(username: _emailController.text),
+                                            builder: (context) => HomeScreen(email: _emailController.text),
                                           ),
                                         );
                                       } else {

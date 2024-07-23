@@ -7,15 +7,15 @@ import 'add_user_screen.dart' as add_user_screen; // Import the Add User screen
 import 'users_list_screen.dart'; // Import the Users List screen
 
 class HomeScreen extends StatelessWidget {
-  final String username;
+  final String email;
   final EmployeeDao employeeDao = EmployeeDao();
   final LocationDao locationDao = LocationDao();
 
-  HomeScreen({required this.username});
+  HomeScreen({required this.email});
 
   Future<Employee> _fetchEmployeeData() async {
     final employees = await employeeDao.getAllEmployees();
-    return employees.firstWhere((employee) => employee.name == username);
+    return employees.firstWhere((employee) => employee.email == email);
   }
 
   @override
