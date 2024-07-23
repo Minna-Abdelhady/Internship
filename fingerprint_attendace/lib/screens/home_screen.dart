@@ -28,12 +28,6 @@ class HomeScreen extends StatelessWidget {
         iconTheme: IconThemeData(
           color: Colors.white, // Back arrow color to white
         ),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.of(context).pop(); // Navigate back
-          },
-        ),
         actions: [
           Padding(
             padding: const EdgeInsets.all(8.0),
@@ -57,9 +51,10 @@ class HomeScreen extends StatelessWidget {
             final employee = snapshot.data!;
             return Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Column(
+              child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Personal photo and welcome text on the left
                   Row(
                     children: [
                       CircleAvatar(
@@ -67,49 +62,34 @@ class HomeScreen extends StatelessWidget {
                         backgroundImage: MemoryImage(base64Decode(employee.personalPhoto)),
                       ),
                       SizedBox(width: 20),
-                      Expanded(
-                        child: Text(
-                          'Welcome, ${employee.name}',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF930000), // Text color to match company theme
-                          ),
+                      Text(
+                        'Welcome, ${employee.name}',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF930000), // Text color to match company theme
                         ),
                       ),
                     ],
                   ),
-                  SizedBox(height: 5),
-                  _buildInfoRow('Company ID:', employee.companyId),
-                  SizedBox(height: 5),
-                  _buildInfoRow('Email:', employee.email),
-                  SizedBox(height: 5),
-                  _buildInfoRow('Job Title:', employee.jobTitle),
-                  SizedBox(height: 5),
-                  _buildInfoRow('Director ID:', employee.directorId),
-                  SizedBox(height: 5),
-                  _buildInfoRow('Role:', employee.isAdmin ? 'Admin' : 'Employee'),
-                  Spacer(),
-                  Center(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        // Do nothing
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF930000), // Button color to match company theme
-                        padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        textStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      child: Text(
-                        'Sign In',
-                        style: TextStyle(color: Colors.white), // Button text color to white
-                      ),
+                  SizedBox(width: 50),
+                  // Labels and data on the right
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildInfoRow('Company ID:', employee.companyId),
+                        SizedBox(height: 10),
+                        _buildInfoRow('Email:', employee.email),
+                        SizedBox(height: 10),
+                        _buildInfoRow('Job Title:', employee.jobTitle),
+                        SizedBox(height: 10),
+                        _buildInfoRow('Director ID:', employee.directorId),
+                        SizedBox(height: 10),
+                        _buildInfoRow('Role:', employee.isAdmin ? 'Admin' : 'Employee'),
+                      ],
                     ),
                   ),
-                  SizedBox(height: 20),
                 ],
               ),
             );
@@ -127,8 +107,10 @@ class HomeScreen extends StatelessWidget {
           child: Text(
             label,
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+            textAlign: TextAlign.right,
           ),
         ),
+        SizedBox(width: 10),
         Expanded(
           flex: 3,
           child: Text(
