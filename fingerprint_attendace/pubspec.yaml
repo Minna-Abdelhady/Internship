@@ -23,6 +23,8 @@ dev_dependencies:
   build_runner: ^2.1.7
   hive_generator: ^1.1.0
   image_picker_for_web: ^2.1.7
+  intl: ^0.17.0
+  table_calendar: ^3.0.0
 
 flutter:
   assets:
@@ -31,3 +33,14 @@ flutter:
     - assets/company_logo.jpg
     - assets/Apartments.PNG
     - assets/Nouna.jpg
+  fonts:
+    - family: NotoSans
+      fonts:
+        - asset: fonts/NotoSans-Regular.ttf
+        - asset: fonts/NotoSans-Bold.ttf
+          weight: 700
+    - family: NotoSansSymbols
+      fonts:
+        - asset: fonts/NotoSansSymbols-Regular.ttf
+        - asset: fonts/NotoSansSymbols-Bold.ttf
+          weight: 700
