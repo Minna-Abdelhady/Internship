@@ -7,6 +7,7 @@ import '../database/dao/employee_dao.dart';
 import '../models/employee.dart';
 import 'package:crypto/crypto.dart';
 import 'dart:convert';
+import 'package:email_validator/email_validator.dart';
 
 class AddUserScreen extends StatefulWidget {
   @override
@@ -24,7 +25,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
   final EmployeeDao _employeeDao = EmployeeDao();
   File? _personalPhoto;
   Uint8List? _webImage;
-  bool _isAdmin = false; // New field to track if the user is an admin
+  bool _isAdmin = false;
 
   String _hashPassword(String password) {
     final bytes = utf8.encode(password);
@@ -48,44 +49,65 @@ class _AddUserScreenState extends State<AddUserScreen> {
     }
   }
 
+  Future<bool> _emailExists(String email) async {
+    return await _employeeDao.emailExists(email);
+  }
+
+  Future<bool> _directorExists(String directorId) async {
+    // Placeholder function. Replace with actual implementation.
+    return Future.delayed(Duration(seconds: 2), () => true);
+  }
+
   Future<void> _addUser() async {
     if (_formKey.currentState!.validate() && (_personalPhoto != null || _webImage != null)) {
-      final hashedPassword = _hashPassword(_passwordController.text);
-      final employee = Employee(
-        id: DateTime.now().millisecondsSinceEpoch,
-        companyId: _companyIdController.text,
-        name: _nameController.text.toLowerCase(),
-        email: _emailController.text,
-        password: hashedPassword,
-        personalPhoto: kIsWeb ? base64Encode(_webImage!) : base64Encode(await _personalPhoto!.readAsBytes()),
-        jobTitle: _jobTitleController.text,
-        directorId: _directorIdController.text,
-        isAdmin: _isAdmin, // Set the new field
-      );
-
-      try {
-        await _employeeDao.createEmployee(employee);
-        print('User added: ${employee.toMap()}');
-
+      if (await _emailExists(_emailController.text)) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('User added successfully')),
+          SnackBar(content: Text('Email already exists')),
+        );
+        return;
+      }
+      if (await _directorExists(_directorIdController.text)) {
+        final hashedPassword = _hashPassword(_passwordController.text);
+        final employee = Employee(
+          id: DateTime.now().millisecondsSinceEpoch,
+          companyId: _companyIdController.text,
+          name: _nameController.text.toLowerCase(),
+          email: _emailController.text,
+          password: hashedPassword,
+          personalPhoto: kIsWeb ? base64Encode(_webImage!) : base64Encode(await _personalPhoto!.readAsBytes()),
+          jobTitle: _jobTitleController.text,
+          directorId: _directorIdController.text,
+          isAdmin: _isAdmin,
         );
 
-        _companyIdController.clear();
-        _nameController.clear();
-        _emailController.clear();
-        _passwordController.clear();
-        _jobTitleController.clear();
-        _directorIdController.clear();
-        setState(() {
-          _personalPhoto = null;
-          _webImage = null;
-          _isAdmin = false; // Reset the admin field
-        });
-      } catch (e) {
-        print('Error adding user: $e');
+        try {
+          await _employeeDao.createEmployee(employee);
+          print('User added: ${employee.toMap()}');
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('User added successfully')),
+          );
+
+          _companyIdController.clear();
+          _nameController.clear();
+          _emailController.clear();
+          _passwordController.clear();
+          _jobTitleController.clear();
+          _directorIdController.clear();
+          setState(() {
+            _personalPhoto = null;
+            _webImage = null;
+            _isAdmin = false;
+          });
+        } catch (e) {
+          print('Error adding user: $e');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error adding user')),
+          );
+        }
+      } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error adding user')),
+          SnackBar(content: Text('Director ID does not exist')),
         );
       }
     } else {
@@ -95,13 +117,29 @@ class _AddUserScreenState extends State<AddUserScreen> {
     }
   }
 
+  bool _validatePassword(String password) {
+    // Password must be at least 8 characters, contain a number and a special character
+    final regex = RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$');
+    return regex.hasMatch(password);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Add User',
-          style: TextStyle(color: Colors.white),
+        title: Row(
+          children: [
+            Image.asset(
+              'assets/arrow_mm.png',
+              height: 40,
+              width: 40,
+            ),
+            SizedBox(width: 10),
+            Text(
+              'Add User',
+              style: TextStyle(color: Colors.white), // AppBar title color to white
+            ),
+          ],
         ),
         backgroundColor: Color(0xFF930000),
         iconTheme: IconThemeData(
@@ -119,8 +157,31 @@ class _AddUserScreenState extends State<AddUserScreen> {
               children: <Widget>[
                 _buildTextField(_companyIdController, 'Company ID'),
                 _buildTextField(_nameController, 'Name'),
-                _buildTextField(_emailController, 'Email'),
-                _buildTextField(_passwordController, 'Password', obscureText: true),
+                _buildTextField(
+                  _emailController,
+                  'Email',
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter Email';
+                    } else if (!EmailValidator.validate(value)) {
+                      return 'Please enter a valid email address';
+                    }
+                    return null;
+                  },
+                ),
+                _buildTextField(
+                  _passwordController,
+                  'Password',
+                  obscureText: true,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter Password';
+                    } else if (!_validatePassword(value)) {
+                      return 'Password must be at least 8 characters long, contain a number, and a special character';
+                    }
+                    return null;
+                  },
+                ),
                 _buildTextField(_jobTitleController, 'Job Title'),
                 _buildTextField(_directorIdController, 'Director ID'),
                 SizedBox(height: 10),
@@ -167,7 +228,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
                         ? ElevatedButton(
                             onPressed: _pickImage,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xFF930000), // Button color
+                              backgroundColor: Color(0xFF930000),
                             ),
                             child: Text(
                               'Upload Photo',
@@ -182,7 +243,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
                         ? ElevatedButton(
                             onPressed: _pickImage,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xFF930000), // Button color
+                              backgroundColor: Color(0xFF930000),
                             ),
                             child: Text(
                               'Upload Photo',
@@ -217,7 +278,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String label, {bool obscureText = false}) {
+  Widget _buildTextField(TextEditingController controller, String label, {bool obscureText = false, String? Function(String?)? validator}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: TextFormField(
@@ -230,7 +291,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
           ),
         ),
         obscureText: obscureText,
-        validator: (value) {
+        validator: validator ?? (value) {
           if (value == null || value.isEmpty) {
             return 'Please enter $label';
           }

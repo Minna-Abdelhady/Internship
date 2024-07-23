@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'screens/login_screen.dart';
-import 'screens/add_user_screen.dart';
+import 'screens/add_user_screen.dart' as add_user_screen; // Prefix the import
 import 'screens/users_list_screen.dart';
 import 'models/employee.dart';
 import 'models/location.dart';
@@ -85,7 +85,7 @@ class MainPage extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => AddUserScreen()),
+                    MaterialPageRoute(builder: (context) => add_user_screen.AddUserScreen()),
                   );
                 },
                 child: Text('Create User'),
