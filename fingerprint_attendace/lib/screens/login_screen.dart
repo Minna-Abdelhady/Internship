@@ -41,7 +41,7 @@ class _LoginScreenState extends State<LoginScreen> {
           color: Colors.white,
         ),
       ),
-      backgroundColor: Colors.white, // Set the Scaffold background color to white
+      backgroundColor: Colors.white,
       body: LayoutBuilder(
         builder: (context, constraints) {
           final isWideScreen = constraints.maxWidth > 600;
@@ -60,9 +60,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
                               if (!_isCodeSent) ...[
-                                TextFormField(
-                                  controller: _emailController,
-                                  decoration: InputDecoration(labelText: 'Email'),
+                                _buildTextField(
+                                  _emailController,
+                                  'Email',
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
                                       return 'Please enter your email';
@@ -71,9 +71,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                   },
                                 ),
                                 SizedBox(height: 16),
-                                TextFormField(
-                                  controller: _passwordController,
-                                  decoration: InputDecoration(labelText: 'Password'),
+                                _buildTextField(
+                                  _passwordController,
+                                  'Password',
                                   obscureText: true,
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
@@ -92,7 +92,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                           _passwordController.text,
                                         );
                                         if (authenticated) {
-                                          // Generate and send verification code
                                           _verificationCode = _generateVerificationCode();
                                           await _sendVerificationCode(_emailController.text, _verificationCode!);
 
@@ -110,9 +109,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                 ),
                               ] else ...[
-                                TextFormField(
-                                  controller: _codeController,
-                                  decoration: InputDecoration(labelText: 'Verification Code'),
+                                _buildTextField(
+                                  _codeController,
+                                  'Verification Code',
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
                                       return 'Please enter the verification code';
@@ -180,9 +179,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
                               if (!_isCodeSent) ...[
-                                TextFormField(
-                                  controller: _emailController,
-                                  decoration: InputDecoration(labelText: 'Email'),
+                                _buildTextField(
+                                  _emailController,
+                                  'Email',
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
                                       return 'Please enter your email';
@@ -191,9 +190,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                   },
                                 ),
                                 SizedBox(height: 16),
-                                TextFormField(
-                                  controller: _passwordController,
-                                  decoration: InputDecoration(labelText: 'Password'),
+                                _buildTextField(
+                                  _passwordController,
+                                  'Password',
                                   obscureText: true,
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
@@ -229,9 +228,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                 ),
                               ] else ...[
-                                TextFormField(
-                                  controller: _codeController,
-                                  decoration: InputDecoration(labelText: 'Verification Code'),
+                                _buildTextField(
+                                  _codeController,
+                                  'Verification Code',
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
                                       return 'Please enter the verification code';
@@ -266,6 +265,29 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ],
                 );
+        },
+      ),
+    );
+  }
+
+  Widget _buildTextField(TextEditingController controller, String label, {bool obscureText = false, String? Function(String?)? validator}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: TextFormField(
+        controller: controller,
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: TextStyle(color: Color(0xFF930000)),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+        obscureText: obscureText,
+        validator: validator ?? (value) {
+          if (value == null || value.isEmpty) {
+            return 'Please enter $label';
+          }
+          return null;
         },
       ),
     );
