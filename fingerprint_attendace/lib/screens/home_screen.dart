@@ -28,6 +28,12 @@ class HomeScreen extends StatelessWidget {
         iconTheme: IconThemeData(
           color: Colors.white, // Back arrow color to white
         ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.of(context).pop(); // Navigate back
+          },
+        ),
         actions: [
           Padding(
             padding: const EdgeInsets.all(8.0),
