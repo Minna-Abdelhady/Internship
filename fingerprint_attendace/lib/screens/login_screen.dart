@@ -9,7 +9,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final EmployeeDao _employeeDao = EmployeeDao();
 
@@ -33,7 +33,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         backgroundColor: Color(0xFF930000),
         iconTheme: IconThemeData(
-          color: Colors.white,
+          color: const Color.fromARGB(255, 255, 255, 255),
         ),
       ),
       body: LayoutBuilder(
@@ -54,11 +54,11 @@ class _LoginScreenState extends State<LoginScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
                               TextFormField(
-                                controller: _nameController,
-                                decoration: InputDecoration(labelText: 'Name'),
+                                controller: _emailController,
+                                decoration: InputDecoration(labelText: 'Email'),
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
-                                    return 'Please enter your name';
+                                    return 'Please enter your email';
                                   }
                                   return null;
                                 },
@@ -81,19 +81,19 @@ class _LoginScreenState extends State<LoginScreen> {
                                   onPressed: () async {
                                     if (_formKey.currentState!.validate()) {
                                       bool authenticated = await _employeeDao.authenticateUser(
-                                        _nameController.text.toLowerCase(),
+                                        _emailController.text.toLowerCase(),
                                         _passwordController.text,
                                       );
                                       if (authenticated) {
                                         Navigator.pushReplacement(
                                           context,
                                           MaterialPageRoute(
-                                            builder: (context) => HomeScreen(username: _nameController.text),
+                                            builder: (context) => HomeScreen(username: _emailController.text),
                                           ),
                                         );
                                       } else {
                                         ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(content: Text('Invalid name or password')),
+                                          SnackBar(content: Text('Invalid email or password')),
                                         );
                                       }
                                     }
@@ -141,11 +141,11 @@ class _LoginScreenState extends State<LoginScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
                               TextFormField(
-                                controller: _nameController,
-                                decoration: InputDecoration(labelText: 'Name'),
+                                controller: _emailController,
+                                decoration: InputDecoration(labelText: 'Email'),
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
-                                    return 'Please enter your name';
+                                    return 'Please enter your email';
                                   }
                                   return null;
                                 },
@@ -168,19 +168,19 @@ class _LoginScreenState extends State<LoginScreen> {
                                   onPressed: () async {
                                     if (_formKey.currentState!.validate()) {
                                       bool authenticated = await _employeeDao.authenticateUser(
-                                        _nameController.text.toLowerCase(),
+                                        _emailController.text.toLowerCase(),
                                         _passwordController.text,
                                       );
                                       if (authenticated) {
                                         Navigator.pushReplacement(
                                           context,
                                           MaterialPageRoute(
-                                            builder: (context) => HomeScreen(username: _nameController.text),
+                                            builder: (context) => HomeScreen(username: _emailController.text),
                                           ),
                                         );
                                       } else {
                                         ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(content: Text('Invalid name or password')),
+                                          SnackBar(content: Text('Invalid email or password')),
                                         );
                                       }
                                     }
