@@ -84,6 +84,31 @@ class EmployeeDao {
     }
   }
 
+  Future<bool> doesDirectorExist(String directorId) async {
+    var box = await Hive.openBox<Employee>(_employeeBoxName);
+    final director = box.values.firstWhere(
+      (employee) => employee.id.toString() == directorId && employee.isAdmin,
+      orElse: () => Employee(
+        id: -1,
+        companyId: '',
+        name: '',
+        email: '',
+        password: '',
+        personalPhoto: '',
+        jobTitle: '',
+        directorId: '',
+        isAdmin: false,
+      ),
+    );
+
+    return director.id != -1;
+  }
+
+  Future<List<Employee>> getAllDirectors() async {
+    var box = await Hive.openBox<Employee>(_employeeBoxName);
+    return box.values.where((employee) => employee.isAdmin).toList();
+  }
+
   String _hashPassword(String password) {
     final bytes = utf8.encode(password);
     final hash = sha256.convert(bytes);
@@ -91,7 +116,7 @@ class EmployeeDao {
   }
 
   Future<void> insertDummyData() async {
-    var box = await Hive.openBox<Employee>(_employeeBoxName);
+    // var box = await Hive.openBox<Employee>(_employeeBoxName);
 
     // Load the image from assets and convert it to base64
     final byteData = await rootBundle.load('assets/Apartments.PNG');
@@ -136,7 +161,6 @@ class EmployeeDao {
         directorId: '789',
         isAdmin: false,
       ),
-      // Add more dummy employees if needed
     ];
 
     for (var employee in dummyEmployees) {
