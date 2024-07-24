@@ -40,20 +40,48 @@ class EmployeeDao {
   Future<bool> authenticateUser(String email, String password) async {
     var box = await Hive.openBox<Employee>(_employeeBoxName);
     final hashedPassword = _hashPassword(password);
+
     final employee = box.values.firstWhere(
-      (employee) => employee.email == email.toLowerCase() && employee.password == hashedPassword,
-      // orElse: () => null,
+      (employee) =>
+          employee.email == email.toLowerCase() &&
+          employee.password == hashedPassword,
+      orElse: () => Employee(
+          id: -1,
+          companyId: '',
+          name: '',
+          email: '',
+          password: '',
+          personalPhoto: '',
+          jobTitle: '',
+          directorId: '',
+          isAdmin: false),
     );
-    return employee != null;
+
+    return employee.id != -1;
   }
 
   Future<bool> emailExists(String email) async {
     var box = await Hive.openBox<Employee>(_employeeBoxName);
-    final employee = box.values.firstWhere(
-      (employee) => employee.email == email.toLowerCase(),
-      // orElse: () => null,
-    );
-    return employee != null;
+
+    try {
+      final employee = box.values.firstWhere(
+        (employee) => employee.email == email.toLowerCase(),
+        orElse: () => Employee(
+            id: -1,
+            companyId: '',
+            name: '',
+            email: '',
+            password: '',
+            personalPhoto: '',
+            jobTitle: '',
+            directorId: '',
+            isAdmin: false),
+      );
+      return employee.id != -1;
+    } catch (e) {
+      // Handle the exception if needed
+      return false;
+    }
   }
 
   String _hashPassword(String password) {

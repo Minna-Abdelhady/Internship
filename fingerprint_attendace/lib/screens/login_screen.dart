@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import '../database/dao/employee_dao.dart';
 import 'dart:math';
-// import 'package:mailer/mailer.dart';
-// import 'package:mailer/smtp_server.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -320,41 +318,6 @@ class _LoginScreenState extends State<LoginScreen> {
     final code = random.nextInt(900000) + 100000;
     return code.toString();
   }
-
-  // Future<void> _sendVerificationCode(String email, String code) async {
-  //   final smtpServer = SmtpServer('<your_smtp_server>',
-  //       username: '<your_username>', password: '<your_password>');
-
-  //   final message = Message()
-  //     ..from = Address('attendancemm@gmail.com', 'attendancemm@gmail.com')
-  //     ..recipients.add(email)
-  //     ..subject = 'Your Verification Code'
-  //     ..text = 'Your verification code is $code';
-
-  //   try {
-  //     final sendReport = await send(message, smtpServer);
-  //     print('Verification code sent: ${sendReport.toString()}');
-  //   } catch (e) {
-  //     print('Error occurred while sending verification code: $e');
-  //     print('Sending verification code $code to $email');
-  //   }
-  // }
-
-  // Future<void> _sendVerificationCode(String email, String code) async {
-  //   final url = Uri.parse('http://localhost:3000/send-code');
-  //   final response = await http.post(
-  //     url,
-  //     headers: {'Content-Type': 'application/json'},
-  //     body: jsonEncode({'email': email, 'code': code}),
-  //   );
-
-  //   if (response.statusCode == 200) {
-  //     print('Verification code sent: ${response.body}');
-  //   } else {
-  //     print('Error occurred while sending verification code: ${response.body}');
-  //     print('Sending verification code $code to $email');
-  //   }
-  // }
 
   Future<void> _sendVerificationCode(String email, String code) async {
     final url = Uri.parse('http://localhost:3000/send-code');
