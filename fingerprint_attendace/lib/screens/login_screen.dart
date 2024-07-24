@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import '../database/dao/employee_dao.dart';
 import 'dart:math';
+// import 'package:mailer/mailer.dart';
+// import 'package:mailer/smtp_server.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -87,20 +91,27 @@ class _LoginScreenState extends State<LoginScreen> {
                                   child: ElevatedButton(
                                     onPressed: () async {
                                       if (_formKey.currentState!.validate()) {
-                                        bool authenticated = await _employeeDao.authenticateUser(
+                                        bool authenticated =
+                                            await _employeeDao.authenticateUser(
                                           _emailController.text.toLowerCase(),
                                           _passwordController.text,
                                         );
                                         if (authenticated) {
-                                          _verificationCode = _generateVerificationCode();
-                                          await _sendVerificationCode(_emailController.text, _verificationCode!);
+                                          _verificationCode =
+                                              _generateVerificationCode();
+                                          await _sendVerificationCode(
+                                              _emailController.text,
+                                              _verificationCode!);
 
                                           setState(() {
                                             _isCodeSent = true;
                                           });
                                         } else {
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(content: Text('Invalid email or password')),
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                                content: Text(
+                                                    'Invalid email or password')),
                                           );
                                         }
                                       }
@@ -130,7 +141,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                         Navigator.pushReplacement(
                                           context,
                                           MaterialPageRoute(
-                                            builder: (context) => HomeScreen(email: _emailController.text),
+                                            builder: (context) => HomeScreen(
+                                                email: _emailController.text),
                                           ),
                                         );
                                       }
@@ -206,20 +218,27 @@ class _LoginScreenState extends State<LoginScreen> {
                                   child: ElevatedButton(
                                     onPressed: () async {
                                       if (_formKey.currentState!.validate()) {
-                                        bool authenticated = await _employeeDao.authenticateUser(
+                                        bool authenticated =
+                                            await _employeeDao.authenticateUser(
                                           _emailController.text.toLowerCase(),
                                           _passwordController.text,
                                         );
                                         if (authenticated) {
-                                          _verificationCode = _generateVerificationCode();
-                                          await _sendVerificationCode(_emailController.text, _verificationCode!);
+                                          _verificationCode =
+                                              _generateVerificationCode();
+                                          await _sendVerificationCode(
+                                              _emailController.text,
+                                              _verificationCode!);
 
                                           setState(() {
                                             _isCodeSent = true;
                                           });
                                         } else {
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(content: Text('Invalid email or password')),
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                                content: Text(
+                                                    'Invalid email or password')),
                                           );
                                         }
                                       }
@@ -249,7 +268,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                         Navigator.pushReplacement(
                                           context,
                                           MaterialPageRoute(
-                                            builder: (context) => HomeScreen(email: _emailController.text),
+                                            builder: (context) => HomeScreen(
+                                                email: _emailController.text),
                                           ),
                                         );
                                       }
@@ -270,7 +290,8 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String label, {bool obscureText = false, String? Function(String?)? validator}) {
+  Widget _buildTextField(TextEditingController controller, String label,
+      {bool obscureText = false, String? Function(String?)? validator}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: TextFormField(
@@ -283,12 +304,13 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
         obscureText: obscureText,
-        validator: validator ?? (value) {
-          if (value == null || value.isEmpty) {
-            return 'Please enter $label';
-          }
-          return null;
-        },
+        validator: validator ??
+            (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter $label';
+              }
+              return null;
+            },
       ),
     );
   }
@@ -299,8 +321,55 @@ class _LoginScreenState extends State<LoginScreen> {
     return code.toString();
   }
 
+  // Future<void> _sendVerificationCode(String email, String code) async {
+  //   final smtpServer = SmtpServer('<your_smtp_server>',
+  //       username: '<your_username>', password: '<your_password>');
+
+  //   final message = Message()
+  //     ..from = Address('attendancemm@gmail.com', 'attendancemm@gmail.com')
+  //     ..recipients.add(email)
+  //     ..subject = 'Your Verification Code'
+  //     ..text = 'Your verification code is $code';
+
+  //   try {
+  //     final sendReport = await send(message, smtpServer);
+  //     print('Verification code sent: ${sendReport.toString()}');
+  //   } catch (e) {
+  //     print('Error occurred while sending verification code: $e');
+  //     print('Sending verification code $code to $email');
+  //   }
+  // }
+
+  // Future<void> _sendVerificationCode(String email, String code) async {
+  //   final url = Uri.parse('http://localhost:3000/send-code');
+  //   final response = await http.post(
+  //     url,
+  //     headers: {'Content-Type': 'application/json'},
+  //     body: jsonEncode({'email': email, 'code': code}),
+  //   );
+
+  //   if (response.statusCode == 200) {
+  //     print('Verification code sent: ${response.body}');
+  //   } else {
+  //     print('Error occurred while sending verification code: ${response.body}');
+  //     print('Sending verification code $code to $email');
+  //   }
+  // }
+
   Future<void> _sendVerificationCode(String email, String code) async {
-    // Implement your email sending logic here
-    print('Sending verification code $code to $email');
+    final url = Uri.parse('http://localhost:3000/send-code');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'email': email, 'code': code}),
+    );
+
+    if (response.statusCode == 200) {
+      print('Verification code sent: ${response.body}');
+      print('Sending verification code $code to $email');
+    } else {
+      print('Error occurred while sending verification code: ${response.body}');
+      print('Sending verification code $code to $email');
+    }
   }
 }
