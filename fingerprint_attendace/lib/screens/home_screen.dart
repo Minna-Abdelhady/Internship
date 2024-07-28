@@ -24,12 +24,13 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   DateTime? _logoutTime;
   bool _isSignInButtonEnabled = true;
   bool _isSignOutButtonEnabled = false;
+  bool _isSignedOut = false;
   late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 7, vsync: this);
   }
 
   @override
@@ -40,14 +41,17 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   Future<Employee> _fetchEmployeeData() async {
     final employees = await employeeDao.getAllEmployees();
-    return employees.firstWhere((employee) => employee.email == widget.email);
+    return employees.firstWhere((employee) => employee.email.toLowerCase() == widget.email.toLowerCase());
   }
 
   String _formatDate(DateTime date) {
     return DateFormat('EEEE, MMMM d, y').format(date);
   }
 
-  String _formatTime(DateTime date) {
+  String _formatTime(DateTime? date) {
+    if (date == null) {
+      return "00:00";
+    }
     return DateFormat('h:mm a').format(date);
   }
 
@@ -67,16 +71,19 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       _logoutTime = _loginTime!.add(Duration(hours: 8)); // Update logout time
       _isSignInButtonEnabled = false;
       _isSignOutButtonEnabled = true;
+      _isSignedOut = false;
     });
-    print('Login Time: ${_formatTime(_loginTime!)}');
+    print('Sign In Time: ${_formatTime(_loginTime!)}');
   }
 
   void _onSignOutPressed() {
     setState(() {
       _logoutTime = DateTime.now();
+      _isSignedOut = true;
+      _isSignInButtonEnabled = true;
       _isSignOutButtonEnabled = false;
     });
-    print('Logout Time: ${_formatTime(_logoutTime!)}');
+    print('Sign Out Time: ${_formatTime(_logoutTime!)}');
   }
 
   void _onFaceIdPressed() {
@@ -93,64 +100,39 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: LayoutBuilder(
-          builder: (context, constraints) {
-            if (constraints.maxWidth > 600) {
-              return Text(
-                'Home',
-                style: TextStyle(color: Colors.white, fontFamily: 'NotoSans'), // AppBar title color to white
-              );
-            } else {
-              return Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Image.asset(
-                    'assets/company_logo.jpg',
-                    height: kToolbarHeight - 5, // Adjust height to match AppBar height
-                  ),
-                  Text(
-                    'Home',
-                    style: TextStyle(color: Colors.white, fontFamily: 'NotoSans'), // AppBar title color to white
-                  ),
-                ],
-              );
-            }
-          },
-        ),
+        automaticallyImplyLeading: false,
         backgroundColor: Color(0xFF930000), // AppBar color to match company theme
         iconTheme: IconThemeData(
           color: Colors.white, // Back arrow color to white
         ),
-        actions: [
-          _buildAppBarButton(context, 'History', () {
-            // Navigate to History screen
-          }),
-          _buildAppBarButton(context, 'Vacations', () {
-            // Navigate to Vacations screen
-          }),
-          _buildAppBarButton(context, 'Create User', () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => add_user_screen.AddUserScreen()),
-            );
-          }),
-          _buildAppBarButton(context, 'View Users', () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => UsersListScreen()),
-            );
-          }),
-        ],
-        bottom: TabBar(
-          controller: _tabController,
-          labelColor: Colors.white, // Set tab text color to white
-          unselectedLabelColor: Colors.white, // Set unselected tab text color to white
-          indicatorColor: Colors.white, // Set the indicator color to white
-          tabs: [
-            Tab(text: 'Sign In'),
-            Tab(text: 'This Week\'s Transactions'),
-            Tab(text: 'Calendar'),
-          ],
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(0), // Remove extra space above the tabs
+          child: Container(
+            color: Color(0xFF930000),
+            child: TabBar(
+              controller: _tabController,
+              labelColor: Colors.white, // Set tab text color to white
+              unselectedLabelColor: Colors.white, // Set unselected tab text color to white
+              indicatorColor: Colors.white, // Set the indicator color to white
+              indicator: BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(
+                    color: Colors.white,
+                    width: 4.0,
+                  ),
+                ),
+              ),
+              tabs: [
+                Tab(text: 'Sign In'),
+                Tab(text: 'This Week\'s Transactions'),
+                Tab(text: 'Calendar'),
+                Tab(text: 'History'),
+                Tab(text: 'Vacations'),
+                Tab(text: 'Create User'),
+                Tab(text: 'View Users'),
+              ],
+            ),
+          ),
         ),
       ),
       backgroundColor: Colors.white, // Set the Scaffold background color to white
@@ -179,6 +161,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       _buildSignInView(employee),
                       _buildTransactionsView(employee),
                       _buildCalendarView(),
+                      _buildHistoryView(),
+                      _buildVacationsView(),
+                      _buildCreateUserView(),
+                      _buildViewUsersView(),
                     ],
                   ),
                 ),
@@ -214,6 +200,22 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             ),
             SizedBox(height: 20),
             _buildInfoColumn(employee),
+            SizedBox(height: 20), // Add some space before the new text
+            Divider(color: Colors.black), // Add a separation line
+            Text(
+              'Today: ${_formatDate(DateTime.now())}',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black, fontFamily: 'NotoSans'),
+            ),
+            Text(
+              'Signed In At: ${_formatTime(_loginTime)}',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black, fontFamily: 'NotoSans'),
+            ),
+            Text(
+              _isSignedOut
+                  ? 'Signed Out At: ${_formatTime(_logoutTime)}'
+                  : 'Expected Sign Out Time: ${_formatTime(_logoutTime)}',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black, fontFamily: 'NotoSans'),
+            ),
           ],
         ),
       ),
@@ -298,87 +300,84 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   }
 
   Widget _buildSignInView(Employee employee) {
-    final DateTime now = DateTime.now();
-    final DateTime loginTime = _loginTime ?? DateTime(now.year, now.month, now.day, 9, 43);
-    final DateTime logoutTime = _logoutTime ?? loginTime.add(Duration(hours: 8));
-
     return Padding(
       padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text(
-                'Today: ${_formatDate(now)}',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black, fontFamily: 'NotoSans'),
-              ),
-              SizedBox(width: 20),
-              Text(
-                'Sign In Time: ${_formatTime(loginTime)}',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black, fontFamily: 'NotoSans'),
-              ),
-              SizedBox(width: 20),
-              Text(
-                'Sign Out Time: ${_formatTime(logoutTime)}',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black, fontFamily: 'NotoSans'),
-              ),
-            ],
-          ),
-          SizedBox(height: 20),
-          Center(
-            child: Column(
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ElevatedButton(
-                      onPressed: _isSignInButtonEnabled ? _onSignInPressed : null,
-                      child: Text('Sign In'),
-                    ),
-                    SizedBox(width: 10),
-                    ElevatedButton(
-                      onPressed: _isSignOutButtonEnabled ? _onSignOutPressed : null,
-                      child: Text('Sign Out'),
-                    ),
-                  ],
+                ElevatedButton.icon(
+                  onPressed: _isSignInButtonEnabled ? _onSignInPressed : null,
+                  icon: Icon(Icons.location_on),
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: Size(250, 150), // Set the button size
+                  ),
+                  label: Text('Sign In'),
                 ),
-                SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ElevatedButton.icon(
-                      onPressed: _onFaceIdPressed,
-                      icon: Icon(Icons.face),
-                      label: Text('Face ID'),
-                    ),
-                    SizedBox(width: 10),
-                    ElevatedButton.icon(
-                      onPressed: _onFingerprintPressed,
-                      icon: Icon(Icons.fingerprint),
-                      label: Text('Fingerprint'),
-                    ),
-                  ],
+                SizedBox(width: 50),
+                ElevatedButton.icon(
+                  onPressed: _isSignOutButtonEnabled ? _onSignOutPressed : null,
+                  icon: Icon(Icons.location_on),
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: Size(250, 150), // Set the button size
+                  ),
+                  label: Text('Sign Out'),
                 ),
               ],
             ),
-          ),
-          if (_loginTime != null)
-            Center(
-              child: Text(
-                'Sign In Time: ${_formatTime(_loginTime!)}',
-                style: TextStyle(fontSize: 18, color: Colors.black, fontFamily: 'NotoSans'),
-              ),
+            SizedBox(height: 50),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton.icon(
+                  onPressed: _onFaceIdPressed,
+                  icon: Icon(Icons.face),
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: Size(250, 150), // Set the button size
+                  ),
+                  label: Text('Face ID'),
+                ),
+                SizedBox(width: 50),
+                ElevatedButton.icon(
+                  onPressed: _onFingerprintPressed,
+                  icon: Icon(Icons.fingerprint),
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: Size(250, 150), // Set the button size
+                  ),
+                  label: Text('Fingerprint'),
+                ),
+              ],
             ),
-          if (_logoutTime != null)
-            Center(
-              child: Text(
-                'Sign Out Time: ${_formatTime(_logoutTime!)}',
-                style: TextStyle(fontSize: 18, color: Colors.black, fontFamily: 'NotoSans'),
-              ),
-            ),
-        ],
+          ],
+        ),
       ),
+    );
+  }
+
+  Widget _buildHistoryView() {
+    return Center(
+      child: Text('History View'),
+    );
+  }
+
+  Widget _buildVacationsView() {
+    return Center(
+      child: Text('Vacations View'),
+    );
+  }
+
+  Widget _buildCreateUserView() {
+    return Center(
+      child: Text('Create User View'),
+    );
+  }
+
+  Widget _buildViewUsersView() {
+    return Center(
+      child: Text('View Users View'),
     );
   }
 
