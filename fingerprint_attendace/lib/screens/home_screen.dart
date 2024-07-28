@@ -21,7 +21,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   final EmployeeDao employeeDao = EmployeeDao();
   final LocationDao locationDao = LocationDao();
   DateTime? _loginTime;
+  DateTime? _logoutTime;
   bool _isSignInButtonEnabled = true;
+  bool _isSignOutButtonEnabled = false;
   late TabController _tabController;
 
   @override
@@ -62,9 +64,29 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   void _onSignInPressed() {
     setState(() {
       _loginTime = DateTime.now();
+      _logoutTime = _loginTime!.add(Duration(hours: 8)); // Update logout time
       _isSignInButtonEnabled = false;
+      _isSignOutButtonEnabled = true;
     });
     print('Login Time: ${_formatTime(_loginTime!)}');
+  }
+
+  void _onSignOutPressed() {
+    setState(() {
+      _logoutTime = DateTime.now();
+      _isSignOutButtonEnabled = false;
+    });
+    print('Logout Time: ${_formatTime(_logoutTime!)}');
+  }
+
+  void _onFaceIdPressed() {
+    // Implement Face ID functionality here
+    print('Face ID pressed');
+  }
+
+  void _onFingerprintPressed() {
+    // Implement Fingerprint functionality here
+    print('Fingerprint pressed');
   }
 
   @override
@@ -100,7 +122,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           color: Colors.white, // Back arrow color to white
         ),
         actions: [
-          _buildAppBarButton(context, 'Sign In', _isSignInButtonEnabled ? _onSignInPressed : null),
           _buildAppBarButton(context, 'History', () {
             // Navigate to History screen
           }),
@@ -126,9 +147,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           unselectedLabelColor: Colors.white, // Set unselected tab text color to white
           indicatorColor: Colors.white, // Set the indicator color to white
           tabs: [
+            Tab(text: 'Sign In'),
             Tab(text: 'This Week\'s Transactions'),
             Tab(text: 'Calendar'),
-            Tab(text: 'Sign In'),
           ],
         ),
       ),
@@ -155,9 +176,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   child: TabBarView(
                     controller: _tabController,
                     children: [
+                      _buildSignInView(employee),
                       _buildTransactionsView(employee),
                       _buildCalendarView(),
-                      _buildSignInView(employee),
                     ],
                   ),
                 ),
@@ -201,7 +222,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   Widget _buildTransactionsView(Employee employee) {
     final DateTime now = DateTime.now();
-    final DateTime loginTime = DateTime(now.year, now.month, now.day, 0, 0);
+    final DateTime loginTime = DateTime(now.year, now.month, now.day, 9, 43);
     final DateTime logoutTime = loginTime.add(Duration(hours: 8));
     final Map<String, Map<String, DateTime>> weekTransactions = {
       'Sunday': {'login': DateTime(now.year, now.month, now.day - now.weekday + 5, 9, 0), 'logout': DateTime(now.year, now.month, now.day - now.weekday + 5, 17, 0)},
@@ -278,9 +299,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   Widget _buildSignInView(Employee employee) {
     final DateTime now = DateTime.now();
-    final DateTime loginTime = _loginTime ?? DateTime(now.year, now.month, now.day, 0, 0);
-    final DateTime logoutTime = loginTime.add(Duration(hours: 8));
-    
+    final DateTime loginTime = _loginTime ?? DateTime(now.year, now.month, now.day, 9, 43);
+    final DateTime logoutTime = _logoutTime ?? loginTime.add(Duration(hours: 8));
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -294,27 +315,65 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               ),
               SizedBox(width: 20),
               Text(
-                'Sign in Time: ${_formatTime(loginTime)}',
+                'Sign In Time: ${_formatTime(loginTime)}',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black, fontFamily: 'NotoSans'),
               ),
               SizedBox(width: 20),
               Text(
-                'Estimated Sign out Time: ${_formatTime(logoutTime)}',
+                'Sign Out Time: ${_formatTime(logoutTime)}',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black, fontFamily: 'NotoSans'),
               ),
             ],
           ),
           SizedBox(height: 20),
           Center(
-            child: ElevatedButton(
-              onPressed: _isSignInButtonEnabled ? _onSignInPressed : null,
-              child: Text('Sign In'),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      onPressed: _isSignInButtonEnabled ? _onSignInPressed : null,
+                      child: Text('Sign In'),
+                    ),
+                    SizedBox(width: 10),
+                    ElevatedButton(
+                      onPressed: _isSignOutButtonEnabled ? _onSignOutPressed : null,
+                      child: Text('Sign Out'),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: _onFaceIdPressed,
+                      icon: Icon(Icons.face),
+                      label: Text('Face ID'),
+                    ),
+                    SizedBox(width: 10),
+                    ElevatedButton.icon(
+                      onPressed: _onFingerprintPressed,
+                      icon: Icon(Icons.fingerprint),
+                      label: Text('Fingerprint'),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
           if (_loginTime != null)
             Center(
               child: Text(
-                'Sign Time: ${_formatTime(_loginTime!)}',
+                'Sign In Time: ${_formatTime(_loginTime!)}',
+                style: TextStyle(fontSize: 18, color: Colors.black, fontFamily: 'NotoSans'),
+              ),
+            ),
+          if (_logoutTime != null)
+            Center(
+              child: Text(
+                'Sign Out Time: ${_formatTime(_logoutTime!)}',
                 style: TextStyle(fontSize: 18, color: Colors.black, fontFamily: 'NotoSans'),
               ),
             ),
@@ -384,7 +443,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           ),
           SizedBox(width: 10), // Adjusted the width to avoid out-of-bounds error
           Text(
-            'Sign In : ${_formatTime(loginTime)} - Sign Out : ${_formatTime(logoutTime)}',
+            'Login: ${_formatTime(loginTime)} - Logout: ${_formatTime(logoutTime)}',
             style: TextStyle(fontSize: 18, color: Colors.black, fontFamily: 'NotoSans'),
           ),
         ],
