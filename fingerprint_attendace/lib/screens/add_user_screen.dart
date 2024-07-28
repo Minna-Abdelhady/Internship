@@ -21,11 +21,23 @@ class _AddUserScreenState extends State<AddUserScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _jobTitleController = TextEditingController();
-  final _directorIdController = TextEditingController();
   final EmployeeDao _employeeDao = EmployeeDao();
   File? _personalPhoto;
   Uint8List? _webImage;
   bool _isAdmin = false;
+  List<Employee> _employees = [];
+  Employee? _selectedDirector;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadEmployees();
+  }
+
+  Future<void> _loadEmployees() async {
+    _employees = await _employeeDao.getAllEmployees();
+    setState(() {});
+  }
 
   String _hashPassword(String password) {
     final bytes = utf8.encode(password);
@@ -57,11 +69,6 @@ class _AddUserScreenState extends State<AddUserScreen> {
     return await _employeeDao.employeeIdExists(employeeId);
   }
 
-  Future<bool> _directorExists(String directorId) async {
-    // Placeholder function. Replace with actual implementation.
-    return Future.delayed(Duration(seconds: 2), () => true);
-  }
-
   Future<void> _addUser() async {
     if (_formKey.currentState!.validate() && (_personalPhoto != null || _webImage != null)) {
       if (await _employeeIdExists(_companyIdController.text)) {
@@ -76,7 +83,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
         );
         return;
       }
-      if (await _directorExists(_directorIdController.text)) {
+      if (_selectedDirector != null) {
         final hashedPassword = _hashPassword(_passwordController.text);
         final employee = Employee(
           id: DateTime.now().millisecondsSinceEpoch,
@@ -86,7 +93,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
           password: hashedPassword,
           personalPhoto: kIsWeb ? base64Encode(_webImage!) : base64Encode(await _personalPhoto!.readAsBytes()),
           jobTitle: _jobTitleController.text,
-          directorId: _directorIdController.text,
+          directorId: _selectedDirector!.companyId,
           isAdmin: _isAdmin,
         );
 
@@ -103,11 +110,11 @@ class _AddUserScreenState extends State<AddUserScreen> {
           _emailController.clear();
           _passwordController.clear();
           _jobTitleController.clear();
-          _directorIdController.clear();
           setState(() {
             _personalPhoto = null;
             _webImage = null;
             _isAdmin = false;
+            _selectedDirector = null;
           });
         } catch (e) {
           print('Error adding user: $e');
@@ -193,7 +200,33 @@ class _AddUserScreenState extends State<AddUserScreen> {
                   },
                 ),
                 _buildTextField(_jobTitleController, 'Job Title'),
-                _buildTextField(_directorIdController, 'Director ID'),
+                DropdownButtonFormField<Employee>(
+                  value: _selectedDirector,
+                  items: _employees.map((employee) {
+                    return DropdownMenuItem<Employee>(
+                      value: employee,
+                      child: Text(employee.name),
+                    );
+                  }).toList(),
+                  onChanged: (Employee? newValue) {
+                    setState(() {
+                      _selectedDirector = newValue;
+                    });
+                  },
+                  decoration: InputDecoration(
+                    labelText: 'Director ID',
+                    labelStyle: TextStyle(color: Color(0xFF930000)),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value == null) {
+                      return 'Please select a director';
+                    }
+                    return null;
+                  },
+                ),
                 SizedBox(height: 10),
                 Text(
                   'Role',
@@ -269,11 +302,6 @@ class _AddUserScreenState extends State<AddUserScreen> {
                   onPressed: _addUser,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFF930000),
-                    padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    textStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   child: Text(
                     'Add User',
@@ -288,22 +316,22 @@ class _AddUserScreenState extends State<AddUserScreen> {
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String label, {bool obscureText = false, String? Function(String?)? validator}) {
+  Widget _buildTextField(TextEditingController controller, String labelText, {bool obscureText = false, String? Function(String?)? validator}) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: TextFormField(
         controller: controller,
+        obscureText: obscureText,
         decoration: InputDecoration(
-          labelText: label,
+          labelText: labelText,
           labelStyle: TextStyle(color: Color(0xFF930000)),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
           ),
         ),
-        obscureText: obscureText,
         validator: validator ?? (value) {
           if (value == null || value.isEmpty) {
-            return 'Please enter $label';
+            return 'Please enter $labelText';
           }
           return null;
         },
