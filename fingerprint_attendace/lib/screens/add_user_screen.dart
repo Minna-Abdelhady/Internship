@@ -17,6 +17,7 @@ class AddUserScreen extends StatefulWidget {
 class _AddUserScreenState extends State<AddUserScreen> {
   final _formKey = GlobalKey<FormState>();
   final _companyIdController = TextEditingController();
+  final _nameController = TextEditingController();  // New name controller
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _jobTitleController = TextEditingController();
@@ -70,7 +71,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
         final employee = Employee(
           id: DateTime.now().millisecondsSinceEpoch,
           companyId: _companyIdController.text,
-          name: _emailController.text.split('@')[0], // Use the email username part for name
+          name: _nameController.text,  // Use name controller text
           email: _emailController.text,
           password: hashedPassword,
           personalPhoto: kIsWeb ? base64Encode(_webImage!) : base64Encode(await _personalPhoto!.readAsBytes()),
@@ -88,6 +89,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
           );
 
           _companyIdController.clear();
+          _nameController.clear();  // Clear name controller
           _emailController.clear();
           _passwordController.clear();
           _jobTitleController.clear();
@@ -155,6 +157,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 _buildTextField(_companyIdController, 'Employee ID'),
+                _buildTextField(_nameController, 'Name'),  // Add name field
                 _buildTextField(
                   _emailController,
                   'Email',

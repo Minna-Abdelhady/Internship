@@ -14,7 +14,7 @@ class Employee {
   final String name;
 
   @HiveField(3)
-  final String email;  // Add email field
+  final String email;
 
   @HiveField(4)
   final String password;
@@ -27,7 +27,7 @@ class Employee {
 
   @HiveField(7)
   final String directorId;
-  
+
   @HiveField(8)
   final bool isAdmin;
 
@@ -35,7 +35,7 @@ class Employee {
     required this.id,
     required this.companyId,
     required this.name,
-    required this.email,  // Include email in constructor
+    required this.email,
     required this.password,
     required this.personalPhoto,
     required this.jobTitle,
@@ -48,7 +48,7 @@ class Employee {
       'id': id,
       'companyId': companyId,
       'name': name,
-      'email': email,  // Include email in map
+      'email': email,
       'password': password,
       'personalPhoto': personalPhoto,
       'jobTitle': jobTitle,
@@ -62,7 +62,7 @@ class Employee {
       id: map['id'],
       companyId: map['companyId'],
       name: map['name'],
-      email: map['email'],  // Include email in factory
+      email: map['email'],
       password: map['password'],
       personalPhoto: map['personalPhoto'],
       jobTitle: map['jobTitle'],
