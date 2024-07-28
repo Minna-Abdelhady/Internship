@@ -31,7 +31,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 7, vsync: this);
+    _tabController = TabController(length: 6, vsync: this); // Set to 6 tabs
   }
 
   @override
@@ -135,7 +135,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 Tab(text: 'Sign In'),
                 Tab(text: 'This Week\'s Transactions'),
                 Tab(text: 'Calendar'),
-                Tab(text: 'History'),
                 Tab(text: 'Vacations'),
                 Tab(text: 'Create User'),
                 Tab(text: 'View Users'),
@@ -170,7 +169,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       _buildSignInView(employee),
                       _buildTransactionsView(employee),
                       _buildCalendarView(),
-                      _buildHistoryView(),
                       _buildVacationsView(),
                       _buildCreateUserView(),
                       _buildViewUsersView(),
@@ -278,51 +276,91 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     );
   }
 
-  Widget _buildCalendarView() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: TableCalendar(
-        firstDay: DateTime.utc(2020, 10, 16),
-        lastDay: DateTime.utc(2030, 3, 14),
-        focusedDay: DateTime.now(),
-        calendarFormat: CalendarFormat.month,
-        startingDayOfWeek: StartingDayOfWeek.sunday,
-        daysOfWeekVisible: true,
-        calendarStyle: CalendarStyle(
-          isTodayHighlighted: true,
-          selectedDecoration: BoxDecoration(
-            color: Color(0xFF930000),
-            shape: BoxShape.circle,
+Widget _buildCalendarView() {
+  return Padding(
+    padding: const EdgeInsets.all(16.0),
+    child: Column(
+      children: [
+        TableCalendar(
+          firstDay: DateTime.utc(2020, 10, 16),
+          lastDay: DateTime.utc(2030, 3, 14),
+          focusedDay: DateTime.now(),
+          calendarFormat: CalendarFormat.month,
+          startingDayOfWeek: StartingDayOfWeek.sunday,
+          daysOfWeekVisible: true,
+          calendarStyle: CalendarStyle(
+            isTodayHighlighted: true,
+            selectedDecoration: BoxDecoration(
+              color: Color(0xFF930000),
+              shape: BoxShape.circle,
+            ),
+            todayDecoration: BoxDecoration(
+              color: Color.fromARGB(255, 162, 7, 7),
+              shape: BoxShape.circle,
+            ),
           ),
-          todayDecoration: BoxDecoration(
-            color: Color.fromARGB(255, 162, 7, 7),
-            shape: BoxShape.circle,
+          headerStyle: HeaderStyle(
+            formatButtonVisible: false,
+            titleCentered: true,
           ),
-        ),
-        headerStyle: HeaderStyle(
-          formatButtonVisible: false,
-          titleCentered: true,
-        ),
-        holidayPredicate: (day) {
-          return _holidays.containsKey(day);
-        },
-        onDaySelected: (selectedDay, focusedDay) {
-          // Handle day selection
-        },
-        calendarBuilders: CalendarBuilders(
-          holidayBuilder: (context, day, focusedDay) {
-            return Center(
-              child: Text(
-                '${day.day}\n${_holidays[day]?.join(", ")}',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.blue),
-              ),
-            );
+          holidayPredicate: (day) {
+            return _holidays.containsKey(day);
           },
+          onDaySelected: (selectedDay, focusedDay) {
+            // Handle day selection
+          },
+          calendarBuilders: CalendarBuilders(
+            holidayBuilder: (context, day, focusedDay) {
+              return Center(
+                child: Text(
+                  '${day.day}\n${_holidays[day]?.join(", ")}',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.blue),
+                ),
+              );
+            },
+            defaultBuilder: (context, day, focusedDay) {
+              if (day.weekday == DateTime.friday || day.weekday == DateTime.saturday) {
+                return Container(
+                  margin: const EdgeInsets.all(4.0),
+                  alignment: Alignment.center,
+                  child: Text(
+                    day.day.toString(),
+                    style: TextStyle().copyWith(color: Colors.red), // Set weekend text color to red
+                  ),
+                );
+              }
+              return null;
+            },
+          ),
         ),
+        SizedBox(height: 16.0),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _buildColorIndicator(Colors.red, 'Weekend'),
+            SizedBox(width: 16.0),
+            _buildColorIndicator(Colors.blue, 'Holiday'),
+          ],
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _buildColorIndicator(Color color, String label) {
+  return Row(
+    children: [
+      Container(
+        width: 20,
+        height: 20,
+        color: color,
       ),
-    );
-  }
+      SizedBox(width: 8),
+      Text(label),
+    ],
+  );
+}
 
   Widget _buildSignInView(Employee employee) {
     return Padding(
@@ -379,12 +417,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildHistoryView() {
-    return Center(
-      child: Text('History View'),
     );
   }
 
