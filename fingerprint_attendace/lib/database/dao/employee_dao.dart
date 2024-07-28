@@ -86,6 +86,11 @@ class EmployeeDao {
     }
   }
 
+  Future<bool> employeeIdExists(String employeeId) async {
+    var box = await Hive.openBox<Employee>(_employeeBoxName);
+    return box.values.any((employee) => employee.companyId == employeeId);
+  }
+
   Future<bool> doesDirectorExist(String directorId) async {
     var box = await Hive.openBox<Employee>(_employeeBoxName);
     final director = box.values.firstWhere(

@@ -17,7 +17,7 @@ class AddUserScreen extends StatefulWidget {
 class _AddUserScreenState extends State<AddUserScreen> {
   final _formKey = GlobalKey<FormState>();
   final _companyIdController = TextEditingController();
-  final _nameController = TextEditingController();  // New name controller
+  final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _jobTitleController = TextEditingController();
@@ -53,6 +53,10 @@ class _AddUserScreenState extends State<AddUserScreen> {
     return await _employeeDao.emailExists(email);
   }
 
+  Future<bool> _employeeIdExists(String employeeId) async {
+    return await _employeeDao.employeeIdExists(employeeId);
+  }
+
   Future<bool> _directorExists(String directorId) async {
     // Placeholder function. Replace with actual implementation.
     return Future.delayed(Duration(seconds: 2), () => true);
@@ -60,6 +64,12 @@ class _AddUserScreenState extends State<AddUserScreen> {
 
   Future<void> _addUser() async {
     if (_formKey.currentState!.validate() && (_personalPhoto != null || _webImage != null)) {
+      if (await _employeeIdExists(_companyIdController.text)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Employee ID already exists')),
+        );
+        return;
+      }
       if (await _emailExists(_emailController.text)) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Email already exists')),
@@ -71,7 +81,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
         final employee = Employee(
           id: DateTime.now().millisecondsSinceEpoch,
           companyId: _companyIdController.text,
-          name: _nameController.text,  // Use name controller text
+          name: _nameController.text,
           email: _emailController.text,
           password: hashedPassword,
           personalPhoto: kIsWeb ? base64Encode(_webImage!) : base64Encode(await _personalPhoto!.readAsBytes()),
@@ -89,7 +99,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
           );
 
           _companyIdController.clear();
-          _nameController.clear();  // Clear name controller
+          _nameController.clear();
           _emailController.clear();
           _passwordController.clear();
           _jobTitleController.clear();
@@ -118,7 +128,6 @@ class _AddUserScreenState extends State<AddUserScreen> {
   }
 
   bool _validatePassword(String password) {
-    // Password must be at least 8 characters, contain a number and a special character
     final regex = RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$');
     return regex.hasMatch(password);
   }
@@ -137,7 +146,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
             SizedBox(width: 10),
             Text(
               'Add User',
-              style: TextStyle(color: Colors.white), // AppBar title color to white
+              style: TextStyle(color: Colors.white),
             ),
           ],
         ),
@@ -146,7 +155,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
           color: Colors.white,
         ),
       ),
-      backgroundColor: Colors.white, // Set the background color to white
+      backgroundColor: Colors.white,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -156,8 +165,8 @@ class _AddUserScreenState extends State<AddUserScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                _buildTextField(_companyIdController, 'Employee ID'),
-                _buildTextField(_nameController, 'Name'),  // Add name field
+                _buildTextField(_companyIdController, "Employee's ID"),
+                _buildTextField(_nameController, 'Name'),
                 _buildTextField(
                   _emailController,
                   'Email',
