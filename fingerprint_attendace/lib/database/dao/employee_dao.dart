@@ -125,6 +125,12 @@ class EmployeeDao {
   Future<void> insertDummyData() async {
     // var box = await Hive.openBox<Employee>(_employeeBoxName);
 
+    // Check if dummy data already exists
+    if (await employeeIdExists('1') && await employeeIdExists('2') && await employeeIdExists('3')) {
+      print('Dummy data already exists');
+      return;
+    }
+
     // Load the image from assets and convert it to base64
     final byteData = await rootBundle.load('assets/Apartments.PNG');
     final imageBytes = byteData.buffer.asUint8List();
