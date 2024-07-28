@@ -10,6 +10,15 @@ class UsersListScreen extends StatelessWidget {
     return await employeeDao.getAllEmployees();
   }
 
+  Future<String> _getDirectorName(String directorId) async {
+    if (directorId.isEmpty) {
+      return 'Unknown';
+    }
+    final director = await employeeDao.getEmployeeById(directorId);
+    print('Director ID: $directorId, Name: ${director?.name}');
+    return director?.name ?? 'Unknown';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,10 +61,9 @@ class UsersListScreen extends StatelessWidget {
                   DataColumn(label: Text('Company ID', style: TextStyle(color: Colors.black))),
                   DataColumn(label: Text('Name', style: TextStyle(color: Colors.black))),
                   DataColumn(label: Text('Email', style: TextStyle(color: Colors.black))),
-                  DataColumn(label: Text('Password (Hidden)', style: TextStyle(color: Colors.black))),
                   DataColumn(label: Text('Personal Photo', style: TextStyle(color: Colors.black))),
                   DataColumn(label: Text('Job Title', style: TextStyle(color: Colors.black))),
-                  DataColumn(label: Text('Director ID', style: TextStyle(color: Colors.black))),
+                  DataColumn(label: Text('Director Name', style: TextStyle(color: Colors.black))),
                   DataColumn(label: Text('Is Admin', style: TextStyle(color: Colors.black))),
                 ],
                 rows: employees.map((employee) {
@@ -64,7 +72,6 @@ class UsersListScreen extends StatelessWidget {
                       DataCell(Text(employee.companyId, style: TextStyle(color: Colors.black))),
                       DataCell(Text(employee.name, style: TextStyle(color: Colors.black))),
                       DataCell(Text(employee.email, style: TextStyle(color: Colors.black))),
-                      DataCell(Text('********', style: TextStyle(color: Colors.black))), // Hides password
                       DataCell(
                         employee.personalPhoto.isEmpty
                             ? Text('No Photo', style: TextStyle(color: Colors.black))
@@ -75,8 +82,20 @@ class UsersListScreen extends StatelessWidget {
                               ),
                       ),
                       DataCell(Text(employee.jobTitle, style: TextStyle(color: Colors.black))),
-                      DataCell(Text(employee.directorId.toString(), style: TextStyle(color: Colors.black))),
-                      DataCell(Text(employee.isAdmin ? 'Admin' : 'Employee'.toString(), style: TextStyle(color: Colors.black))),
+                      DataCell(FutureBuilder<String>(
+                        future: _getDirectorName(employee.directorId),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return Text('Loading...', style: TextStyle(color: Colors.black));
+                          } else if (snapshot.hasError) {
+                            return Text('Error', style: TextStyle(color: Colors.black));
+                          } else {
+                            print('Director name: ${snapshot.data}');
+                            return Text(snapshot.data ?? 'Unknown', style: TextStyle(color: Colors.black));
+                          }
+                        },
+                      )),
+                      DataCell(Text(employee.isAdmin ? 'Admin' : 'Employee', style: TextStyle(color: Colors.black))),
                     ],
                   );
                 }).toList(),

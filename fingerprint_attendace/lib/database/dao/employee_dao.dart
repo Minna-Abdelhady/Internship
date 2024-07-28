@@ -98,7 +98,7 @@ class EmployeeDao {
       orElse: () => Employee(
         id: -1,
         companyId: '',
-        name: '',
+        name: 'Unknown',
         email: '',
         password: '',
         personalPhoto: '',
@@ -137,35 +137,35 @@ class EmployeeDao {
     final dummyEmployees = [
       Employee(
         id: 1,
-        companyId: '123456',
+        companyId: '1',
         name: 'dina aref',
         email: 'dinaref@gmail.com',
         password: _hashPassword('123'),
         personalPhoto: base64Image1,
         jobTitle: 'Software Engineer Intern',
-        directorId: '456789',
+        directorId: '3',
         isAdmin: true,
       ),
       Employee(
         id: 2,
-        companyId: '654321',
+        companyId: '2',
         name: 'Minna Hany',
         email: 'minnaabdelhady@gmail.com',
         password: _hashPassword('123'),
         personalPhoto: base64Image,
         jobTitle: 'Software Engineer Intern',
-        directorId: '123',
+        directorId: '3',
         isAdmin: true,
       ),
       Employee(
         id: 3,
-        companyId: '789012',
+        companyId: '3',
         name: 'mike johnson',
         email: 'mike@example.com',
         password: _hashPassword('123'),
         personalPhoto: base64Image,
         jobTitle: 'UX Designer',
-        directorId: '789',
+        directorId: '3',
         isAdmin: false,
       ),
     ];
@@ -208,5 +208,50 @@ class EmployeeDao {
       orElse: () => throw Exception('Employee not found'),
     );
     return box.get(employee.id);
+  }
+
+  // Function to get employee by ID
+  Future<Employee> getEmployeeById(String id) async {
+    var box = await Hive.openBox<Employee>(_employeeBoxName);
+    try {
+      // for (var employee in box.values) {
+      //   print('Stored employee: ${employee.toMap()}');
+      // }
+
+      final employee = box.values.firstWhere(
+        (employee) => employee.id.toString() == id,
+        orElse: () => Employee(
+          id: -1,
+          companyId: '',
+          name: 'Unknown',
+          email: '',
+          password: '',
+          personalPhoto: '',
+          jobTitle: '',
+          directorId: '',
+          isAdmin: false,
+        ),
+      );
+
+      if (employee.id == -1) {
+        print('Employee with ID $id not found');
+      } else {
+        // print('Found employee: ${employee.toMap()}');
+      }
+      return employee;
+    } catch (e) {
+      print('Error fetching employee by ID: $e');
+      return Employee(
+        id: -1,
+        companyId: '',
+        name: 'Unknown',
+        email: '',
+        password: '',
+        personalPhoto: '',
+        jobTitle: '',
+        directorId: '',
+        isAdmin: false,
+      );
+    }
   }
 }
