@@ -67,7 +67,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       length: _isCurrentUserAdmin ? 6 : 4,
       vsync: this,
     );
-    await _loadEmployees(); // Load employees list after determining the admin status
+    _loadEmployees();
     setState(() {});
   }
 
@@ -441,8 +441,40 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black, fontFamily: 'NotoSans'),
             ),
             SizedBox(height: 10),
-            for (var day in weekTransactions.keys)
-              _buildTransactionRow(day, weekTransactions[day]!['login']!, weekTransactions[day]!['logout']!),
+            Column(
+              children: weekTransactions.keys.map((day) {
+                final transactions = weekTransactions[day]!;
+                return Card(
+                  elevation: 3,
+                  margin: EdgeInsets.symmetric(vertical: 8.0),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          day,
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black, fontFamily: 'NotoSans'),
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              'Login: ${_formatTime(transactions['login'])}',
+                              style: TextStyle(fontSize: 18, color: Colors.black, fontFamily: 'NotoSans'),
+                            ),
+                            Text(
+                              'Logout: ${_formatTime(transactions['logout'])}',
+                              style: TextStyle(fontSize: 18, color: Colors.black, fontFamily: 'NotoSans'),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
           ],
         ),
       ),
