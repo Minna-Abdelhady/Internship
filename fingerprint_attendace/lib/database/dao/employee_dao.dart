@@ -144,7 +144,7 @@ class EmployeeDao {
       Employee(
         id: 1,
         companyId: '1',
-        name: 'dina aref',
+        name: 'Dina Aref',
         email: 'dinaref@gmail.com',
         password: _hashPassword('123'),
         personalPhoto: base64Image1,

@@ -7,6 +7,7 @@ import '../models/employee.dart';
 import 'dart:convert'; // For base64 decoding
 import 'add_user_screen.dart' as add_user_screen; // Import the Add User screen
 import 'users_list_screen.dart'; // Import the Users List screen
+import 'login_screen.dart'; // Import the Login screen
 
 class HomeScreen extends StatefulWidget {
   final String email;
@@ -94,6 +95,14 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   void _onFingerprintPressed() {
     // Implement Fingerprint functionality here
     print('Fingerprint pressed');
+  }
+
+  void _onLogoutPressed() {
+    // Implement navigation to login screen
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => LoginScreen()),
+    );
   }
 
   @override
@@ -184,9 +193,16 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            CircleAvatar(
-              radius: 50,
-              backgroundImage: MemoryImage(base64Decode(employee.personalPhoto)),
+            Container(
+              width: 100, // Define the width of the square avatar
+              height: 100, // Define the height of the square avatar
+              decoration: BoxDecoration(
+                shape: BoxShape.rectangle, // Ensure the shape is rectangular
+                image: DecorationImage(
+                  image: MemoryImage(base64Decode(employee.personalPhoto)),
+                  fit: BoxFit.cover, // Ensure the image covers the entire container
+                ),
+              ),
             ),
             SizedBox(height: 10),
             Text(
@@ -215,6 +231,15 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   ? 'Signed Out At: ${_formatTime(_logoutTime)}'
                   : 'Expected Sign Out Time: ${_formatTime(_logoutTime)}',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black, fontFamily: 'NotoSans'),
+            ),
+            Spacer(),
+            ElevatedButton.icon(
+              onPressed: _onLogoutPressed,
+              icon: Icon(Icons.logout),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFF930000), // Button color to match company theme
+              ),
+              label: Text('Log Out'),
             ),
           ],
         ),
