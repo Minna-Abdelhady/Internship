@@ -52,12 +52,23 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   bool _isAdmin = false;
   List<Employee> _employees = [];
   Employee? _selectedDirector;
+  bool _isCurrentUserAdmin = false;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 6, vsync: this); // Set to 6 tabs
-    _loadEmployees();
+    _loadEmployeeData();
+  }
+
+  Future<void> _loadEmployeeData() async {
+    final employee = await _fetchEmployeeData();
+    _isCurrentUserAdmin = employee.isAdmin;
+    _tabController = TabController(
+      length: _isCurrentUserAdmin ? 6 : 4,
+      vsync: this,
+    );
+    await _loadEmployees(); // Load employees list after determining the admin status
+    setState(() {});
   }
 
   @override
@@ -249,19 +260,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     );
   }
 
-  Future<List<Employee>> _fetchEmployees() async {
-    return await employeeDao.getAllEmployees();
-  }
-
-  Future<String> _getDirectorName(String directorId) async {
-    if (directorId.isEmpty) {
-      return 'Unknown';
-    }
-    final director = await employeeDao.getEmployeeById(directorId);
-    print('Director ID: $directorId, Name: ${director.name}');
-    return director.name;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -288,14 +286,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   ),
                 ),
               ),
-              tabs: [
-                Tab(text: 'Sign In'),
-                Tab(text: 'This Week\'s Transactions'),
-                Tab(text: 'Calendar'),
-                Tab(text: 'Vacations'),
-                Tab(text: 'Create User'),
-                Tab(text: 'View Users'),
-              ],
+              tabs: _buildTabs(),
             ),
           ),
         ),
@@ -322,14 +313,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   flex: 3,
                   child: TabBarView(
                     controller: _tabController,
-                    children: [
-                      _buildSignInView(employee),
-                      _buildTransactionsView(employee),
-                      _buildCalendarView(),
-                      _buildVacationsView(),
-                      _buildCreateUserView(),
-                      _buildViewUsersView(),
-                    ],
+                    children: _buildTabViews(employee),
                   ),
                 ),
               ],
@@ -338,6 +322,38 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         },
       ),
     );
+  }
+
+  List<Widget> _buildTabs() {
+    List<Widget> tabs = [
+      Tab(text: 'Sign In'),
+      Tab(text: 'This Week\'s Transactions'),
+      Tab(text: 'Calendar'),
+      Tab(text: 'Vacations'),
+    ];
+    if (_isCurrentUserAdmin) {
+      tabs.addAll([
+        Tab(text: 'Create User'),
+        Tab(text: 'View Users'),
+      ]);
+    }
+    return tabs;
+  }
+
+  List<Widget> _buildTabViews(Employee employee) {
+    List<Widget> tabViews = [
+      _buildSignInView(employee),
+      _buildTransactionsView(employee),
+      _buildCalendarView(),
+      _buildVacationsView(),
+    ];
+    if (_isCurrentUserAdmin) {
+      tabViews.addAll([
+        _buildCreateUserView(),
+        _buildViewUsersView(),
+      ]);
+    }
+    return tabViews;
   }
 
   Widget _buildProfileSide(Employee employee) {
@@ -738,7 +754,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   Widget _buildViewUsersView() {
     return FutureBuilder<List<Employee>>(
-      future: _fetchEmployees(),
+      future: employeeDao.getAllEmployees(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: CircularProgressIndicator());
@@ -798,6 +814,15 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         }
       },
     );
+  }
+
+  Future<String> _getDirectorName(String directorId) async {
+    if (directorId.isEmpty) {
+      return 'Unknown';
+    }
+    final director = await employeeDao.getEmployeeById(directorId);
+    print('Director ID: $directorId, Name: ${director.name}');
+    return director.name;
   }
 
   Widget _buildInfoColumn(Employee employee) {
