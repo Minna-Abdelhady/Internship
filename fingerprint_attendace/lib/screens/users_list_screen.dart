@@ -14,7 +14,20 @@ class UsersListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Users List', style: TextStyle(color: Colors.white)),
+        title: Row(
+          children: [
+            Image.asset(
+              'assets/arrow_mm.png',
+              height: 40,
+              width: 40,
+            ),
+            SizedBox(width: 10),
+            Text(
+              'Users List',
+              style: TextStyle(color: Colors.white),
+            ),
+          ],
+        ),
         backgroundColor: Color(0xFF930000), // AppBar color to match company theme
         iconTheme: IconThemeData(
           color: Colors.white, // Back arrow color to white

@@ -214,7 +214,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
                     });
                   },
                   decoration: InputDecoration(
-                    labelText: 'Director ID',
+                    labelText: 'Director',
                     labelStyle: TextStyle(color: Color(0xFF930000)),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
