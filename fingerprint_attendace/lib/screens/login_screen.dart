@@ -100,6 +100,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                           await _sendVerificationCode(
                                               _emailController.text,
                                               _verificationCode!);
+                                          await _employeeDao.saveVerificationCode(
+                                            _emailController.text.toLowerCase(),
+                                            _verificationCode!,
+                                          );
 
                                           setState(() {
                                             _isCodeSent = true;
@@ -125,9 +129,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                     if (value == null || value.isEmpty) {
                                       return 'Please enter the verification code';
                                     }
-                                    if (value != _verificationCode) {
-                                      return 'Invalid verification code';
-                                    }
                                     return null;
                                   },
                                 ),
@@ -136,13 +137,28 @@ class _LoginScreenState extends State<LoginScreen> {
                                   child: ElevatedButton(
                                     onPressed: () async {
                                       if (_formKey.currentState!.validate()) {
-                                        Navigator.pushReplacement(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => HomeScreen(
-                                                email: _emailController.text),
-                                          ),
+                                        final code = await _employeeDao.getVerificationCode(
+                                          _emailController.text.toLowerCase(),
                                         );
+
+                                        if (code != null &&
+                                            code.code == int.parse(_codeController.text) &&
+                                            DateTime.now().difference(code.timestamp).inMinutes < 10) {
+                                          Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => HomeScreen(
+                                                  email: _emailController.text),
+                                            ),
+                                          );
+                                        } else {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                                content: Text(
+                                                    'Invalid or expired verification code')),
+                                          );
+                                        }
                                       }
                                     },
                                     child: Text('Verify and Login'),
@@ -227,6 +243,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                           await _sendVerificationCode(
                                               _emailController.text,
                                               _verificationCode!);
+                                          await _employeeDao.saveVerificationCode(
+                                            _emailController.text.toLowerCase(),
+                                            _verificationCode!,
+                                          );
 
                                           setState(() {
                                             _isCodeSent = true;
@@ -252,9 +272,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                     if (value == null || value.isEmpty) {
                                       return 'Please enter the verification code';
                                     }
-                                    if (value != _verificationCode) {
-                                      return 'Invalid verification code';
-                                    }
                                     return null;
                                   },
                                 ),
@@ -263,13 +280,28 @@ class _LoginScreenState extends State<LoginScreen> {
                                   child: ElevatedButton(
                                     onPressed: () async {
                                       if (_formKey.currentState!.validate()) {
-                                        Navigator.pushReplacement(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => HomeScreen(
-                                                email: _emailController.text),
-                                          ),
+                                        final code = await _employeeDao.getVerificationCode(
+                                          _emailController.text.toLowerCase(),
                                         );
+
+                                        if (code != null &&
+                                            code.code == int.parse(_codeController.text) &&
+                                            DateTime.now().difference(code.timestamp).inMinutes < 10) {
+                                          Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => HomeScreen(
+                                                  email: _emailController.text),
+                                            ),
+                                          );
+                                        } else {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                                content: Text(
+                                                    'Invalid or expired verification code')),
+                                          );
+                                        }
                                       }
                                     },
                                     child: Text('Verify and Login'),

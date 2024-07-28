@@ -1,28 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'screens/login_screen.dart';
-import 'screens/add_user_screen.dart' as add_user_screen; // Prefix the import
-import 'screens/users_list_screen.dart';
+// import 'screens/add_user_screen.dart' as add_user_screen; // Prefix the import
+// import 'screens/users_list_screen.dart';
 import 'models/employee.dart';
 import 'models/location.dart';
 import 'models/attendance.dart';
 import 'models/log.dart';
+import 'models/code.dart'; // Import the Code model
 import 'database/dao/employee_dao.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Hive.initFlutter();
+  try {
+    await Hive.initFlutter();
 
-  // Registering adapters for all the models
-  Hive.registerAdapter(EmployeeAdapter());
-  Hive.registerAdapter(LocationAdapter());
-  Hive.registerAdapter(AttendanceAdapter());
-  Hive.registerAdapter(LogAdapter());
+    // Registering adapters for all the models
+    Hive.registerAdapter(EmployeeAdapter());
+    Hive.registerAdapter(LocationAdapter());
+    Hive.registerAdapter(AttendanceAdapter());
+    Hive.registerAdapter(LogAdapter());
+    Hive.registerAdapter(CodeAdapter()); // Register Code adapter
 
-  final employeeDao = EmployeeDao();
-  await employeeDao.insertDummyData(); // Insert dummy data
+    final employeeDao = EmployeeDao();
+    await employeeDao.insertDummyData(); // Insert dummy data
 
-  runApp(MyApp());
+    print('Dummy data inserted.');
+
+    runApp(MyApp());
+  } catch (e) {
+    print('Error initializing Hive: $e');
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -34,12 +42,15 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            backgroundColor: Color(0xFF930000), // Button color to match company theme
-            padding: EdgeInsets.symmetric(vertical: 20, horizontal: 40), // Bigger buttons
+            backgroundColor:
+                Color(0xFF930000), // Button color to match company theme
+            padding: EdgeInsets.symmetric(
+                vertical: 20, horizontal: 40), // Bigger buttons
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12), // Rounded corners
             ),
-            textStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.bold), // Bigger font
+            textStyle: TextStyle(
+                fontSize: 20, fontWeight: FontWeight.bold), // Bigger font
             foregroundColor: Colors.white, // Button text color to white
             minimumSize: Size(200, 50), // Consistent button size
           ),

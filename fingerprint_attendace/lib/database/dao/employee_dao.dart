@@ -3,9 +3,11 @@ import 'package:crypto/crypto.dart';
 import 'package:hive/hive.dart';
 import 'package:flutter/services.dart';
 import '../../models/employee.dart';
+import '../../models/code.dart';
 
 class EmployeeDao {
   static const String _employeeBoxName = 'employeeBox';
+  static const String _codeBoxName = 'codeBox';
 
   Future<void> createEmployee(Employee employee) async {
     var box = await Hive.openBox<Employee>(_employeeBoxName);
@@ -166,5 +168,40 @@ class EmployeeDao {
     for (var employee in dummyEmployees) {
       await createEmployee(employee);
     }
+  }
+
+  // Save verification code
+  Future<void> saveVerificationCode(String email, String code) async {
+    var box = await Hive.openBox<Code>(_codeBoxName);
+    var employeeBox = await Hive.openBox<Employee>(_employeeBoxName);
+    final employee = employeeBox.values.firstWhere(
+      (employee) => employee.email == email.toLowerCase(),
+      orElse: () => throw Exception('Employee not found'),
+    );
+
+    final verificationCode = Code(
+      userId: employee.id,
+      code: int.parse(code),
+      timestamp: DateTime.now(),
+    );
+
+    try {
+      print('Saving verification code: ${verificationCode.toMap()}');
+      await box.put(employee.id, verificationCode);
+      print('Verification code saved successfully');
+    } catch (e) {
+      print('Error saving verification code: $e');
+    }
+  }
+
+  // Retrieve verification code
+  Future<Code?> getVerificationCode(String email) async {
+    var box = await Hive.openBox<Code>(_codeBoxName);
+    var employeeBox = await Hive.openBox<Employee>(_employeeBoxName);
+    final employee = employeeBox.values.firstWhere(
+      (employee) => employee.email == email.toLowerCase(),
+      orElse: () => throw Exception('Employee not found'),
+    );
+    return box.get(employee.id);
   }
 }
