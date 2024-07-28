@@ -15,8 +15,8 @@ class UsersListScreen extends StatelessWidget {
       return 'Unknown';
     }
     final director = await employeeDao.getEmployeeById(directorId);
-    print('Director ID: $directorId, Name: ${director?.name}');
-    return director?.name ?? 'Unknown';
+    print('Director ID: $directorId, Name: ${director.name}');
+    return director.name;
   }
 
   @override

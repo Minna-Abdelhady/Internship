@@ -234,13 +234,13 @@ class EmployeeDao {
       );
 
       if (employee.id == -1) {
-        print('Employee with ID $id not found');
+        // print('Employee with ID $id not found');
       } else {
         // print('Found employee: ${employee.toMap()}');
       }
       return employee;
     } catch (e) {
-      print('Error fetching employee by ID: $e');
+      // print('Error fetching employee by ID: $e');
       return Employee(
         id: -1,
         companyId: '',
