@@ -5,34 +5,30 @@ part 'employee.g.dart';
 @HiveType(typeId: 1)
 class Employee {
   @HiveField(0)
-  final int id;
+  final int companyId;
 
   @HiveField(1)
-  final String companyId;
-
-  @HiveField(2)
   final String name;
 
-  @HiveField(3)
+  @HiveField(2)
   final String email;
 
-  @HiveField(4)
+  @HiveField(3)
   final String password;
 
-  @HiveField(5)
+  @HiveField(4)
   final String personalPhoto;
 
-  @HiveField(6)
+  @HiveField(5)
   final String jobTitle;
 
-  @HiveField(7)
-  final String directorId;
+  @HiveField(6)
+  final int directorId;
 
-  @HiveField(8)
+  @HiveField(7)
   final bool isAdmin;
 
   Employee({
-    required this.id,
     required this.companyId,
     required this.name,
     required this.email,
@@ -45,7 +41,6 @@ class Employee {
 
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
       'companyId': companyId,
       'name': name,
       'email': email,
@@ -59,7 +54,6 @@ class Employee {
 
   factory Employee.fromMap(Map<String, dynamic> map) {
     return Employee(
-      id: map['id'],
       companyId: map['companyId'],
       name: map['name'],
       email: map['email'],

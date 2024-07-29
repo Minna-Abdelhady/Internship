@@ -27,19 +27,19 @@ class EmployeeDao {
     return box.values.toList();
   }
 
-  Future<void> updateEmployee(int id, Employee updatedEmployee) async {
+  Future<void> updateEmployee(int companyId, Employee updatedEmployee) async {
     var box = await Hive.openBox<Employee>(_employeeBoxName);
     final key = box.keys.firstWhere(
-      (k) => (box.get(k) as Employee).id == id,
+      (k) => (box.get(k) as Employee).companyId == companyId,
       orElse: () => throw Exception('Employee not found'),
     );
     await box.put(key, updatedEmployee);
   }
 
-  Future<void> deleteEmployee(int id) async {
+  Future<void> deleteEmployee(int companyId) async {
     var box = await Hive.openBox<Employee>(_employeeBoxName);
     final key = box.keys.firstWhere(
-      (k) => (box.get(k) as Employee).id == id,
+      (k) => (box.get(k) as Employee).companyId == companyId,
       orElse: () => throw Exception('Employee not found'),
     );
     await box.delete(key);
@@ -54,18 +54,17 @@ class EmployeeDao {
           employee.email == email.toLowerCase() &&
           employee.password == hashedPassword,
       orElse: () => Employee(
-          id: -1,
-          companyId: '',
+          companyId: 0,
           name: '',
           email: '',
           password: '',
           personalPhoto: '',
           jobTitle: '',
-          directorId: '',
+          directorId: 0,
           isAdmin: false),
     );
 
-    return employee.id != -1;
+    return employee.companyId != 0;
   }
 
   Future<bool> emailExists(String email) async {
@@ -75,46 +74,44 @@ class EmployeeDao {
       final employee = box.values.firstWhere(
         (employee) => employee.email == email.toLowerCase(),
         orElse: () => Employee(
-            id: -1,
-            companyId: '',
+            companyId: 0,
             name: '',
             email: '',
             password: '',
             personalPhoto: '',
             jobTitle: '',
-            directorId: '',
+            directorId: 0,
             isAdmin: false),
       );
-      return employee.id != -1;
+      return employee.companyId != 0;
     } catch (e) {
       // Handle the exception if needed
       return false;
     }
   }
 
-  Future<bool> employeeIdExists(String employeeId) async {
+  Future<bool> employeeIdExists(int employeeId) async {
     var box = await Hive.openBox<Employee>(_employeeBoxName);
     return box.values.any((employee) => employee.companyId == employeeId);
   }
 
-  Future<bool> doesDirectorExist(String directorId) async {
+  Future<bool> doesDirectorExist(int directorId) async {
     var box = await Hive.openBox<Employee>(_employeeBoxName);
     final director = box.values.firstWhere(
-      (employee) => employee.id.toString() == directorId && employee.isAdmin,
+      (employee) => employee.companyId == directorId && employee.isAdmin,
       orElse: () => Employee(
-        id: -1,
-        companyId: '',
+        companyId: 0,
         name: 'Unknown',
         email: '',
         password: '',
         personalPhoto: '',
         jobTitle: '',
-        directorId: '',
+        directorId: 0,
         isAdmin: false,
       ),
     );
 
-    return director.id != -1;
+    return director.companyId != 0;
   }
 
   Future<List<Employee>> getAllDirectors() async {
@@ -129,15 +126,11 @@ class EmployeeDao {
   }
 
   Future<void> insertDummyData() async {
-    // var box = await Hive.openBox<Employee>(_employeeBoxName);
-
-    // Check if dummy data already exists
-    if (await employeeIdExists('1') && await employeeIdExists('2') && await employeeIdExists('3')) {
+    if (await employeeIdExists(1) && await employeeIdExists(2) && await employeeIdExists(3)) {
       print('Dummy data already exists');
       return;
     }
 
-    // Load the image from assets and convert it to base64
     final byteData = await rootBundle.load('assets/Apartments.PNG');
     final imageBytes = byteData.buffer.asUint8List();
     final base64Image = base64Encode(imageBytes);
@@ -148,36 +141,33 @@ class EmployeeDao {
 
     final dummyEmployees = [
       Employee(
-        id: 1,
-        companyId: '1',
+        companyId: 1,
         name: 'Dina Aref',
         email: 'dinaref@gmail.com',
         password: _hashPassword('123'),
         personalPhoto: base64Image1,
         jobTitle: 'Software Engineer Intern',
-        directorId: '3',
+        directorId: 3,
         isAdmin: true,
       ),
       Employee(
-        id: 2,
-        companyId: '2',
+        companyId: 2,
         name: 'Minna Hany',
         email: 'minnaabdelhady@gmail.com',
         password: _hashPassword('123'),
         personalPhoto: base64Image,
         jobTitle: 'Software Engineer Intern',
-        directorId: '3',
+        directorId: 3,
         isAdmin: true,
       ),
       Employee(
-        id: 3,
-        companyId: '3',
+        companyId: 3,
         name: 'mike johnson',
         email: 'mike@example.com',
         password: _hashPassword('123'),
         personalPhoto: base64Image,
         jobTitle: 'UX Designer',
-        directorId: '3',
+        directorId: 3,
         isAdmin: false,
       ),
     ];
@@ -187,7 +177,6 @@ class EmployeeDao {
     }
   }
 
-  // Save verification code
   Future<void> saveVerificationCode(String email, String code) async {
     var box = await Hive.openBox<Code>(_codeBoxName);
     var employeeBox = await Hive.openBox<Employee>(_employeeBoxName);
@@ -197,21 +186,20 @@ class EmployeeDao {
     );
 
     final verificationCode = Code(
-      userId: employee.id,
+      userId: employee.companyId,
       code: int.parse(code),
       timestamp: DateTime.now(),
     );
 
     try {
       print('Saving verification code: ${verificationCode.toMap()}');
-      await box.put(employee.id, verificationCode);
+      await box.put(employee.companyId, verificationCode);
       print('Verification code saved successfully');
     } catch (e) {
       print('Error saving verification code: $e');
     }
   }
 
-  // Retrieve verification code
   Future<Code?> getVerificationCode(String email) async {
     var box = await Hive.openBox<Code>(_codeBoxName);
     var employeeBox = await Hive.openBox<Employee>(_employeeBoxName);
@@ -219,49 +207,42 @@ class EmployeeDao {
       (employee) => employee.email == email.toLowerCase(),
       orElse: () => throw Exception('Employee not found'),
     );
-    return box.get(employee.id);
+    return box.get(employee.companyId);
   }
 
-  // Function to get employee by ID
-  Future<Employee> getEmployeeById(String id) async {
+  Future<Employee> getEmployeeByCompanyId(int companyId) async {
     var box = await Hive.openBox<Employee>(_employeeBoxName);
     try {
-      // for (var employee in box.values) {
-      //   print('Stored employee: ${employee.toMap()}');
-      // }
-
       final employee = box.values.firstWhere(
-        (employee) => employee.id.toString() == id,
+        (employee) => employee.companyId == companyId,
         orElse: () => Employee(
-          id: -1,
-          companyId: '',
+          companyId: 0,
           name: 'Unknown',
           email: '',
           password: '',
           personalPhoto: '',
           jobTitle: '',
-          directorId: '',
+          directorId: 0,
           isAdmin: false,
         ),
       );
 
-      if (employee.id == -1) {
-        // print('Employee with ID $id not found');
+      if (employee.companyId == 0) {
+        // Employee with company ID not found
       } else {
-        // print('Found employee: ${employee.toMap()}');
+        // Employee found
       }
       return employee;
     } catch (e) {
-      // print('Error fetching employee by ID: $e');
+      // Handle the error
       return Employee(
-        id: -1,
-        companyId: '',
+        companyId: 0,
         name: 'Unknown',
         email: '',
         password: '',
         personalPhoto: '',
         jobTitle: '',
-        directorId: '',
+        directorId: 0,
         isAdmin: false,
       );
     }

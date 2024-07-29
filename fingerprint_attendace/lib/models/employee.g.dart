@@ -17,39 +17,36 @@ class EmployeeAdapter extends TypeAdapter<Employee> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Employee(
-      id: fields[0] as int,
-      companyId: fields[1] as String,
-      name: fields[2] as String,
-      email: fields[3] as String,
-      password: fields[4] as String,
-      personalPhoto: fields[5] as String,
-      jobTitle: fields[6] as String,
-      directorId: fields[7] as String,
-      isAdmin: fields[8] as bool,
+      companyId: fields[0] as int,
+      name: fields[1] as String,
+      email: fields[2] as String,
+      password: fields[3] as String,
+      personalPhoto: fields[4] as String,
+      jobTitle: fields[5] as String,
+      directorId: fields[6] as int,
+      isAdmin: fields[7] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, Employee obj) {
     writer
-      ..writeByte(9)
-      ..writeByte(0)
-      ..write(obj.id)
-      ..writeByte(1)
-      ..write(obj.companyId)
-      ..writeByte(2)
-      ..write(obj.name)
-      ..writeByte(3)
-      ..write(obj.email)
-      ..writeByte(4)
-      ..write(obj.password)
-      ..writeByte(5)
-      ..write(obj.personalPhoto)
-      ..writeByte(6)
-      ..write(obj.jobTitle)
-      ..writeByte(7)
-      ..write(obj.directorId)
       ..writeByte(8)
+      ..writeByte(0)
+      ..write(obj.companyId)
+      ..writeByte(1)
+      ..write(obj.name)
+      ..writeByte(2)
+      ..write(obj.email)
+      ..writeByte(3)
+      ..write(obj.password)
+      ..writeByte(4)
+      ..write(obj.personalPhoto)
+      ..writeByte(5)
+      ..write(obj.jobTitle)
+      ..writeByte(6)
+      ..write(obj.directorId)
+      ..writeByte(7)
       ..write(obj.isAdmin);
   }
 

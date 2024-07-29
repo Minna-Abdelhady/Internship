@@ -114,25 +114,43 @@ class _HomeScreenState extends State<HomeScreen>
     return await employeeDao.emailExists(email);
   }
 
-  Future<bool> _employeeIdExists(String employeeId) async {
+  Future<bool> _employeeIdExists(int employeeId) async {
     return await employeeDao.employeeIdExists(employeeId);
   }
 
   Future<void> _addUser() async {
     if (_formKey.currentState!.validate() &&
         (_personalPhoto != null || _webImage != null)) {
+<<<<<<< Updated upstream
       if (await _employeeIdExists(_companyIdController.text)) {
+=======
+      final companyIdText = _companyIdController.text;
+      final companyIdInt = int.tryParse(companyIdText);
+
+      if (companyIdInt == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Invalid Company ID format')),
+        );
+        return;
+      }
+
+      // Check if employee ID exists
+      if (await _employeeIdExists(companyIdInt)) {
+>>>>>>> Stashed changes
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Employee ID already exists')),
         );
         return;
       }
+
+      // Check if email exists
       if (await _emailExists(_emailController.text)) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Email already exists')),
         );
         return;
       }
+<<<<<<< Updated upstream
       if (_selectedDirector != null) {
         final hashedPassword = _hashPassword(_passwordController.text);
         final employee = Employee(
@@ -148,35 +166,58 @@ class _HomeScreenState extends State<HomeScreen>
           directorId: _selectedDirector!.companyId,
           isAdmin: _isAdmin,
         );
+=======
+>>>>>>> Stashed changes
 
-        try {
-          await employeeDao.createEmployee(employee);
-          print('User added: ${employee.toMap()}');
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('User added successfully')),
-          );
-
-          _companyIdController.clear();
-          _nameController.clear();
-          _emailController.clear();
-          _passwordController.clear();
-          _jobTitleController.clear();
-          setState(() {
-            _personalPhoto = null;
-            _webImage = null;
-            _isAdmin = false;
-            _selectedDirector = null;
-          });
-        } catch (e) {
-          print('Error adding user: $e');
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error adding user')),
-          );
-        }
-      } else {
+      // Ensure selected director exists
+      if (_selectedDirector == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Director ID does not exist')),
+        );
+        return;
+      }
+
+      // Hash the password
+      final hashedPassword = _hashPassword(_passwordController.text);
+
+      // Create the employee object
+      final employee = Employee(
+        companyId: companyIdInt,
+        name: _nameController.text,
+        email: _emailController.text,
+        password: hashedPassword,
+        personalPhoto: kIsWeb
+            ? base64Encode(_webImage!)
+            : base64Encode(await _personalPhoto!.readAsBytes()),
+        jobTitle: _jobTitleController.text,
+        directorId: _selectedDirector!.companyId, // Ensure this is an int
+        isAdmin: _isAdmin,
+      );
+
+      try {
+        await employeeDao.createEmployee(employee);
+        print('User added: ${employee.toMap()}');
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('User added successfully')),
+        );
+
+        // Clear form fields
+        _companyIdController.clear();
+        _nameController.clear();
+        _emailController.clear();
+        _passwordController.clear();
+        _jobTitleController.clear();
+        setState(() {
+          _personalPhoto = null;
+          _webImage = null;
+          _isAdmin = false;
+          _selectedDirector = null;
+        });
+      } catch (e) {
+        print('Error adding user: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error adding user')),
         );
       }
     } else {
@@ -494,31 +535,52 @@ Future<void> _onSignOutPressed() async {
             Text(
               'Today: ${_formatDate(DateTime.now())}',
               style: TextStyle(
+<<<<<<< Updated upstream
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
                 fontFamily: 'NotoSans',
               ),
+=======
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                  fontFamily: 'NotoSans'),
+>>>>>>> Stashed changes
             ),
             Text(
               'Signed In At: ${_formatTime(_loginTime)}',
               style: TextStyle(
+<<<<<<< Updated upstream
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
                 fontFamily: 'NotoSans',
               ),
+=======
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                  fontFamily: 'NotoSans'),
+>>>>>>> Stashed changes
             ),
             Text(
               _isSignedOut
                   ? 'Signed Out At: ${_formatTime(_logoutTime)}'
                   : 'Expected Sign Out Time: ${_formatTime(_logoutTime)}',
               style: TextStyle(
+<<<<<<< Updated upstream
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
                 fontFamily: 'NotoSans',
               ),
+=======
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                  fontFamily: 'NotoSans'),
+>>>>>>> Stashed changes
             ),
             Spacer(),
             ElevatedButton.icon(
@@ -538,8 +600,8 @@ Future<void> _onSignOutPressed() async {
 
   Widget _buildTransactionsView(Employee employee) {
     final DateTime now = DateTime.now();
-    final DateTime loginTime = DateTime(now.year, now.month, now.day, 9, 43);
-    final DateTime logoutTime = loginTime.add(Duration(hours: 8));
+    // final DateTime loginTime = DateTime(now.year, now.month, now.day, 9, 43);
+    // final DateTime logoutTime = loginTime.add(Duration(hours: 8));
     final Map<String, Map<String, DateTime>> weekTransactions = {
       'Sunday': {
         'login': DateTime(now.year, now.month, now.day - now.weekday + 5, 9, 0),
@@ -575,11 +637,18 @@ Future<void> _onSignOutPressed() async {
             Text(
               'This Week\'s Transactions',
               style: TextStyle(
+<<<<<<< Updated upstream
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
                 fontFamily: 'NotoSans',
               ),
+=======
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                  fontFamily: 'NotoSans'),
+>>>>>>> Stashed changes
             ),
             SizedBox(height: 10),
             Column(
@@ -596,11 +665,18 @@ Future<void> _onSignOutPressed() async {
                         Text(
                           day,
                           style: TextStyle(
+<<<<<<< Updated upstream
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: Colors.black,
                             fontFamily: 'NotoSans',
                           ),
+=======
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                              fontFamily: 'NotoSans'),
+>>>>>>> Stashed changes
                         ),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
@@ -608,18 +684,30 @@ Future<void> _onSignOutPressed() async {
                             Text(
                               'Login: ${_formatTime(transactions['login'])}',
                               style: TextStyle(
+<<<<<<< Updated upstream
                                 fontSize: 18,
                                 color: Colors.black,
                                 fontFamily: 'NotoSans',
                               ),
+=======
+                                  fontSize: 18,
+                                  color: Colors.black,
+                                  fontFamily: 'NotoSans'),
+>>>>>>> Stashed changes
                             ),
                             Text(
                               'Logout: ${_formatTime(transactions['logout'])}',
                               style: TextStyle(
+<<<<<<< Updated upstream
                                 fontSize: 18,
                                 color: Colors.black,
                                 fontFamily: 'NotoSans',
                               ),
+=======
+                                  fontSize: 18,
+                                  color: Colors.black,
+                                  fontFamily: 'NotoSans'),
+>>>>>>> Stashed changes
                             ),
                           ],
                         ),
@@ -948,12 +1036,23 @@ Future<void> _onSignOutPressed() async {
           return Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
           return Center(
+<<<<<<< Updated upstream
               child: Text('Error: ${snapshot.error}',
                   style: TextStyle(color: Colors.black)));
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return Center(
               child: Text('No users found',
                   style: TextStyle(color: Colors.black)));
+=======
+            child: Text('Error: ${snapshot.error}',
+                style: TextStyle(color: Colors.black)),
+          );
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(
+            child:
+                Text('No users found', style: TextStyle(color: Colors.black)),
+          );
+>>>>>>> Stashed changes
         } else {
           final employees = snapshot.data!;
           return SingleChildScrollView(
@@ -961,21 +1060,34 @@ Future<void> _onSignOutPressed() async {
             child: DataTable(
               columns: const [
                 DataColumn(
+<<<<<<< Updated upstream
                     label: Text('Company ID',
                         style: TextStyle(color: Colors.black))),
+=======
+                    label: Text('ID', style: TextStyle(color: Colors.black))),
+>>>>>>> Stashed changes
                 DataColumn(
                     label: Text('Name', style: TextStyle(color: Colors.black))),
                 DataColumn(
                     label:
                         Text('Email', style: TextStyle(color: Colors.black))),
                 DataColumn(
+<<<<<<< Updated upstream
                     label: Text('Personal Photo',
                         style: TextStyle(color: Colors.black))),
+=======
+                    label:
+                        Text('Photo', style: TextStyle(color: Colors.black))),
+>>>>>>> Stashed changes
                 DataColumn(
                     label: Text('Job Title',
                         style: TextStyle(color: Colors.black))),
                 DataColumn(
+<<<<<<< Updated upstream
                     label: Text('Director Name',
+=======
+                    label: Text('Director',
+>>>>>>> Stashed changes
                         style: TextStyle(color: Colors.black))),
                 DataColumn(
                     label: Text('Is Admin',
@@ -984,7 +1096,11 @@ Future<void> _onSignOutPressed() async {
               rows: employees.map((employee) {
                 return DataRow(
                   cells: [
+<<<<<<< Updated upstream
                     DataCell(Text(employee.companyId,
+=======
+                    DataCell(Text(employee.companyId.toString(),
+>>>>>>> Stashed changes
                         style: TextStyle(color: Colors.black))),
                     DataCell(Text(employee.name,
                         style: TextStyle(color: Colors.black))),
@@ -1013,7 +1129,10 @@ Future<void> _onSignOutPressed() async {
                           return Text('Error',
                               style: TextStyle(color: Colors.black));
                         } else {
+<<<<<<< Updated upstream
                           print('Director name: ${snapshot.data}');
+=======
+>>>>>>> Stashed changes
                           return Text(snapshot.data ?? 'Unknown',
                               style: TextStyle(color: Colors.black));
                         }
@@ -1031,11 +1150,11 @@ Future<void> _onSignOutPressed() async {
     );
   }
 
-  Future<String> _getDirectorName(String directorId) async {
-    if (directorId.isEmpty) {
+  Future<String> _getDirectorName(int directorId) async {
+    if (directorId == 0) {
       return 'Unknown';
     }
-    final director = await employeeDao.getEmployeeById(directorId);
+    final director = await employeeDao.getEmployeeByCompanyId(directorId);
     print('Director ID: $directorId, Name: ${director.name}');
     return director.name;
   }
@@ -1044,13 +1163,15 @@ Future<void> _onSignOutPressed() async {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildInfoRow('Employee ID:', employee.companyId),
+        _buildInfoRow('Employee ID:',
+            employee.companyId.toString()), // Convert int to String
         SizedBox(height: 10),
         _buildInfoRow('Job Title:', employee.jobTitle),
         SizedBox(height: 10),
         _buildInfoRow('Email:', employee.email),
         SizedBox(height: 10),
-        _buildInfoRow('Director ID:', employee.directorId),
+        _buildInfoRow('Director ID:',
+            employee.directorId.toString()), // Convert int to String
         SizedBox(height: 10),
         _buildInfoRow('Role:', employee.isAdmin ? 'Admin' : 'Employee'),
         SizedBox(height: 10),
@@ -1062,6 +1183,7 @@ Future<void> _onSignOutPressed() async {
     return Row(
       children: [
         Text(
+<<<<<<< Updated upstream
           label,
           style: TextStyle(
             fontSize: 18,
@@ -1069,20 +1191,54 @@ Future<void> _onSignOutPressed() async {
             color: Colors.black,
             fontFamily: 'NotoSans',
           ),
+=======
+          '$label ',
+          style: TextStyle(fontWeight: FontWeight.bold),
+>>>>>>> Stashed changes
         ),
-        SizedBox(width: 10), // Adjusted the width to avoid out-of-bounds error
-        Flexible(
+        Expanded(
           child: Text(
             value,
+<<<<<<< Updated upstream
             style: TextStyle(
                 fontSize: 18, color: Colors.black, fontFamily: 'NotoSans'),
             overflow: TextOverflow.ellipsis,
+=======
+            style: TextStyle(color: Colors.black),
+>>>>>>> Stashed changes
           ),
         ),
       ],
     );
   }
 
+<<<<<<< Updated upstream
+=======
+  // Widget _buildInfoRow(String label, String value) {
+  //   return Row(
+  //     children: [
+  //       Text(
+  //         label,
+  //         style: TextStyle(
+  //             fontSize: 18,
+  //             fontWeight: FontWeight.bold,
+  //             color: Colors.black,
+  //             fontFamily: 'NotoSans'),
+  //       ),
+  //       SizedBox(width: 10), // Adjusted the width to avoid out-of-bounds error
+  //       Flexible(
+  //         child: Text(
+  //           value,
+  //           style: TextStyle(
+  //               fontSize: 18, color: Colors.black, fontFamily: 'NotoSans'),
+  //           overflow: TextOverflow.ellipsis,
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
+
+>>>>>>> Stashed changes
   Widget _buildTransactionRow(
       String day, DateTime loginTime, DateTime logoutTime) {
     return Padding(
@@ -1092,11 +1248,18 @@ Future<void> _onSignOutPressed() async {
           Text(
             '$day:',
             style: TextStyle(
+<<<<<<< Updated upstream
               fontSize: 18,
               fontWeight: FontWeight.bold,
               color: Colors.black,
               fontFamily: 'NotoSans',
             ),
+=======
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+                fontFamily: 'NotoSans'),
+>>>>>>> Stashed changes
           ),
           SizedBox(
               width: 10), // Adjusted the width to avoid out-of-bounds error

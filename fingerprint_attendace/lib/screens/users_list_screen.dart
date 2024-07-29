@@ -10,11 +10,11 @@ class UsersListScreen extends StatelessWidget {
     return await employeeDao.getAllEmployees();
   }
 
-  Future<String> _getDirectorName(String directorId) async {
-    if (directorId.isEmpty) {
+  Future<String> _getDirectorName(int directorId) async {
+    if (directorId == 0) {
       return 'Unknown';
     }
-    final director = await employeeDao.getEmployeeById(directorId);
+    final director = await employeeDao.getEmployeeByCompanyId(directorId);
     print('Director ID: $directorId, Name: ${director.name}');
     return director.name;
   }
@@ -69,7 +69,7 @@ class UsersListScreen extends StatelessWidget {
                 rows: employees.map((employee) {
                   return DataRow(
                     cells: [
-                      DataCell(Text(employee.companyId, style: TextStyle(color: Colors.black))),
+                      DataCell(Text(employee.companyId.toString(), style: TextStyle(color: Colors.black))),
                       DataCell(Text(employee.name, style: TextStyle(color: Colors.black))),
                       DataCell(Text(employee.email, style: TextStyle(color: Colors.black))),
                       DataCell(
@@ -90,7 +90,6 @@ class UsersListScreen extends StatelessWidget {
                           } else if (snapshot.hasError) {
                             return Text('Error', style: TextStyle(color: Colors.black));
                           } else {
-                            print('Director name: ${snapshot.data}');
                             return Text(snapshot.data ?? 'Unknown', style: TextStyle(color: Colors.black));
                           }
                         },

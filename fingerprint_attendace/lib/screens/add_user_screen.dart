@@ -65,13 +65,21 @@ class _AddUserScreenState extends State<AddUserScreen> {
     return await _employeeDao.emailExists(email);
   }
 
-  Future<bool> _employeeIdExists(String employeeId) async {
+  Future<bool> _employeeIdExists(int employeeId) async {
     return await _employeeDao.employeeIdExists(employeeId);
   }
 
   Future<void> _addUser() async {
     if (_formKey.currentState!.validate() && (_personalPhoto != null || _webImage != null)) {
-      if (await _employeeIdExists(_companyIdController.text)) {
+      final companyId = int.tryParse(_companyIdController.text);
+      if (companyId == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Invalid Employee ID')),
+        );
+        return;
+      }
+
+      if (await _employeeIdExists(companyId)) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Employee ID already exists')),
         );
@@ -86,8 +94,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
       if (_selectedDirector != null) {
         final hashedPassword = _hashPassword(_passwordController.text);
         final employee = Employee(
-          id: DateTime.now().millisecondsSinceEpoch,
-          companyId: _companyIdController.text,
+          companyId: companyId,
           name: _nameController.text,
           email: _emailController.text,
           password: hashedPassword,
@@ -172,7 +179,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                _buildTextField(_companyIdController, "Employee's ID"),
+                _buildTextField(_companyIdController, "Employee's ID", keyboardType: TextInputType.number),
                 _buildTextField(_nameController, 'Name'),
                 _buildTextField(
                   _emailController,
@@ -316,12 +323,13 @@ class _AddUserScreenState extends State<AddUserScreen> {
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String labelText, {bool obscureText = false, String? Function(String?)? validator}) {
+  Widget _buildTextField(TextEditingController controller, String labelText, {bool obscureText = false, String? Function(String?)? validator, TextInputType keyboardType = TextInputType.text}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: TextFormField(
         controller: controller,
         obscureText: obscureText,
+        keyboardType: keyboardType,
         decoration: InputDecoration(
           labelText: labelText,
           labelStyle: TextStyle(color: Color(0xFF930000)),
