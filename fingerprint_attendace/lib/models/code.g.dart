@@ -8,7 +8,7 @@ part of 'code.dart';
 
 class CodeAdapter extends TypeAdapter<Code> {
   @override
-  final int typeId = 4;
+  final int typeId = 5;
 
   @override
   Code read(BinaryReader reader) {

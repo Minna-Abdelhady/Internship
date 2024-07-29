@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'screens/login_screen.dart';
-// import 'screens/add_user_screen.dart' as add_user_screen; // Prefix the import
-// import 'screens/users_list_screen.dart';
 import 'models/employee.dart';
 import 'models/location.dart';
 import 'models/attendance.dart';
 import 'models/log.dart';
-import 'models/code.dart'; // Import the Code model
+import 'models/code.dart';
+import 'screens/login_screen.dart';
 import 'database/dao/employee_dao.dart';
 
 void main() async {
@@ -15,12 +13,26 @@ void main() async {
   try {
     await Hive.initFlutter();
 
-    // Registering adapters for all the models
-    Hive.registerAdapter(EmployeeAdapter());
-    Hive.registerAdapter(LocationAdapter());
-    Hive.registerAdapter(AttendanceAdapter());
-    Hive.registerAdapter(LogAdapter());
-    Hive.registerAdapter(CodeAdapter()); // Register Code adapter
+    // Registering adapters for all the models if not already registered
+    if (!Hive.isAdapterRegistered(1)) {
+      Hive.registerAdapter(EmployeeAdapter());
+    }
+    if (!Hive.isAdapterRegistered(2)) {
+      Hive.registerAdapter(LocationAdapter());
+    }
+    if (!Hive.isAdapterRegistered(3)) {
+      Hive.registerAdapter(AttendanceAdapter());
+    }
+    if (!Hive.isAdapterRegistered(4)) {
+      Hive.registerAdapter(LogAdapter());
+    }
+    if (!Hive.isAdapterRegistered(5)) {
+      Hive.registerAdapter(CodeAdapter());
+    }
+
+    // Open the required Hive boxes
+    await Hive.openBox<Employee>('employees');
+    await Hive.openBox<Attendance>('attendance');
 
     final employeeDao = EmployeeDao();
     await employeeDao.insertDummyData(); // Insert dummy data

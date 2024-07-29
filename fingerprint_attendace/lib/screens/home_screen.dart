@@ -1,3 +1,5 @@
+// home_screen.dart
+
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
@@ -7,8 +9,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../database/dao/employee_dao.dart';
-import '../database/dao/location_dao.dart';
+import '../database/dao/attendance_dao.dart';
 import '../models/employee.dart';
+import '../models/attendance.dart';
 import 'dart:convert'; // For base64 decoding
 import 'package:email_validator/email_validator.dart';
 import 'login_screen.dart'; // Import the Login screen
@@ -22,9 +25,10 @@ class HomeScreen extends StatefulWidget {
   _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
+class _HomeScreenState extends State<HomeScreen>
+    with SingleTickerProviderStateMixin {
   final EmployeeDao employeeDao = EmployeeDao();
-  final LocationDao locationDao = LocationDao();
+  final AttendanceDao attendanceDao = AttendanceDao();
   DateTime? _loginTime;
   DateTime? _logoutTime;
   bool _isSignInButtonEnabled = true;
@@ -53,6 +57,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   List<Employee> _employees = [];
   Employee? _selectedDirector;
   bool _isCurrentUserAdmin = false;
+  Employee? _currentUser;
 
   @override
   void initState() {
@@ -61,10 +66,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   }
 
   Future<void> _loadEmployeeData() async {
-    final employee = await _fetchEmployeeData();
-    _isCurrentUserAdmin = employee.isAdmin;
+    _currentUser = await _fetchEmployeeData();
+    _isCurrentUserAdmin = _currentUser!.isAdmin;
     _tabController = TabController(
-      length: _isCurrentUserAdmin ? 6 : 4,
+      length: _isCurrentUserAdmin ? 7 : 5,
       vsync: this,
     );
     _loadEmployees();
@@ -89,7 +94,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   }
 
   Future<void> _pickImage() async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       if (kIsWeb) {
         final bytes = await pickedFile.readAsBytes();
@@ -113,7 +119,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   }
 
   Future<void> _addUser() async {
-    if (_formKey.currentState!.validate() && (_personalPhoto != null || _webImage != null)) {
+    if (_formKey.currentState!.validate() &&
+        (_personalPhoto != null || _webImage != null)) {
       if (await _employeeIdExists(_companyIdController.text)) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Employee ID already exists')),
@@ -134,7 +141,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           name: _nameController.text,
           email: _emailController.text,
           password: hashedPassword,
-          personalPhoto: kIsWeb ? base64Encode(_webImage!) : base64Encode(await _personalPhoto!.readAsBytes()),
+          personalPhoto: kIsWeb
+              ? base64Encode(_webImage!)
+              : base64Encode(await _personalPhoto!.readAsBytes()),
           jobTitle: _jobTitleController.text,
           directorId: _selectedDirector!.companyId,
           isAdmin: _isAdmin,
@@ -178,13 +187,15 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   }
 
   bool _validatePassword(String password) {
-    final regex = RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$');
+    final regex = RegExp(
+        r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$');
     return regex.hasMatch(password);
   }
 
   Future<Employee> _fetchEmployeeData() async {
     final employees = await employeeDao.getAllEmployees();
-    return employees.firstWhere((employee) => employee.email.toLowerCase() == widget.email.toLowerCase());
+    return employees.firstWhere((employee) =>
+        employee.email.toLowerCase() == widget.email.toLowerCase());
   }
 
   String _formatDate(DateTime date) {
@@ -198,26 +209,65 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     return DateFormat('h:mm a').format(date);
   }
 
-  void _onSignInPressed() {
-    setState(() {
-      _loginTime = DateTime.now();
-      _logoutTime = _loginTime!.add(Duration(hours: 8)); // Update logout time
-      _isSignInButtonEnabled = false;
-      _isSignOutButtonEnabled = true;
-      _isSignedOut = false;
-    });
-    print('Sign In Time: ${_formatTime(_loginTime!)}');
-  }
+Future<void> _onSignInPressed() async {
+  setState(() {
+    _loginTime = DateTime.now();
+    _logoutTime = _loginTime!.add(Duration(hours: 8)); // Expected logout time
+    _isSignInButtonEnabled = false;
+    _isSignOutButtonEnabled = true;
+    _isSignedOut = false;
+  });
 
-  void _onSignOutPressed() {
-    setState(() {
-      _logoutTime = DateTime.now();
-      _isSignedOut = true;
-      _isSignInButtonEnabled = true;
-      _isSignOutButtonEnabled = false;
-    });
-    print('Sign Out Time: ${_formatTime(_logoutTime!)}');
-  }
+  final attendance = Attendance(
+    userId: _currentUser!.companyId,
+    transactionType: 'Sign In',
+    date: DateTime.now(),
+    signInTime: _loginTime!,
+    signOutTime: _logoutTime!,
+  );
+
+  await attendanceDao.createOrUpdateAttendance(attendance);
+
+  print('Sign In Time: ${_formatTime(_loginTime!)}');
+  setState(() {}); // Update the state to reflect changes in UI
+}
+
+Future<void> _onSignOutPressed() async {
+  setState(() {
+    _logoutTime = DateTime.now();
+    _isSignedOut = true;
+    _isSignInButtonEnabled = true;
+    _isSignOutButtonEnabled = false;
+  });
+
+  final attendances = await attendanceDao.getAttendanceByUserId(_currentUser!.companyId);
+  final todayAttendance = attendances.firstWhere(
+    (attendance) =>
+        attendance.date.year == DateTime.now().year &&
+        attendance.date.month == DateTime.now().month &&
+        attendance.date.day == DateTime.now().day,
+    orElse: () => Attendance(
+      userId: _currentUser!.companyId,
+      transactionType: 'Sign Out',
+      date: DateTime.now(),
+      signInTime: _loginTime!,
+      signOutTime: _logoutTime!,
+    ),
+  );
+
+  final updatedAttendance = Attendance(
+    userId: todayAttendance.userId,
+    transactionType: 'Sign Out',
+    date: todayAttendance.date,
+    signInTime: todayAttendance.signInTime,
+    signOutTime: _logoutTime!,
+  );
+
+  await attendanceDao.createOrUpdateAttendance(updatedAttendance);
+
+  print('Sign Out Time: ${_formatTime(_logoutTime!)}');
+  setState(() {}); // Update the state to reflect changes in UI
+}
 
   void _onFaceIdPressed() {
     // Implement Face ID functionality here
@@ -230,14 +280,14 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   }
 
   void _onLogoutPressed() {
-    // Implement navigation to login screen
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => LoginScreen()),
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String labelText, {bool obscureText = false, String? Function(String?)? validator}) {
+  Widget _buildTextField(TextEditingController controller, String labelText,
+      {bool obscureText = false, String? Function(String?)? validator}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: TextFormField(
@@ -250,33 +300,75 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             borderRadius: BorderRadius.circular(10),
           ),
         ),
-        validator: validator ?? (value) {
-          if (value == null || value.isEmpty) {
-            return 'Please enter $labelText';
-          }
-          return null;
-        },
+        validator: validator ??
+            (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter $labelText';
+              }
+              return null;
+            },
       ),
     );
   }
+
+ Widget _buildAttendanceView(Employee employee) {
+  return FutureBuilder<List<Attendance>>(
+    future: attendanceDao.getAttendanceByUserId(employee.companyId),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return Center(child: CircularProgressIndicator());
+      } else if (snapshot.hasError) {
+        return Center(child: Text('Error: ${snapshot.error}', style: TextStyle(color: Colors.black)));
+      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+        return Center(child: Text('No attendance records found', style: TextStyle(color: Colors.black)));
+      } else {
+        final attendanceRecords = snapshot.data!;
+        return SingleChildScrollView(
+          child: DataTable(
+            columns: const [
+              DataColumn(label: Text('Date', style: TextStyle(color: Colors.black))),
+              DataColumn(label: Text('Sign In', style: TextStyle(color: Colors.black))),
+              DataColumn(label: Text('Sign Out', style: TextStyle(color: Colors.black))),
+              DataColumn(label: Text('Total Hours', style: TextStyle(color: Colors.black))),
+            ],
+            rows: attendanceRecords.map((attendance) {
+              final totalHours = attendance.signOutTime.difference(attendance.signInTime).inHours;
+              return DataRow(
+                cells: [
+                  DataCell(Text(DateFormat('yyyy-MM-dd').format(attendance.date), style: TextStyle(color: Colors.black))),
+                  DataCell(Text(DateFormat('h:mm a').format(attendance.signInTime), style: TextStyle(color: Colors.black))),
+                  DataCell(Text(DateFormat('h:mm a').format(attendance.signOutTime), style: TextStyle(color: Colors.black))),
+                  DataCell(Text(totalHours.toString(), style: TextStyle(color: Colors.black))),
+                ],
+              );
+            }).toList(),
+          ),
+        );
+      }
+    },
+  );
+}
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: Color(0xFF930000), // AppBar color to match company theme
+        backgroundColor:
+            Color(0xFF930000), // AppBar color to match company theme
         iconTheme: IconThemeData(
           color: Colors.white, // Back arrow color to white
         ),
         bottom: PreferredSize(
-          preferredSize: Size.fromHeight(0), // Remove extra space above the tabs
+          preferredSize:
+              Size.fromHeight(0), // Remove extra space above the tabs
           child: Container(
             color: Color(0xFF930000),
             child: TabBar(
               controller: _tabController,
               labelColor: Colors.white, // Set tab text color to white
-              unselectedLabelColor: Colors.white, // Set unselected tab text color to white
+              unselectedLabelColor:
+                  Colors.white, // Set unselected tab text color to white
               indicatorColor: Colors.white, // Set the indicator color to white
               indicator: BoxDecoration(
                 border: Border(
@@ -291,16 +383,23 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           ),
         ),
       ),
-      backgroundColor: Colors.white, // Set the Scaffold background color to white
+      backgroundColor:
+          Colors.white, // Set the Scaffold background color to white
       body: FutureBuilder<Employee>(
         future: _fetchEmployeeData(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}', style: TextStyle(color: Colors.black, fontFamily: 'NotoSans')));
+            return Center(
+                child: Text('Error: ${snapshot.error}',
+                    style: TextStyle(
+                        color: Colors.black, fontFamily: 'NotoSans')));
           } else if (!snapshot.hasData) {
-            return Center(child: Text('User not found', style: TextStyle(color: Colors.black, fontFamily: 'NotoSans')));
+            return Center(
+                child: Text('User not found',
+                    style: TextStyle(
+                        color: Colors.black, fontFamily: 'NotoSans')));
           } else {
             final employee = snapshot.data!;
             return Row(
@@ -330,6 +429,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       Tab(text: 'This Week\'s Transactions'),
       Tab(text: 'Calendar'),
       Tab(text: 'Vacations'),
+      Tab(text: 'View Attendance'),
     ];
     if (_isCurrentUserAdmin) {
       tabs.addAll([
@@ -346,6 +446,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       _buildTransactionsView(employee),
       _buildCalendarView(),
       _buildVacationsView(),
+      _buildAttendanceView(employee),
     ];
     if (_isCurrentUserAdmin) {
       tabViews.addAll([
@@ -371,7 +472,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 shape: BoxShape.rectangle, // Ensure the shape is rectangular
                 image: DecorationImage(
                   image: MemoryImage(base64Decode(employee.personalPhoto)),
-                  fit: BoxFit.cover, // Ensure the image covers the entire container
+                  fit: BoxFit
+                      .cover, // Ensure the image covers the entire container
                 ),
               ),
             ),
@@ -391,24 +493,40 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             Divider(color: Colors.black), // Add a separation line
             Text(
               'Today: ${_formatDate(DateTime.now())}',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black, fontFamily: 'NotoSans'),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+                fontFamily: 'NotoSans',
+              ),
             ),
             Text(
               'Signed In At: ${_formatTime(_loginTime)}',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black, fontFamily: 'NotoSans'),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+                fontFamily: 'NotoSans',
+              ),
             ),
             Text(
               _isSignedOut
                   ? 'Signed Out At: ${_formatTime(_logoutTime)}'
                   : 'Expected Sign Out Time: ${_formatTime(_logoutTime)}',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black, fontFamily: 'NotoSans'),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+                fontFamily: 'NotoSans',
+              ),
             ),
             Spacer(),
             ElevatedButton.icon(
               onPressed: _onLogoutPressed,
               icon: Icon(Icons.logout),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF930000), // Button color to match company theme
+                backgroundColor:
+                    Color(0xFF930000), // Button color to match company theme
               ),
               label: Text('Log Out'),
             ),
@@ -423,11 +541,29 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     final DateTime loginTime = DateTime(now.year, now.month, now.day, 9, 43);
     final DateTime logoutTime = loginTime.add(Duration(hours: 8));
     final Map<String, Map<String, DateTime>> weekTransactions = {
-      'Sunday': {'login': DateTime(now.year, now.month, now.day - now.weekday + 5, 9, 0), 'logout': DateTime(now.year, now.month, now.day - now.weekday + 5, 17, 0)},
-      'Monday': {'login': DateTime(now.year, now.month, now.day - now.weekday + 1, 9, 0), 'logout': DateTime(now.year, now.month, now.day - now.weekday + 1, 17, 0)},
-      'Tuesday': {'login': DateTime(now.year, now.month, now.day - now.weekday + 2, 9, 43), 'logout': DateTime(now.year, now.month, now.day - now.weekday + 2, 0, 0)},
-      'Wednesday': {'login': DateTime(now.year, now.month, now.day - now.weekday + 3, 0, 0), 'logout': DateTime(now.year, now.month, now.day - now.weekday + 3, 0, 0)},
-      'Thursday': {'login': DateTime(now.year, now.month, now.day - now.weekday + 4, 9, 0), 'logout': DateTime(now.year, now.month, now.day - now.weekday + 4, 0, 0)},
+      'Sunday': {
+        'login': DateTime(now.year, now.month, now.day - now.weekday + 5, 9, 0),
+        'logout':
+            DateTime(now.year, now.month, now.day - now.weekday + 5, 17, 0)
+      },
+      'Monday': {
+        'login': DateTime(now.year, now.month, now.day - now.weekday + 1, 9, 0),
+        'logout':
+            DateTime(now.year, now.month, now.day - now.weekday + 1, 17, 0)
+      },
+      'Tuesday': {
+        'login':
+            DateTime(now.year, now.month, now.day - now.weekday + 2, 9, 43),
+        'logout': DateTime(now.year, now.month, now.day - now.weekday + 2, 0, 0)
+      },
+      'Wednesday': {
+        'login': DateTime(now.year, now.month, now.day - now.weekday + 3, 0, 0),
+        'logout': DateTime(now.year, now.month, now.day - now.weekday + 3, 0, 0)
+      },
+      'Thursday': {
+        'login': DateTime(now.year, now.month, now.day - now.weekday + 4, 9, 0),
+        'logout': DateTime(now.year, now.month, now.day - now.weekday + 4, 0, 0)
+      },
     };
 
     return SingleChildScrollView(
@@ -438,7 +574,12 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           children: [
             Text(
               'This Week\'s Transactions',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black, fontFamily: 'NotoSans'),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+                fontFamily: 'NotoSans',
+              ),
             ),
             SizedBox(height: 10),
             Column(
@@ -454,18 +595,31 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       children: [
                         Text(
                           day,
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black, fontFamily: 'NotoSans'),
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                            fontFamily: 'NotoSans',
+                          ),
                         ),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Text(
                               'Login: ${_formatTime(transactions['login'])}',
-                              style: TextStyle(fontSize: 18, color: Colors.black, fontFamily: 'NotoSans'),
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.black,
+                                fontFamily: 'NotoSans',
+                              ),
                             ),
                             Text(
                               'Logout: ${_formatTime(transactions['logout'])}',
-                              style: TextStyle(fontSize: 18, color: Colors.black, fontFamily: 'NotoSans'),
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.black,
+                                fontFamily: 'NotoSans',
+                              ),
                             ),
                           ],
                         ),
@@ -525,13 +679,15 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 );
               },
               defaultBuilder: (context, day, focusedDay) {
-                if (day.weekday == DateTime.friday || day.weekday == DateTime.saturday) {
+                if (day.weekday == DateTime.friday ||
+                    day.weekday == DateTime.saturday) {
                   return Container(
                     margin: const EdgeInsets.all(4.0),
                     alignment: Alignment.center,
                     child: Text(
                       day.day.toString(),
-                      style: TextStyle().copyWith(color: Colors.red), // Set weekend text color to red
+                      style: TextStyle().copyWith(
+                          color: Colors.red), // Set weekend text color to red
                     ),
                   );
                 }
@@ -791,53 +947,80 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}', style: TextStyle(color: Colors.black)));
+          return Center(
+              child: Text('Error: ${snapshot.error}',
+                  style: TextStyle(color: Colors.black)));
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return Center(child: Text('No users found', style: TextStyle(color: Colors.black)));
+          return Center(
+              child: Text('No users found',
+                  style: TextStyle(color: Colors.black)));
         } else {
           final employees = snapshot.data!;
           return SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: DataTable(
               columns: const [
-                DataColumn(label: Text('Company ID', style: TextStyle(color: Colors.black))),
-                DataColumn(label: Text('Name', style: TextStyle(color: Colors.black))),
-                DataColumn(label: Text('Email', style: TextStyle(color: Colors.black))),
-                DataColumn(label: Text('Personal Photo', style: TextStyle(color: Colors.black))),
-                DataColumn(label: Text('Job Title', style: TextStyle(color: Colors.black))),
-                DataColumn(label: Text('Director Name', style: TextStyle(color: Colors.black))),
-                DataColumn(label: Text('Is Admin', style: TextStyle(color: Colors.black))),
+                DataColumn(
+                    label: Text('Company ID',
+                        style: TextStyle(color: Colors.black))),
+                DataColumn(
+                    label: Text('Name', style: TextStyle(color: Colors.black))),
+                DataColumn(
+                    label:
+                        Text('Email', style: TextStyle(color: Colors.black))),
+                DataColumn(
+                    label: Text('Personal Photo',
+                        style: TextStyle(color: Colors.black))),
+                DataColumn(
+                    label: Text('Job Title',
+                        style: TextStyle(color: Colors.black))),
+                DataColumn(
+                    label: Text('Director Name',
+                        style: TextStyle(color: Colors.black))),
+                DataColumn(
+                    label: Text('Is Admin',
+                        style: TextStyle(color: Colors.black))),
               ],
               rows: employees.map((employee) {
                 return DataRow(
                   cells: [
-                    DataCell(Text(employee.companyId, style: TextStyle(color: Colors.black))),
-                    DataCell(Text(employee.name, style: TextStyle(color: Colors.black))),
-                    DataCell(Text(employee.email, style: TextStyle(color: Colors.black))),
+                    DataCell(Text(employee.companyId,
+                        style: TextStyle(color: Colors.black))),
+                    DataCell(Text(employee.name,
+                        style: TextStyle(color: Colors.black))),
+                    DataCell(Text(employee.email,
+                        style: TextStyle(color: Colors.black))),
                     DataCell(
                       employee.personalPhoto.isEmpty
-                          ? Text('No Photo', style: TextStyle(color: Colors.black))
+                          ? Text('No Photo',
+                              style: TextStyle(color: Colors.black))
                           : Image.memory(
                               base64Decode(employee.personalPhoto),
                               height: 50,
                               width: 50,
                             ),
                     ),
-                    DataCell(Text(employee.jobTitle, style: TextStyle(color: Colors.black))),
+                    DataCell(Text(employee.jobTitle,
+                        style: TextStyle(color: Colors.black))),
                     DataCell(FutureBuilder<String>(
                       future: _getDirectorName(employee.directorId),
                       builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return Text('Loading...', style: TextStyle(color: Colors.black));
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Text('Loading...',
+                              style: TextStyle(color: Colors.black));
                         } else if (snapshot.hasError) {
-                          return Text('Error', style: TextStyle(color: Colors.black));
+                          return Text('Error',
+                              style: TextStyle(color: Colors.black));
                         } else {
                           print('Director name: ${snapshot.data}');
-                          return Text(snapshot.data ?? 'Unknown', style: TextStyle(color: Colors.black));
+                          return Text(snapshot.data ?? 'Unknown',
+                              style: TextStyle(color: Colors.black));
                         }
                       },
                     )),
-                    DataCell(Text(employee.isAdmin ? 'Admin' : 'Employee', style: TextStyle(color: Colors.black))),
+                    DataCell(Text(employee.isAdmin ? 'Admin' : 'Employee',
+                        style: TextStyle(color: Colors.black))),
                   ],
                 );
               }).toList(),
@@ -880,13 +1063,19 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       children: [
         Text(
           label,
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black, fontFamily: 'NotoSans'),
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+            fontFamily: 'NotoSans',
+          ),
         ),
         SizedBox(width: 10), // Adjusted the width to avoid out-of-bounds error
         Flexible(
           child: Text(
             value,
-            style: TextStyle(fontSize: 18, color: Colors.black, fontFamily: 'NotoSans'),
+            style: TextStyle(
+                fontSize: 18, color: Colors.black, fontFamily: 'NotoSans'),
             overflow: TextOverflow.ellipsis,
           ),
         ),
@@ -894,19 +1083,27 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     );
   }
 
-  Widget _buildTransactionRow(String day, DateTime loginTime, DateTime logoutTime) {
+  Widget _buildTransactionRow(
+      String day, DateTime loginTime, DateTime logoutTime) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         children: [
           Text(
             '$day:',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black, fontFamily: 'NotoSans'),
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+              fontFamily: 'NotoSans',
+            ),
           ),
-          SizedBox(width: 10), // Adjusted the width to avoid out-of-bounds error
+          SizedBox(
+              width: 10), // Adjusted the width to avoid out-of-bounds error
           Text(
             'Login: ${_formatTime(loginTime)} - Logout: ${_formatTime(logoutTime)}',
-            style: TextStyle(fontSize: 18, color: Colors.black, fontFamily: 'NotoSans'),
+            style: TextStyle(
+                fontSize: 18, color: Colors.black, fontFamily: 'NotoSans'),
           ),
         ],
       ),

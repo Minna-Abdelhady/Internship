@@ -8,7 +8,7 @@ part of 'log.dart';
 
 class LogAdapter extends TypeAdapter<Log> {
   @override
-  final int typeId = 3;
+  final int typeId = 4;
 
   @override
   Log read(BinaryReader reader) {

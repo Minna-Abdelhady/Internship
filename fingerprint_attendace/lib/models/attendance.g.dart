@@ -8,7 +8,7 @@ part of 'attendance.dart';
 
 class AttendanceAdapter extends TypeAdapter<Attendance> {
   @override
-  final int typeId = 2;
+  final int typeId = 3;
 
   @override
   Attendance read(BinaryReader reader) {
@@ -17,11 +17,11 @@ class AttendanceAdapter extends TypeAdapter<Attendance> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Attendance(
-      employeeId: fields[1] as String,
-      employeeName: fields[2] as String,
-      branch: fields[3] as String,
-      timestamp: fields[4] as DateTime,
-      transaction: fields[5] as String,
+      userId: fields[0] as String,
+      transactionType: fields[1] as String,
+      date: fields[2] as DateTime,
+      signInTime: fields[3] as DateTime,
+      signOutTime: fields[4] as DateTime,
     );
   }
 
@@ -29,16 +29,16 @@ class AttendanceAdapter extends TypeAdapter<Attendance> {
   void write(BinaryWriter writer, Attendance obj) {
     writer
       ..writeByte(5)
+      ..writeByte(0)
+      ..write(obj.userId)
       ..writeByte(1)
-      ..write(obj.employeeId)
+      ..write(obj.transactionType)
       ..writeByte(2)
-      ..write(obj.employeeName)
+      ..write(obj.date)
       ..writeByte(3)
-      ..write(obj.branch)
+      ..write(obj.signInTime)
       ..writeByte(4)
-      ..write(obj.timestamp)
-      ..writeByte(5)
-      ..write(obj.transaction);
+      ..write(obj.signOutTime);
   }
 
   @override

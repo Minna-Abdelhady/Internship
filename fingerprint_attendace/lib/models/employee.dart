@@ -2,7 +2,7 @@ import 'package:hive/hive.dart';
 
 part 'employee.g.dart';
 
-@HiveType(typeId: 0)
+@HiveType(typeId: 1)
 class Employee {
   @HiveField(0)
   final int id;

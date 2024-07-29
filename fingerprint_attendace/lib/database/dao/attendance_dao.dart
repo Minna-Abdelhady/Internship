@@ -2,27 +2,16 @@ import 'package:hive/hive.dart';
 import '../../models/attendance.dart';
 
 class AttendanceDao {
-  static const String _attendanceBoxName = 'attendanceBox';
+  final Box<Attendance> _attendanceBox = Hive.box<Attendance>('attendance');
 
-  Future<void> createAttendance(Attendance attendance) async {
-    var box = await Hive.openBox<Attendance>(_attendanceBoxName);
-    await box.add(attendance);
+  Future<void> createOrUpdateAttendance(Attendance attendance) async {
+    // Use userId and date as a unique identifier
+    final key = '${attendance.userId}_${attendance.date.toIso8601String()}';
+    await _attendanceBox.put(key, attendance);
   }
 
-  Future<List<Attendance>> getAllAttendance() async {
-    var box = await Hive.openBox<Attendance>(_attendanceBoxName);
-    return box.values.toList();
-  }
-
-  Future<void> updateAttendance(int id, Attendance updatedAttendance) async {
-    var box = await Hive.openBox<Attendance>(_attendanceBoxName);
-    final key = box.keys.firstWhere((k) => (box.get(k) as Attendance).employeeId == id);
-    await box.put(key, updatedAttendance);
-  }
-
-  Future<void> deleteAttendance(int id) async {
-    var box = await Hive.openBox<Attendance>(_attendanceBoxName);
-    final key = box.keys.firstWhere((k) => (box.get(k) as Attendance).employeeId == id);
-    await box.delete(key);
+  Future<List<Attendance>> getAttendanceByUserId(String userId) async {
+    return _attendanceBox.values.where((attendance) => attendance.userId == userId).toList();
   }
 }
+

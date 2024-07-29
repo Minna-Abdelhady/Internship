@@ -4,10 +4,16 @@ import 'package:hive/hive.dart';
 import 'package:flutter/services.dart';
 import '../../models/employee.dart';
 import '../../models/code.dart';
+import '../../models/attendance.dart';
 
 class EmployeeDao {
   static const String _employeeBoxName = 'employeeBox';
   static const String _codeBoxName = 'codeBox';
+
+  Future<List<Attendance>> getAttendanceByUserId(String userId) async {
+    var box = await Hive.openBox<Attendance>('attendanceBox');
+    return box.values.where((attendance) => attendance.userId == userId).toList();
+  }
 
   Future<void> createEmployee(Employee employee) async {
     var box = await Hive.openBox<Employee>(_employeeBoxName);
