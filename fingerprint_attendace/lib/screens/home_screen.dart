@@ -261,7 +261,7 @@ Future<void> _onSignOutPressed() async {
   });
 
   final attendances = await attendanceDao.getAttendanceByUserId(_currentUser!.companyId);
-  final todayAttendance = attendances.firstWhere(
+  final todayAttendance = attendances.lastWhere(
     (attendance) =>
         attendance.date.year == DateTime.now().year &&
         attendance.date.month == DateTime.now().month &&
