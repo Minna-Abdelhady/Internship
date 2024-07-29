@@ -1,5 +1,6 @@
 // models/attendance.dart
 
+
 import 'package:hive/hive.dart';
 
 part 'attendance.g.dart';
@@ -7,7 +8,7 @@ part 'attendance.g.dart';
 @HiveType(typeId: 3)
 class Attendance extends HiveObject {
   @HiveField(0)
-  final String userId;
+  final int userId;
   
   @HiveField(1)
   final String transactionType;

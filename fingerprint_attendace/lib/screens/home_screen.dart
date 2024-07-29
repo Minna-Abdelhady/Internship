@@ -121,9 +121,7 @@ class _HomeScreenState extends State<HomeScreen>
   Future<void> _addUser() async {
     if (_formKey.currentState!.validate() &&
         (_personalPhoto != null || _webImage != null)) {
-<<<<<<< Updated upstream
-      if (await _employeeIdExists(_companyIdController.text)) {
-=======
+      // if (await _employeeIdExists(_companyIdController.text)) {
       final companyIdText = _companyIdController.text;
       final companyIdInt = int.tryParse(companyIdText);
 
@@ -136,7 +134,6 @@ class _HomeScreenState extends State<HomeScreen>
 
       // Check if employee ID exists
       if (await _employeeIdExists(companyIdInt)) {
->>>>>>> Stashed changes
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Employee ID already exists')),
         );
@@ -150,24 +147,6 @@ class _HomeScreenState extends State<HomeScreen>
         );
         return;
       }
-<<<<<<< Updated upstream
-      if (_selectedDirector != null) {
-        final hashedPassword = _hashPassword(_passwordController.text);
-        final employee = Employee(
-          id: DateTime.now().millisecondsSinceEpoch,
-          companyId: _companyIdController.text,
-          name: _nameController.text,
-          email: _emailController.text,
-          password: hashedPassword,
-          personalPhoto: kIsWeb
-              ? base64Encode(_webImage!)
-              : base64Encode(await _personalPhoto!.readAsBytes()),
-          jobTitle: _jobTitleController.text,
-          directorId: _selectedDirector!.companyId,
-          isAdmin: _isAdmin,
-        );
-=======
->>>>>>> Stashed changes
 
       // Ensure selected director exists
       if (_selectedDirector == null) {
@@ -535,52 +514,28 @@ Future<void> _onSignOutPressed() async {
             Text(
               'Today: ${_formatDate(DateTime.now())}',
               style: TextStyle(
-<<<<<<< Updated upstream
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-                fontFamily: 'NotoSans',
-              ),
-=======
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Colors.black,
                   fontFamily: 'NotoSans'),
->>>>>>> Stashed changes
             ),
             Text(
               'Signed In At: ${_formatTime(_loginTime)}',
               style: TextStyle(
-<<<<<<< Updated upstream
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-                fontFamily: 'NotoSans',
-              ),
-=======
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Colors.black,
                   fontFamily: 'NotoSans'),
->>>>>>> Stashed changes
             ),
             Text(
               _isSignedOut
                   ? 'Signed Out At: ${_formatTime(_logoutTime)}'
                   : 'Expected Sign Out Time: ${_formatTime(_logoutTime)}',
               style: TextStyle(
-<<<<<<< Updated upstream
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-                fontFamily: 'NotoSans',
-              ),
-=======
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Colors.black,
                   fontFamily: 'NotoSans'),
->>>>>>> Stashed changes
             ),
             Spacer(),
             ElevatedButton.icon(
@@ -637,18 +592,10 @@ Future<void> _onSignOutPressed() async {
             Text(
               'This Week\'s Transactions',
               style: TextStyle(
-<<<<<<< Updated upstream
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-                fontFamily: 'NotoSans',
-              ),
-=======
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Colors.black,
                   fontFamily: 'NotoSans'),
->>>>>>> Stashed changes
             ),
             SizedBox(height: 10),
             Column(
@@ -665,18 +612,10 @@ Future<void> _onSignOutPressed() async {
                         Text(
                           day,
                           style: TextStyle(
-<<<<<<< Updated upstream
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                            fontFamily: 'NotoSans',
-                          ),
-=======
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                               color: Colors.black,
                               fontFamily: 'NotoSans'),
->>>>>>> Stashed changes
                         ),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
@@ -684,30 +623,16 @@ Future<void> _onSignOutPressed() async {
                             Text(
                               'Login: ${_formatTime(transactions['login'])}',
                               style: TextStyle(
-<<<<<<< Updated upstream
-                                fontSize: 18,
-                                color: Colors.black,
-                                fontFamily: 'NotoSans',
-                              ),
-=======
                                   fontSize: 18,
                                   color: Colors.black,
                                   fontFamily: 'NotoSans'),
->>>>>>> Stashed changes
                             ),
                             Text(
                               'Logout: ${_formatTime(transactions['logout'])}',
                               style: TextStyle(
-<<<<<<< Updated upstream
-                                fontSize: 18,
-                                color: Colors.black,
-                                fontFamily: 'NotoSans',
-                              ),
-=======
                                   fontSize: 18,
                                   color: Colors.black,
                                   fontFamily: 'NotoSans'),
->>>>>>> Stashed changes
                             ),
                           ],
                         ),
@@ -1036,14 +961,6 @@ Future<void> _onSignOutPressed() async {
           return Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
           return Center(
-<<<<<<< Updated upstream
-              child: Text('Error: ${snapshot.error}',
-                  style: TextStyle(color: Colors.black)));
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return Center(
-              child: Text('No users found',
-                  style: TextStyle(color: Colors.black)));
-=======
             child: Text('Error: ${snapshot.error}',
                 style: TextStyle(color: Colors.black)),
           );
@@ -1052,7 +969,6 @@ Future<void> _onSignOutPressed() async {
             child:
                 Text('No users found', style: TextStyle(color: Colors.black)),
           );
->>>>>>> Stashed changes
         } else {
           final employees = snapshot.data!;
           return SingleChildScrollView(
@@ -1060,34 +976,20 @@ Future<void> _onSignOutPressed() async {
             child: DataTable(
               columns: const [
                 DataColumn(
-<<<<<<< Updated upstream
-                    label: Text('Company ID',
-                        style: TextStyle(color: Colors.black))),
-=======
                     label: Text('ID', style: TextStyle(color: Colors.black))),
->>>>>>> Stashed changes
                 DataColumn(
                     label: Text('Name', style: TextStyle(color: Colors.black))),
                 DataColumn(
                     label:
                         Text('Email', style: TextStyle(color: Colors.black))),
                 DataColumn(
-<<<<<<< Updated upstream
-                    label: Text('Personal Photo',
-                        style: TextStyle(color: Colors.black))),
-=======
                     label:
                         Text('Photo', style: TextStyle(color: Colors.black))),
->>>>>>> Stashed changes
                 DataColumn(
                     label: Text('Job Title',
                         style: TextStyle(color: Colors.black))),
                 DataColumn(
-<<<<<<< Updated upstream
-                    label: Text('Director Name',
-=======
                     label: Text('Director',
->>>>>>> Stashed changes
                         style: TextStyle(color: Colors.black))),
                 DataColumn(
                     label: Text('Is Admin',
@@ -1096,11 +998,7 @@ Future<void> _onSignOutPressed() async {
               rows: employees.map((employee) {
                 return DataRow(
                   cells: [
-<<<<<<< Updated upstream
-                    DataCell(Text(employee.companyId,
-=======
                     DataCell(Text(employee.companyId.toString(),
->>>>>>> Stashed changes
                         style: TextStyle(color: Colors.black))),
                     DataCell(Text(employee.name,
                         style: TextStyle(color: Colors.black))),
@@ -1129,10 +1027,6 @@ Future<void> _onSignOutPressed() async {
                           return Text('Error',
                               style: TextStyle(color: Colors.black));
                         } else {
-<<<<<<< Updated upstream
-                          print('Director name: ${snapshot.data}');
-=======
->>>>>>> Stashed changes
                           return Text(snapshot.data ?? 'Unknown',
                               style: TextStyle(color: Colors.black));
                         }
@@ -1183,37 +1077,19 @@ Future<void> _onSignOutPressed() async {
     return Row(
       children: [
         Text(
-<<<<<<< Updated upstream
-          label,
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-            fontFamily: 'NotoSans',
-          ),
-=======
           '$label ',
           style: TextStyle(fontWeight: FontWeight.bold),
->>>>>>> Stashed changes
         ),
         Expanded(
           child: Text(
             value,
-<<<<<<< Updated upstream
-            style: TextStyle(
-                fontSize: 18, color: Colors.black, fontFamily: 'NotoSans'),
-            overflow: TextOverflow.ellipsis,
-=======
             style: TextStyle(color: Colors.black),
->>>>>>> Stashed changes
           ),
         ),
       ],
     );
   }
 
-<<<<<<< Updated upstream
-=======
   // Widget _buildInfoRow(String label, String value) {
   //   return Row(
   //     children: [
@@ -1238,7 +1114,6 @@ Future<void> _onSignOutPressed() async {
   //   );
   // }
 
->>>>>>> Stashed changes
   Widget _buildTransactionRow(
       String day, DateTime loginTime, DateTime logoutTime) {
     return Padding(
@@ -1248,18 +1123,10 @@ Future<void> _onSignOutPressed() async {
           Text(
             '$day:',
             style: TextStyle(
-<<<<<<< Updated upstream
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-              fontFamily: 'NotoSans',
-            ),
-=======
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
                 fontFamily: 'NotoSans'),
->>>>>>> Stashed changes
           ),
           SizedBox(
               width: 10), // Adjusted the width to avoid out-of-bounds error

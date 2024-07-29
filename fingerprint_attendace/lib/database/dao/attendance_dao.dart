@@ -10,7 +10,7 @@ class AttendanceDao {
     await _attendanceBox.put(key, attendance);
   }
 
-  Future<List<Attendance>> getAttendanceByUserId(String userId) async {
+  Future<List<Attendance>> getAttendanceByUserId(int userId) async {
     return _attendanceBox.values.where((attendance) => attendance.userId == userId).toList();
   }
 }

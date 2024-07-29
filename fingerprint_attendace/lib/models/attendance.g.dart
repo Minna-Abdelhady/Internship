@@ -17,7 +17,7 @@ class AttendanceAdapter extends TypeAdapter<Attendance> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Attendance(
-      userId: fields[0] as String,
+      userId: fields[0] as int,
       transactionType: fields[1] as String,
       date: fields[2] as DateTime,
       signInTime: fields[3] as DateTime,
