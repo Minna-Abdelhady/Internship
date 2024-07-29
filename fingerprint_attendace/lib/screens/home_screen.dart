@@ -761,49 +761,52 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  Widget _buildSignInView(Employee employee) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ElevatedButton.icon(
-              onPressed: _isSignedIn ? _onSignOutPressed : _onSignInPressed,
-              icon: Icon(Icons.location_on),
-              style: ElevatedButton.styleFrom(
-                minimumSize: Size(250, 150), // Set the button size
+Widget _buildSignInView(Employee employee) {
+  return Padding(
+    padding: const EdgeInsets.all(16.0),
+    child: Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton.icon(
+                onPressed: _isSignedIn ? _onSignOutPressed : _onSignInPressed,
+                icon: Icon(Icons.location_on, size: 35), // Increase icon size
+                style: ElevatedButton.styleFrom(
+                  minimumSize: Size(250, 150), // Set the button size
+                  textStyle: TextStyle(fontSize: 25), // Increase text size
+                ),
+                label: Text(_isSignedIn ? 'Sign Out' : 'Sign In'),
               ),
-              label: Text(_isSignedIn ? 'Sign Out' : 'Sign In'),
-            ),
-            SizedBox(height: 50),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton.icon(
-                  onPressed: _onFaceIdPressed,
-                  icon: Icon(Icons.face),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size(250, 150), // Set the button size
-                  ),
-                  label: Text('Face ID'),
+              SizedBox(width: 50),
+              ElevatedButton.icon(
+                onPressed: _onFaceIdPressed,
+                icon: Icon(Icons.face, size: 35), // Increase icon size
+                style: ElevatedButton.styleFrom(
+                  minimumSize: Size(250, 150), // Set the button size
+                  textStyle: TextStyle(fontSize: 25), // Increase text size
                 ),
-                SizedBox(width: 50),
-                ElevatedButton.icon(
-                  onPressed: _onFingerprintPressed,
-                  icon: Icon(Icons.fingerprint),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size(250, 150), // Set the button size
-                  ),
-                  label: Text('Fingerprint'),
+                label: Text('Face ID'),
+              ),
+              SizedBox(width: 50),
+              ElevatedButton.icon(
+                onPressed: _onFingerprintPressed,
+                icon: Icon(Icons.fingerprint, size: 35), // Increase icon size
+                style: ElevatedButton.styleFrom(
+                  minimumSize: Size(250, 150), // Set the button size
+                  textStyle: TextStyle(fontSize: 25), // Increase text size
                 ),
-              ],
-            ),
-          ],
-        ),
+                label: Text('Fingerprint'),
+              ),
+            ],
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildVacationsView() {
     return Center(
