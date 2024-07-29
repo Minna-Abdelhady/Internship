@@ -229,6 +229,9 @@ class _HomeScreenState extends State<HomeScreen>
     return DateFormat('h:mm a').format(date);
   }
 
+  bool _isSignedIn = false; // Add this variable to track the sign-in state
+
+
 Future<void> _onSignInPressed() async {
   setState(() {
     _loginTime = DateTime.now();
@@ -236,6 +239,7 @@ Future<void> _onSignInPressed() async {
     _isSignInButtonEnabled = false;
     _isSignOutButtonEnabled = true;
     _isSignedOut = false;
+    _isSignedIn = true; // Update the sign-in state
   });
 
   final attendance = Attendance(
@@ -258,6 +262,7 @@ Future<void> _onSignOutPressed() async {
     _isSignedOut = true;
     _isSignInButtonEnabled = true;
     _isSignOutButtonEnabled = false;
+    _isSignedIn = false; // Update the sign-in state
   });
 
   final attendances = await attendanceDao.getAttendanceByUserId(_currentUser!.companyId);
@@ -736,63 +741,49 @@ Future<void> _onSignOutPressed() async {
     );
   }
 
-  Widget _buildSignInView(Employee employee) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton.icon(
-                  onPressed: _isSignInButtonEnabled ? _onSignInPressed : null,
-                  icon: Icon(Icons.location_on),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size(250, 150), // Set the button size
-                  ),
-                  label: Text('Sign In'),
-                ),
-                SizedBox(width: 50),
-                ElevatedButton.icon(
-                  onPressed: _isSignOutButtonEnabled ? _onSignOutPressed : null,
-                  icon: Icon(Icons.location_on),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size(250, 150), // Set the button size
-                  ),
-                  label: Text('Sign Out'),
-                ),
-              ],
+Widget _buildSignInView(Employee employee) {
+  return Padding(
+    padding: const EdgeInsets.all(16.0),
+    child: Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          ElevatedButton.icon(
+            onPressed: _isSignedIn ? _onSignOutPressed : _onSignInPressed,
+            icon: Icon(Icons.location_on),
+            style: ElevatedButton.styleFrom(
+              minimumSize: Size(250, 150), // Set the button size
             ),
-            SizedBox(height: 50),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton.icon(
-                  onPressed: _onFaceIdPressed,
-                  icon: Icon(Icons.face),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size(250, 150), // Set the button size
-                  ),
-                  label: Text('Face ID'),
+            label: Text(_isSignedIn ? 'Sign Out' : 'Sign In'),
+          ),
+          SizedBox(height: 50),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton.icon(
+                onPressed: _onFaceIdPressed,
+                icon: Icon(Icons.face),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: Size(250, 150), // Set the button size
                 ),
-                SizedBox(width: 50),
-                ElevatedButton.icon(
-                  onPressed: _onFingerprintPressed,
-                  icon: Icon(Icons.fingerprint),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size(250, 150), // Set the button size
-                  ),
-                  label: Text('Fingerprint'),
+                label: Text('Face ID'),
+              ),
+              SizedBox(width: 50),
+              ElevatedButton.icon(
+                onPressed: _onFingerprintPressed,
+                icon: Icon(Icons.fingerprint),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: Size(250, 150), // Set the button size
                 ),
-              ],
-            ),
-          ],
-        ),
+                label: Text('Fingerprint'),
+              ),
+            ],
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildVacationsView() {
     return Center(
@@ -1089,30 +1080,6 @@ Future<void> _onSignOutPressed() async {
       ],
     );
   }
-
-  // Widget _buildInfoRow(String label, String value) {
-  //   return Row(
-  //     children: [
-  //       Text(
-  //         label,
-  //         style: TextStyle(
-  //             fontSize: 18,
-  //             fontWeight: FontWeight.bold,
-  //             color: Colors.black,
-  //             fontFamily: 'NotoSans'),
-  //       ),
-  //       SizedBox(width: 10), // Adjusted the width to avoid out-of-bounds error
-  //       Flexible(
-  //         child: Text(
-  //           value,
-  //           style: TextStyle(
-  //               fontSize: 18, color: Colors.black, fontFamily: 'NotoSans'),
-  //           overflow: TextOverflow.ellipsis,
-  //         ),
-  //       ),
-  //     ],
-  //   );
-  // }
 
   Widget _buildTransactionRow(
       String day, DateTime loginTime, DateTime logoutTime) {
