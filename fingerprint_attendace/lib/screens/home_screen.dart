@@ -231,68 +231,68 @@ class _HomeScreenState extends State<HomeScreen>
 
   bool _isSignedIn = false; // Add this variable to track the sign-in state
 
+  Future<void> _onSignInPressed() async {
+    setState(() {
+      _loginTime = DateTime.now();
+      _logoutTime = _loginTime!.add(Duration(hours: 8)); // Expected logout time
+      _isSignInButtonEnabled = false;
+      _isSignOutButtonEnabled = true;
+      _isSignedOut = false;
+      _isSignedIn = true; // Update the sign-in state
+    });
 
-Future<void> _onSignInPressed() async {
-  setState(() {
-    _loginTime = DateTime.now();
-    _logoutTime = _loginTime!.add(Duration(hours: 8)); // Expected logout time
-    _isSignInButtonEnabled = false;
-    _isSignOutButtonEnabled = true;
-    _isSignedOut = false;
-    _isSignedIn = true; // Update the sign-in state
-  });
-
-  final attendance = Attendance(
-    userId: _currentUser!.companyId,
-    transactionType: 'Sign In',
-    date: DateTime.now(),
-    signInTime: _loginTime!,
-    signOutTime: _logoutTime!,
-  );
-
-  await attendanceDao.createOrUpdateAttendance(attendance);
-
-  print('Sign In Time: ${_formatTime(_loginTime!)}');
-  setState(() {}); // Update the state to reflect changes in UI
-}
-
-Future<void> _onSignOutPressed() async {
-  setState(() {
-    _logoutTime = DateTime.now();
-    _isSignedOut = true;
-    _isSignInButtonEnabled = true;
-    _isSignOutButtonEnabled = false;
-    _isSignedIn = false; // Update the sign-in state
-  });
-
-  final attendances = await attendanceDao.getAttendanceByUserId(_currentUser!.companyId);
-  final todayAttendance = attendances.lastWhere(
-    (attendance) =>
-        attendance.date.year == DateTime.now().year &&
-        attendance.date.month == DateTime.now().month &&
-        attendance.date.day == DateTime.now().day,
-    orElse: () => Attendance(
+    final attendance = Attendance(
       userId: _currentUser!.companyId,
-      transactionType: 'Sign Out',
+      transactionType: 'Sign In',
       date: DateTime.now(),
       signInTime: _loginTime!,
       signOutTime: _logoutTime!,
-    ),
-  );
+    );
 
-  final updatedAttendance = Attendance(
-    userId: todayAttendance.userId,
-    transactionType: 'Sign Out',
-    date: todayAttendance.date,
-    signInTime: todayAttendance.signInTime,
-    signOutTime: _logoutTime!,
-  );
+    await attendanceDao.createOrUpdateAttendance(attendance);
 
-  await attendanceDao.createOrUpdateAttendance(updatedAttendance);
+    print('Sign In Time: ${_formatTime(_loginTime!)}');
+    setState(() {}); // Update the state to reflect changes in UI
+  }
 
-  print('Sign Out Time: ${_formatTime(_logoutTime!)}');
-  setState(() {}); // Update the state to reflect changes in UI
-}
+  Future<void> _onSignOutPressed() async {
+    setState(() {
+      _logoutTime = DateTime.now();
+      _isSignedOut = true;
+      _isSignInButtonEnabled = true;
+      _isSignOutButtonEnabled = false;
+      _isSignedIn = false; // Update the sign-in state
+    });
+
+    final attendances =
+        await attendanceDao.getAttendanceByUserId(_currentUser!.companyId);
+    final todayAttendance = attendances.lastWhere(
+      (attendance) =>
+          attendance.date.year == DateTime.now().year &&
+          attendance.date.month == DateTime.now().month &&
+          attendance.date.day == DateTime.now().day,
+      orElse: () => Attendance(
+        userId: _currentUser!.companyId,
+        transactionType: 'Sign Out',
+        date: DateTime.now(),
+        signInTime: _loginTime!,
+        signOutTime: _logoutTime!,
+      ),
+    );
+
+    final updatedAttendance = Attendance(
+      userId: todayAttendance.userId,
+      transactionType: 'Sign Out',
+      date: todayAttendance.date,
+      signInTime: todayAttendance.signInTime,
+      signOutTime: _logoutTime!,
+    );
+
+    await attendanceDao.createOrUpdateAttendance(updatedAttendance);
+
+    print('Sign Out Time: ${_formatTime(_logoutTime!)}');
+    setState(() {}); // Update the state to reflect changes in UI
+  }
 
   void _onFaceIdPressed() {
     // Implement Face ID functionality here
@@ -336,43 +336,63 @@ Future<void> _onSignOutPressed() async {
     );
   }
 
- Widget _buildAttendanceView(Employee employee) {
-  return FutureBuilder<List<Attendance>>(
-    future: attendanceDao.getAttendanceByUserId(employee.companyId),
-    builder: (context, snapshot) {
-      if (snapshot.connectionState == ConnectionState.waiting) {
-        return Center(child: CircularProgressIndicator());
-      } else if (snapshot.hasError) {
-        return Center(child: Text('Error: ${snapshot.error}', style: TextStyle(color: Colors.black)));
-      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-        return Center(child: Text('No attendance records found', style: TextStyle(color: Colors.black)));
-      } else {
-        final attendanceRecords = snapshot.data!;
-        return SingleChildScrollView(
-          child: DataTable(
-            columns: const [
-              DataColumn(label: Text('Date', style: TextStyle(color: Colors.black))),
-              DataColumn(label: Text('Sign In', style: TextStyle(color: Colors.black))),
-              DataColumn(label: Text('Sign Out', style: TextStyle(color: Colors.black))),
-              DataColumn(label: Text('Total Hours', style: TextStyle(color: Colors.black))),
-            ],
-            rows: attendanceRecords.map((attendance) {
-              final totalHours = attendance.signOutTime.difference(attendance.signInTime).inHours;
-              return DataRow(
-                cells: [
-                  DataCell(Text(DateFormat('yyyy-MM-dd').format(attendance.date), style: TextStyle(color: Colors.black))),
-                  DataCell(Text(DateFormat('h:mm a').format(attendance.signInTime), style: TextStyle(color: Colors.black))),
-                  DataCell(Text(DateFormat('h:mm a').format(attendance.signOutTime), style: TextStyle(color: Colors.black))),
-                  DataCell(Text(totalHours.toString(), style: TextStyle(color: Colors.black))),
-                ],
-              );
-            }).toList(),
-          ),
-        );
-      }
-    },
-  );
-}
+  Widget _buildAttendanceView(Employee employee) {
+    return FutureBuilder<List<Attendance>>(
+      future: attendanceDao.getAttendanceByUserId(employee.companyId),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(
+              child: Text('Error: ${snapshot.error}',
+                  style: TextStyle(color: Colors.black)));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(
+              child: Text('No attendance records found',
+                  style: TextStyle(color: Colors.black)));
+        } else {
+          final attendanceRecords = snapshot.data!;
+          return SingleChildScrollView(
+            child: DataTable(
+              columns: const [
+                DataColumn(
+                    label: Text('Date', style: TextStyle(color: Colors.black))),
+                DataColumn(
+                    label:
+                        Text('Sign In', style: TextStyle(color: Colors.black))),
+                DataColumn(
+                    label: Text('Sign Out',
+                        style: TextStyle(color: Colors.black))),
+                DataColumn(
+                    label: Text('Total Hours',
+                        style: TextStyle(color: Colors.black))),
+              ],
+              rows: attendanceRecords.map((attendance) {
+                final totalHours = attendance.signOutTime
+                    .difference(attendance.signInTime)
+                    .inHours;
+                return DataRow(
+                  cells: [
+                    DataCell(Text(
+                        DateFormat('yyyy-MM-dd').format(attendance.date),
+                        style: TextStyle(color: Colors.black))),
+                    DataCell(Text(
+                        DateFormat('h:mm a').format(attendance.signInTime),
+                        style: TextStyle(color: Colors.black))),
+                    DataCell(Text(
+                        DateFormat('h:mm a').format(attendance.signOutTime),
+                        style: TextStyle(color: Colors.black))),
+                    DataCell(Text(totalHours.toString(),
+                        style: TextStyle(color: Colors.black))),
+                  ],
+                );
+              }).toList(),
+            ),
+          );
+        }
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -741,49 +761,49 @@ Future<void> _onSignOutPressed() async {
     );
   }
 
-Widget _buildSignInView(Employee employee) {
-  return Padding(
-    padding: const EdgeInsets.all(16.0),
-    child: Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          ElevatedButton.icon(
-            onPressed: _isSignedIn ? _onSignOutPressed : _onSignInPressed,
-            icon: Icon(Icons.location_on),
-            style: ElevatedButton.styleFrom(
-              minimumSize: Size(250, 150), // Set the button size
+  Widget _buildSignInView(Employee employee) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton.icon(
+              onPressed: _isSignedIn ? _onSignOutPressed : _onSignInPressed,
+              icon: Icon(Icons.location_on),
+              style: ElevatedButton.styleFrom(
+                minimumSize: Size(250, 150), // Set the button size
+              ),
+              label: Text(_isSignedIn ? 'Sign Out' : 'Sign In'),
             ),
-            label: Text(_isSignedIn ? 'Sign Out' : 'Sign In'),
-          ),
-          SizedBox(height: 50),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ElevatedButton.icon(
-                onPressed: _onFaceIdPressed,
-                icon: Icon(Icons.face),
-                style: ElevatedButton.styleFrom(
-                  minimumSize: Size(250, 150), // Set the button size
+            SizedBox(height: 50),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton.icon(
+                  onPressed: _onFaceIdPressed,
+                  icon: Icon(Icons.face),
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: Size(250, 150), // Set the button size
+                  ),
+                  label: Text('Face ID'),
                 ),
-                label: Text('Face ID'),
-              ),
-              SizedBox(width: 50),
-              ElevatedButton.icon(
-                onPressed: _onFingerprintPressed,
-                icon: Icon(Icons.fingerprint),
-                style: ElevatedButton.styleFrom(
-                  minimumSize: Size(250, 150), // Set the button size
+                SizedBox(width: 50),
+                ElevatedButton.icon(
+                  onPressed: _onFingerprintPressed,
+                  icon: Icon(Icons.fingerprint),
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: Size(250, 150), // Set the button size
+                  ),
+                  label: Text('Fingerprint'),
                 ),
-                label: Text('Fingerprint'),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _buildVacationsView() {
     return Center(
@@ -1055,8 +1075,18 @@ Widget _buildSignInView(Employee employee) {
         SizedBox(height: 10),
         _buildInfoRow('Email:', employee.email),
         SizedBox(height: 10),
-        _buildInfoRow('Director ID:',
-            employee.directorId.toString()), // Convert int to String
+        FutureBuilder<String>(
+          future: _getDirectorName(employee.directorId),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return _buildInfoRow('Director:', 'Loading...');
+            } else if (snapshot.hasError) {
+              return _buildInfoRow('Director:', 'Error');
+            } else {
+              return _buildInfoRow('Director:', snapshot.data ?? 'Unknown');
+            }
+          },
+        ),
         SizedBox(height: 10),
         _buildInfoRow('Role:', employee.isAdmin ? 'Admin' : 'Employee'),
         SizedBox(height: 10),
