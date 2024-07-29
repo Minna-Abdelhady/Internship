@@ -1,10 +1,11 @@
-// home_screen.dart
+// ignore_for_file: duplicate_import
 
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -15,6 +16,11 @@ import '../models/attendance.dart';
 import 'dart:convert'; // For base64 decoding
 import 'package:email_validator/email_validator.dart';
 import 'login_screen.dart'; // Import the Login screen
+import 'package:flutter_map/flutter_map.dart' as flutterMap;
+import 'package:latlong2/latlong.dart' as latlong;
+import 'package:geolocator/geolocator.dart';
+
+
 
 class HomeScreen extends StatefulWidget {
   final String email;
@@ -25,8 +31,7 @@ class HomeScreen extends StatefulWidget {
   _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen>
-    with SingleTickerProviderStateMixin {
+class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
   final EmployeeDao employeeDao = EmployeeDao();
   final AttendanceDao attendanceDao = AttendanceDao();
   DateTime? _loginTime;
@@ -59,10 +64,15 @@ class _HomeScreenState extends State<HomeScreen>
   bool _isCurrentUserAdmin = false;
   Employee? _currentUser;
 
+   Position? _currentPosition;
+  GoogleMapController? _mapController;
+  late TabController _tabController1;
+
   @override
   void initState() {
     super.initState();
     _loadEmployeeData();
+    _getCurrentLocation();
   }
 
   Future<void> _loadEmployeeData() async {
@@ -94,8 +104,7 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Future<void> _pickImage() async {
-    final pickedFile =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
+    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       if (kIsWeb) {
         final bytes = await pickedFile.readAsBytes();
@@ -110,6 +119,33 @@ class _HomeScreenState extends State<HomeScreen>
     }
   }
 
+ Future<void> _getCurrentLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return Future.error('Location services are disabled.');
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      return Future.error('Location permissions are permanently denied');
+    }
+
+    Geolocator.getPositionStream().listen((Position position) {
+      setState(() {
+        _currentPosition = position;
+      });
+    });
+  }
   Future<bool> _emailExists(String email) async {
     return await employeeDao.emailExists(email);
   }
@@ -119,9 +155,7 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Future<void> _addUser() async {
-    if (_formKey.currentState!.validate() &&
-        (_personalPhoto != null || _webImage != null)) {
-      // if (await _employeeIdExists(_companyIdController.text)) {
+    if (_formKey.currentState!.validate() && (_personalPhoto != null || _webImage != null)) {
       final companyIdText = _companyIdController.text;
       final companyIdInt = int.tryParse(companyIdText);
 
@@ -132,7 +166,6 @@ class _HomeScreenState extends State<HomeScreen>
         return;
       }
 
-      // Check if employee ID exists
       if (await _employeeIdExists(companyIdInt)) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Employee ID already exists')),
@@ -140,7 +173,6 @@ class _HomeScreenState extends State<HomeScreen>
         return;
       }
 
-      // Check if email exists
       if (await _emailExists(_emailController.text)) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Email already exists')),
@@ -148,7 +180,6 @@ class _HomeScreenState extends State<HomeScreen>
         return;
       }
 
-      // Ensure selected director exists
       if (_selectedDirector == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Director ID does not exist')),
@@ -156,10 +187,8 @@ class _HomeScreenState extends State<HomeScreen>
         return;
       }
 
-      // Hash the password
       final hashedPassword = _hashPassword(_passwordController.text);
 
-      // Create the employee object
       final employee = Employee(
         companyId: companyIdInt,
         name: _nameController.text,
@@ -169,7 +198,7 @@ class _HomeScreenState extends State<HomeScreen>
             ? base64Encode(_webImage!)
             : base64Encode(await _personalPhoto!.readAsBytes()),
         jobTitle: _jobTitleController.text,
-        directorId: _selectedDirector!.companyId, // Ensure this is an int
+        directorId: _selectedDirector!.companyId,
         isAdmin: _isAdmin,
       );
 
@@ -181,7 +210,6 @@ class _HomeScreenState extends State<HomeScreen>
           SnackBar(content: Text('User added successfully')),
         );
 
-        // Clear form fields
         _companyIdController.clear();
         _nameController.clear();
         _emailController.clear();
@@ -229,16 +257,16 @@ class _HomeScreenState extends State<HomeScreen>
     return DateFormat('h:mm a').format(date);
   }
 
-  bool _isSignedIn = false; // Add this variable to track the sign-in state
+  bool _isSignedIn = false;
 
   Future<void> _onSignInPressed() async {
     setState(() {
       _loginTime = DateTime.now();
-      _logoutTime = _loginTime!.add(Duration(hours: 8)); // Expected logout time
+      _logoutTime = _loginTime!.add(Duration(hours: 8));
       _isSignInButtonEnabled = false;
       _isSignOutButtonEnabled = true;
       _isSignedOut = false;
-      _isSignedIn = true; // Update the sign-in state
+      _isSignedIn = true;
     });
 
     final attendance = Attendance(
@@ -252,7 +280,7 @@ class _HomeScreenState extends State<HomeScreen>
     await attendanceDao.createOrUpdateAttendance(attendance);
 
     print('Sign In Time: ${_formatTime(_loginTime!)}');
-    setState(() {}); // Update the state to reflect changes in UI
+    setState(() {});
   }
 
   Future<void> _onSignOutPressed() async {
@@ -261,7 +289,7 @@ class _HomeScreenState extends State<HomeScreen>
       _isSignedOut = true;
       _isSignInButtonEnabled = true;
       _isSignOutButtonEnabled = false;
-      _isSignedIn = false; // Update the sign-in state
+      _isSignedIn = false;
     });
 
     final attendances =
@@ -291,16 +319,14 @@ class _HomeScreenState extends State<HomeScreen>
     await attendanceDao.createOrUpdateAttendance(updatedAttendance);
 
     print('Sign Out Time: ${_formatTime(_logoutTime!)}');
-    setState(() {}); // Update the state to reflect changes in UI
+    setState(() {});
   }
 
   void _onFaceIdPressed() {
-    // Implement Face ID functionality here
     print('Face ID pressed');
   }
 
   void _onFingerprintPressed() {
-    // Implement Fingerprint functionality here
     print('Fingerprint pressed');
   }
 
@@ -399,22 +425,19 @@ class _HomeScreenState extends State<HomeScreen>
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor:
-            Color(0xFF930000), // AppBar color to match company theme
+        backgroundColor: Color(0xFF930000),
         iconTheme: IconThemeData(
-          color: Colors.white, // Back arrow color to white
+          color: Colors.white,
         ),
         bottom: PreferredSize(
-          preferredSize:
-              Size.fromHeight(0), // Remove extra space above the tabs
+          preferredSize: Size.fromHeight(0),
           child: Container(
             color: Color(0xFF930000),
             child: TabBar(
               controller: _tabController,
-              labelColor: Colors.white, // Set tab text color to white
-              unselectedLabelColor:
-                  Colors.white, // Set unselected tab text color to white
-              indicatorColor: Colors.white, // Set the indicator color to white
+              labelColor: Colors.white,
+              unselectedLabelColor: Colors.white,
+              indicatorColor: Colors.white,
               indicator: BoxDecoration(
                 border: Border(
                   bottom: BorderSide(
@@ -428,8 +451,7 @@ class _HomeScreenState extends State<HomeScreen>
           ),
         ),
       ),
-      backgroundColor:
-          Colors.white, // Set the Scaffold background color to white
+      backgroundColor: Colors.white,
       body: FutureBuilder<Employee>(
         future: _fetchEmployeeData(),
         builder: (context, snapshot) {
@@ -511,14 +533,13 @@ class _HomeScreenState extends State<HomeScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              width: 100, // Define the width of the square avatar
-              height: 100, // Define the height of the square avatar
+              width: 100,
+              height: 100,
               decoration: BoxDecoration(
-                shape: BoxShape.rectangle, // Ensure the shape is rectangular
+                shape: BoxShape.rectangle,
                 image: DecorationImage(
                   image: MemoryImage(base64Decode(employee.personalPhoto)),
-                  fit: BoxFit
-                      .cover, // Ensure the image covers the entire container
+                  fit: BoxFit.cover,
                 ),
               ),
             ),
@@ -528,47 +549,35 @@ class _HomeScreenState extends State<HomeScreen>
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF930000), // Text color to match company theme
+                color: Color(0xFF930000),
                 fontFamily: 'NotoSans',
               ),
             ),
             SizedBox(height: 20),
             _buildInfoColumn(employee),
-            SizedBox(height: 20), // Add some space before the new text
-            Divider(color: Colors.black), // Add a separation line
-            Text(
-              'Today: ${_formatDate(DateTime.now())}',
-              style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                  fontFamily: 'NotoSans'),
-            ),
-            Text(
-              'Signed In At: ${_formatTime(_loginTime)}',
-              style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                  fontFamily: 'NotoSans'),
-            ),
-            Text(
-              _isSignedOut
-                  ? 'Signed Out At: ${_formatTime(_logoutTime)}'
-                  : 'Expected Sign Out Time: ${_formatTime(_logoutTime)}',
-              style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                  fontFamily: 'NotoSans'),
+            SizedBox(height: 20),
+            Divider(color: Colors.black),
+            Container(
+              color: Colors.grey[300],
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildInfoRow('Today:', _formatDate(DateTime.now())),
+                  _buildInfoRow('Signed In At:', _formatTime(_loginTime)),
+                  _buildInfoRow(
+                    _isSignedOut ? 'Signed Out At:' : 'Expected Sign Out Time:',
+                    _formatTime(_logoutTime),
+                  ),
+                ],
+              ),
             ),
             Spacer(),
             ElevatedButton.icon(
               onPressed: _onLogoutPressed,
               icon: Icon(Icons.logout),
               style: ElevatedButton.styleFrom(
-                backgroundColor:
-                    Color(0xFF930000), // Button color to match company theme
+                backgroundColor: Color(0xFF930000),
               ),
               label: Text('Log Out'),
             ),
@@ -580,22 +589,17 @@ class _HomeScreenState extends State<HomeScreen>
 
   Widget _buildTransactionsView(Employee employee) {
     final DateTime now = DateTime.now();
-    // final DateTime loginTime = DateTime(now.year, now.month, now.day, 9, 43);
-    // final DateTime logoutTime = loginTime.add(Duration(hours: 8));
     final Map<String, Map<String, DateTime>> weekTransactions = {
       'Sunday': {
         'login': DateTime(now.year, now.month, now.day - now.weekday + 5, 9, 0),
-        'logout':
-            DateTime(now.year, now.month, now.day - now.weekday + 5, 17, 0)
+        'logout': DateTime(now.year, now.month, now.day - now.weekday + 5, 17, 0)
       },
       'Monday': {
         'login': DateTime(now.year, now.month, now.day - now.weekday + 1, 9, 0),
-        'logout':
-            DateTime(now.year, now.month, now.day - now.weekday + 1, 17, 0)
+        'logout': DateTime(now.year, now.month, now.day - now.weekday + 1, 17, 0)
       },
       'Tuesday': {
-        'login':
-            DateTime(now.year, now.month, now.day - now.weekday + 2, 9, 43),
+        'login': DateTime(now.year, now.month, now.day - now.weekday + 2, 9, 43),
         'logout': DateTime(now.year, now.month, now.day - now.weekday + 2, 0, 0)
       },
       'Wednesday': {
@@ -617,10 +621,11 @@ class _HomeScreenState extends State<HomeScreen>
             Text(
               'This Week\'s Transactions',
               style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                  fontFamily: 'NotoSans'),
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+                fontFamily: 'NotoSans',
+              ),
             ),
             SizedBox(height: 10),
             Column(
@@ -637,10 +642,11 @@ class _HomeScreenState extends State<HomeScreen>
                         Text(
                           day,
                           style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                              fontFamily: 'NotoSans'),
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                            fontFamily: 'NotoSans',
+                          ),
                         ),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
@@ -648,16 +654,18 @@ class _HomeScreenState extends State<HomeScreen>
                             Text(
                               'Login: ${_formatTime(transactions['login'])}',
                               style: TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.black,
-                                  fontFamily: 'NotoSans'),
+                                fontSize: 18,
+                                color: Colors.black,
+                                fontFamily: 'NotoSans',
+                              ),
                             ),
                             Text(
                               'Logout: ${_formatTime(transactions['logout'])}',
                               style: TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.black,
-                                  fontFamily: 'NotoSans'),
+                                fontSize: 18,
+                                color: Colors.black,
+                                fontFamily: 'NotoSans',
+                              ),
                             ),
                           ],
                         ),
@@ -761,7 +769,7 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-Widget _buildSignInView(Employee employee) {
+ Widget _buildSignInView(Employee employee) {
   return Padding(
     padding: const EdgeInsets.all(16.0),
     child: Center(
@@ -773,35 +781,63 @@ Widget _buildSignInView(Employee employee) {
             children: [
               ElevatedButton.icon(
                 onPressed: _isSignedIn ? _onSignOutPressed : _onSignInPressed,
-                icon: Icon(Icons.location_on, size: 35), // Increase icon size
+                icon: Icon(Icons.location_on, size: 30),
                 style: ElevatedButton.styleFrom(
-                  minimumSize: Size(250, 150), // Set the button size
-                  textStyle: TextStyle(fontSize: 25), // Increase text size
+                  minimumSize: Size(250, 150),
+                  textStyle: TextStyle(fontSize: 20),
                 ),
                 label: Text(_isSignedIn ? 'Sign Out' : 'Sign In'),
               ),
               SizedBox(width: 50),
               ElevatedButton.icon(
                 onPressed: _onFaceIdPressed,
-                icon: Icon(Icons.face, size: 35), // Increase icon size
+                icon: Icon(Icons.face, size: 30),
                 style: ElevatedButton.styleFrom(
-                  minimumSize: Size(250, 150), // Set the button size
-                  textStyle: TextStyle(fontSize: 25), // Increase text size
+                  minimumSize: Size(250, 150),
+                  textStyle: TextStyle(fontSize: 20),
                 ),
                 label: Text('Face ID'),
               ),
               SizedBox(width: 50),
               ElevatedButton.icon(
                 onPressed: _onFingerprintPressed,
-                icon: Icon(Icons.fingerprint, size: 35), // Increase icon size
+                icon: Icon(Icons.fingerprint, size: 30),
                 style: ElevatedButton.styleFrom(
-                  minimumSize: Size(250, 150), // Set the button size
-                  textStyle: TextStyle(fontSize: 25), // Increase text size
+                  minimumSize: Size(250, 150),
+                  textStyle: TextStyle(fontSize: 20),
                 ),
                 label: Text('Fingerprint'),
               ),
             ],
           ),
+          SizedBox(height: 50),
+          _currentPosition == null
+              ? CircularProgressIndicator()
+              : Container(
+                  height: 200,
+                  child: flutterMap.FlutterMap(
+                    options: flutterMap.MapOptions(
+                      center: latlong.LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
+                      zoom: 15,
+                    ),
+                    children: [
+                      flutterMap.TileLayer(
+                        urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                        subdomains: ['a', 'b', 'c'],
+                      ),
+                      flutterMap.MarkerLayer(
+                        markers: [
+                          flutterMap.Marker(
+                            point: latlong.LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
+                            builder: (ctx) => Container(
+                              child: Icon(Icons.location_on, size: 40, color: Colors.red),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
         ],
       ),
     ),
@@ -1071,51 +1107,59 @@ Widget _buildSignInView(Employee employee) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildInfoRow('Employee ID:',
-            employee.companyId.toString()), // Convert int to String
+        _buildInfoRow('Employee ID:', employee.companyId.toString(), true),
         SizedBox(height: 10),
-        _buildInfoRow('Job Title:', employee.jobTitle),
+        _buildInfoRow('Job Title:', employee.jobTitle, true),
         SizedBox(height: 10),
-        _buildInfoRow('Email:', employee.email),
+        _buildInfoRow('Email:', employee.email, true),
         SizedBox(height: 10),
         FutureBuilder<String>(
           future: _getDirectorName(employee.directorId),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return _buildInfoRow('Director:', 'Loading...');
+              return _buildInfoRow('Director:', 'Loading...', true);
             } else if (snapshot.hasError) {
-              return _buildInfoRow('Director:', 'Error');
+              return _buildInfoRow('Director:', 'Error', true);
             } else {
-              return _buildInfoRow('Director:', snapshot.data ?? 'Unknown');
+              return _buildInfoRow('Director:', snapshot.data ?? 'Unknown', true);
             }
           },
         ),
         SizedBox(height: 10),
-        _buildInfoRow('Role:', employee.isAdmin ? 'Admin' : 'Employee'),
+        _buildInfoRow('Role:', employee.isAdmin ? 'Admin' : 'Employee', true),
         SizedBox(height: 10),
       ],
     );
   }
 
-  Widget _buildInfoRow(String label, String value) {
+  Widget _buildInfoRow(String label, String value, [bool increaseSize = false]) {
     return Row(
       children: [
         Text(
-          '$label ',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          label,
+          style: TextStyle(
+            fontSize: increaseSize ? 20 : 18,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF930000),
+            fontFamily: 'NotoSans',
+          ),
         ),
+        SizedBox(width: 10),
         Expanded(
           child: Text(
             value,
-            style: TextStyle(color: Colors.black),
+            style: TextStyle(
+              fontSize: increaseSize ? 18 : 16,
+              color: Colors.black,
+              fontFamily: 'NotoSans',
+            ),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildTransactionRow(
-      String day, DateTime loginTime, DateTime logoutTime) {
+  Widget _buildTransactionRow(String day, DateTime loginTime, DateTime logoutTime) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
@@ -1128,8 +1172,7 @@ Widget _buildSignInView(Employee employee) {
                 color: Colors.black,
                 fontFamily: 'NotoSans'),
           ),
-          SizedBox(
-              width: 10), // Adjusted the width to avoid out-of-bounds error
+          SizedBox(width: 10),
           Text(
             'Login: ${_formatTime(loginTime)} - Logout: ${_formatTime(logoutTime)}',
             style: TextStyle(
