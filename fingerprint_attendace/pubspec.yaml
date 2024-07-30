@@ -40,6 +40,7 @@ flutter:
     - assets/company_logo.jpg
     - assets/Apartments.PNG
     - assets/Nouna.jpg
+    - assets/MMLogo.jpg
   fonts:
     - family: NotoSans
       fonts:

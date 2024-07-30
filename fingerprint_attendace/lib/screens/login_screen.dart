@@ -38,7 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ],
         ),
-        backgroundColor: Color(0xFF930000),
+        backgroundColor: Color(0xFFAF2C3F),
         iconTheme: IconThemeData(
           color: Colors.white,
         ),
@@ -118,6 +118,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                         }
                                       }
                                     },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Color(0xFFAF2C3F), // Set the background color
+                                    ),
                                     child: Text('Login'),
                                   ),
                                 ),
@@ -161,6 +164,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                         }
                                       }
                                     },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Color(0xFFAF2C3F), // Set the background color
+                                    ),
                                     child: Text('Verify and Login'),
                                   ),
                                 ),
@@ -175,7 +181,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Container(
                         decoration: BoxDecoration(
                           image: DecorationImage(
-                            image: AssetImage('assets/logo.png'),
+                            image: AssetImage('assets/MMLogo.jpg'),
                             fit: BoxFit.contain,
                           ),
                         ),
@@ -190,7 +196,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       height: 200,
                       decoration: BoxDecoration(
                         image: DecorationImage(
-                          image: AssetImage('assets/logo.png'),
+                          image: AssetImage('assets/MMLogo.jpg'),
                           fit: BoxFit.contain,
                         ),
                       ),
@@ -261,6 +267,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                         }
                                       }
                                     },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Color(0xFFAF2C3F), // Set the background color
+                                    ),
                                     child: Text('Login'),
                                   ),
                                 ),
@@ -304,6 +313,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                         }
                                       }
                                     },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Color(0xFFAF2C3F), // Set the background color
+                                    ),
                                     child: Text('Verify and Login'),
                                   ),
                                 ),
@@ -328,7 +340,7 @@ class _LoginScreenState extends State<LoginScreen> {
         controller: controller,
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: TextStyle(color: Color(0xFF930000)),
+          labelStyle: TextStyle(color: Color(0xFFAF2C3F)),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
           ),
