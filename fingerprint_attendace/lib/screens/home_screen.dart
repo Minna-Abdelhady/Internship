@@ -75,7 +75,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     _currentUser = await _fetchEmployeeData();
     _isCurrentUserAdmin = _currentUser!.isAdmin;
     _tabController = TabController(
-      length: _isCurrentUserAdmin ? 7 : 5,
+      length: _isCurrentUserAdmin ? 6 : 4,
       vsync: this,
     );
     _loadEmployees();
@@ -497,7 +497,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       Tab(text: 'Sign In'),
       Tab(text: 'This Week\'s Transactions'),
       Tab(text: 'Calendar'),
-      Tab(text: 'Vacations'),
+      // Tab(text: 'Vacations'),
       Tab(text: 'View Attendance'),
     ];
     if (_isCurrentUserAdmin) {
@@ -514,7 +514,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       _buildSignInView(employee),
       _buildTransactionsView(employee),
       _buildCalendarView(),
-      _buildVacationsView(),
+      // _buildVacationsView(),
       _buildAttendanceView(employee),
     ];
     if (_isCurrentUserAdmin) {
@@ -941,11 +941,11 @@ Widget _buildInfoRow(String label, String value, [bool increaseSize = false]) {
     );
   }
 
-  Widget _buildVacationsView() {
-    return Center(
-      child: Text('Vacations View', style: TextStyle(fontFamily: 'Montserrat')),
-    );
-  }
+  // Widget _buildVacationsView() {
+  //   return Center(
+  //     child: Text('Vacations View', style: TextStyle(fontFamily: 'Montserrat')),
+  //   );
+  // }
 
   Widget _buildCreateUserView() {
     return Padding(
