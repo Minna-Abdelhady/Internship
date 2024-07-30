@@ -44,17 +44,6 @@ void main() async {
     await attendanceDao.insertDummyAttendanceData(); // Insert dummy attendance data
     print('Attendance dummy data inserted.');
 
-    // var box = Hive.box<Attendance>('attendance');
-    // print('Box content: ${box.values.toList()}');
-
-    // final attendances = await AttendanceDao().getAttendanceForWeek(3);
-    // print('Fetched attendances: $attendances');
-
-    // DateTime now = DateTime.now();
-    // DateTime startOfWeek = now.subtract(Duration(days: now.weekday - 1));
-    // DateTime endOfWeek = startOfWeek.add(Duration(days: 6));
-    // print('Start of week: $startOfWeek, End of week: $endOfWeek');
-
     runApp(MyApp());
   } catch (e) {
     print('Error initializing Hive: $e');
@@ -68,12 +57,27 @@ class MyApp extends StatelessWidget {
       title: 'Employee Attendance',
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        fontFamily: 'Montserrat',
+        textTheme: TextTheme(
+          displayLarge: TextStyle(fontFamily: 'Montserrat'),
+          displayMedium: TextStyle(fontFamily: 'Montserrat'),
+          displaySmall: TextStyle(fontFamily: 'Montserrat'),
+          headlineMedium: TextStyle(fontFamily: 'Montserrat'),
+          headlineSmall: TextStyle(fontFamily: 'Montserrat'),
+          titleLarge: TextStyle(fontFamily: 'Montserrat'),
+          titleMedium: TextStyle(fontFamily: 'Montserrat'),
+          titleSmall: TextStyle(fontFamily: 'Montserrat'),
+          bodyLarge: TextStyle(fontFamily: 'Montserrat'),
+          bodyMedium: TextStyle(fontFamily: 'Montserrat'),
+          bodySmall: TextStyle(fontFamily: 'Montserrat'),
+          labelLarge: TextStyle(fontFamily: 'Montserrat'),
+          labelMedium: TextStyle(fontFamily: 'Montserrat'),
+          labelSmall: TextStyle(fontFamily: 'Montserrat'),
+        ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            backgroundColor:
-                Color(0xFF930000), // Button color to match company theme
-            padding: EdgeInsets.symmetric(
-                vertical: 20, horizontal: 40), // Bigger buttons
+            backgroundColor: Color(0xFF930000), // Button color to match company theme
+            padding: EdgeInsets.symmetric(vertical: 20, horizontal: 40), // Bigger buttons
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12), // Rounded corners
             ),

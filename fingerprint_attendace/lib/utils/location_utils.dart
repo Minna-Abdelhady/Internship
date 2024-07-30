@@ -4,8 +4,8 @@ import 'dart:math';
 // out of bound loaction: 30.07664930397176, 31.315877199665714
 // company location: 30.076058613651153, 31.315532711837214
 
-const double companyLatitude = 30.07664930397176;
-const double companyLongitude = 31.315877199665714;
+const double companyLatitude = 30.076058613651153;
+const double companyLongitude = 31.315532711837214;
 const double companyRadius = 50; // Radius in meters
 
 double calculateDistance(double lat1, double lon1, double lat2, double lon2) {

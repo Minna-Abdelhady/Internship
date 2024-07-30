@@ -41,7 +41,18 @@ flutter:
     - assets/Apartments.PNG
     - assets/Nouna.jpg
     - assets/MMLogo.jpg
+    - assets/fonts/
   fonts:
+    - family: Montserrat
+      fonts:
+        - asset: assets/fonts/Montserrat-Regular.ttf
+        - asset: assets/fonts/Montserrat-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Montserrat-Italic.ttf
+          style: italic
+        - asset: assets/fonts/Montserrat-BoldItalic.ttf
+          weight: 700
+          style: italic
     - family: NotoSans
       fonts:
         - asset: fonts/NotoSans-Regular.ttf

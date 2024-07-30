@@ -1,5 +1,3 @@
-// ignore_for_file: duplicate_import
-
 import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
@@ -29,8 +27,7 @@ class HomeScreen extends StatefulWidget {
   _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen>
-    with SingleTickerProviderStateMixin {
+class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
   final EmployeeDao employeeDao = EmployeeDao();
   final AttendanceDao attendanceDao = AttendanceDao();
   DateTime? _loginTime;
@@ -103,8 +100,7 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Future<void> _pickImage() async {
-    final pickedFile =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
+    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       if (kIsWeb) {
         final bytes = await pickedFile.readAsBytes();
@@ -156,8 +152,7 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Future<void> _addUser() async {
-    if (_formKey.currentState!.validate() &&
-        (_personalPhoto != null || _webImage != null)) {
+    if (_formKey.currentState!.validate() && (_personalPhoto != null || _webImage != null)) {
       final companyIdText = _companyIdController.text;
       final companyIdInt = int.tryParse(companyIdText);
 
@@ -252,86 +247,87 @@ class _HomeScreenState extends State<HomeScreen>
     return DateFormat('EEEE, MMMM d, y').format(date);
   }
 
-  // String _formatTime(DateTime? date) {
-  //   if (date == null) {
-  //     return "00:00";
-  //   }
-  //   return DateFormat('h:mm a').format(date);
-  // }
+  String _formatTime(DateTime? date) {
+    if (date == null) {
+      return "00:00";
+    }
+    return DateFormat('h:mm a').format(date);
+  }
 
   bool _isSignedIn = false;
 
-Future<void> _onSignInPressed() async {
-  if (_currentPosition == null || !isWithinCompanyBounds(_currentPosition!.latitude, _currentPosition!.longitude)) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('You are out of the company bounds')));
-    return;
-  }
+  Future<void> _onSignInPressed() async {
+    if (_currentPosition == null || !isWithinCompanyBounds(_currentPosition!.latitude, _currentPosition!.longitude)) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('You are out of the company bounds')));
+      return;
+    }
 
-  setState(() {
-    _loginTime = DateTime.now();
-    _logoutTime = _loginTime!.add(Duration(hours: 8));
-    _isSignInButtonEnabled = false;
-    _isSignOutButtonEnabled = true;
-    _isSignedOut = false;
-    _isSignedIn = true;
-  });
+    setState(() {
+      _loginTime = DateTime.now();
+      _logoutTime = _loginTime!.add(Duration(hours: 8));
+      _isSignInButtonEnabled = false;
+      _isSignOutButtonEnabled = true;
+      _isSignedOut = false;
+      _isSignedIn = true;
+    });
 
-  final attendance = Attendance(
-    userId: _currentUser!.companyId,
-    transactionType: 'Sign In',
-    date: DateTime.now(),
-    signInTime: _loginTime!,
-    signOutTime: _logoutTime!,
-  );
-
-  await attendanceDao.createOrUpdateAttendance(attendance);
-
-  print('Sign In Time: ${_formatTime(_loginTime!)}');
-  setState(() {});
-}
-
-Future<void> _onSignOutPressed() async {
-  if (_currentPosition == null || !isWithinCompanyBounds(_currentPosition!.latitude, _currentPosition!.longitude)) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('You are out of the company bounds')));
-    return;
-  }
-
-  setState(() {
-    _logoutTime = DateTime.now();
-    _isSignedOut = true;
-    _isSignInButtonEnabled = true;
-    _isSignOutButtonEnabled = false;
-    _isSignedIn = false;
-  });
-
-  final attendances = await attendanceDao.getAttendanceByUserId(_currentUser!.companyId);
-  final todayAttendance = attendances.lastWhere(
-    (attendance) =>
-        attendance.date.year == DateTime.now().year &&
-        attendance.date.month == DateTime.now().month &&
-        attendance.date.day == DateTime.now().day,
-    orElse: () => Attendance(
+    final attendance = Attendance(
       userId: _currentUser!.companyId,
-      transactionType: 'Sign Out',
+      transactionType: 'Sign In',
       date: DateTime.now(),
       signInTime: _loginTime!,
       signOutTime: _logoutTime!,
-    ),
-  );
+    );
 
-  final updatedAttendance = Attendance(
-    userId: todayAttendance.userId,
-    transactionType: 'Sign Out',
-    date: todayAttendance.date,
-    signInTime: todayAttendance.signInTime,
-    signOutTime: _logoutTime!,
-  );
+    await attendanceDao.createOrUpdateAttendance(attendance);
 
-  await attendanceDao.createOrUpdateAttendance(updatedAttendance);
+    print('Sign In Time: ${_formatTime(_loginTime!)}');
+    setState(() {});
+  }
 
-  print('Sign Out Time: ${_formatTime(_logoutTime!)}');
-  setState(() {});
-}
+  Future<void> _onSignOutPressed() async {
+    if (_currentPosition == null || !isWithinCompanyBounds(_currentPosition!.latitude, _currentPosition!.longitude)) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('You are out of the company bounds')));
+      return;
+    }
+
+    setState(() {
+      _logoutTime = DateTime.now();
+      _isSignedOut = true;
+      _isSignInButtonEnabled = true;
+      _isSignOutButtonEnabled = false;
+      _isSignedIn = false;
+    });
+
+    final attendances = await attendanceDao.getAttendanceByUserId(_currentUser!.companyId);
+    final todayAttendance = attendances.lastWhere(
+      (attendance) =>
+          attendance.date.year == DateTime.now().year &&
+          attendance.date.month == DateTime.now().month &&
+          attendance.date.day == DateTime.now().day,
+      orElse: () => Attendance(
+        userId: _currentUser!.companyId,
+        transactionType: 'Sign Out',
+        date: DateTime.now(),
+        signInTime: _loginTime!,
+        signOutTime: _logoutTime!,
+      ),
+    );
+
+    final updatedAttendance = Attendance(
+      userId: todayAttendance.userId,
+      transactionType: 'Sign Out',
+      date: todayAttendance.date,
+      signInTime: todayAttendance.signInTime,
+      signOutTime: _logoutTime!,
+    );
+
+    await attendanceDao.createOrUpdateAttendance(updatedAttendance);
+
+    print('Sign Out Time: ${_formatTime(_logoutTime!)}');
+    setState(() {});
+  }
+
   void _onFaceIdPressed() {
     print('Face ID pressed');
   }
@@ -356,11 +352,12 @@ Future<void> _onSignOutPressed() async {
         obscureText: obscureText,
         decoration: InputDecoration(
           labelText: labelText,
-          labelStyle: TextStyle(color: Color(0xFFAF2C3F)),
+          labelStyle: TextStyle(color: Color(0xFFAF2C3F), fontFamily: 'Montserrat'),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
           ),
         ),
+        style: TextStyle(fontFamily: 'Montserrat'), // Set default font
         validator: validator ??
             (value) {
               if (value == null || value.isEmpty) {
@@ -381,27 +378,24 @@ Future<void> _onSignOutPressed() async {
         } else if (snapshot.hasError) {
           return Center(
               child: Text('Error: ${snapshot.error}',
-                  style: TextStyle(color: Colors.black)));
+                  style: TextStyle(color: Colors.black, fontFamily: 'Montserrat')));
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return Center(
               child: Text('No attendance records found',
-                  style: TextStyle(color: Colors.black)));
+                  style: TextStyle(color: Colors.black, fontFamily: 'Montserrat')));
         } else {
           final attendanceRecords = snapshot.data!;
           return SingleChildScrollView(
             child: DataTable(
               columns: const [
                 DataColumn(
-                    label: Text('Date', style: TextStyle(color: Colors.black))),
+                    label: Text('Date', style: TextStyle(color: Colors.black, fontFamily: 'Montserrat'))),
                 DataColumn(
-                    label:
-                        Text('Sign In', style: TextStyle(color: Colors.black))),
+                    label: Text('Sign In', style: TextStyle(color: Colors.black, fontFamily: 'Montserrat'))),
                 DataColumn(
-                    label: Text('Sign Out',
-                        style: TextStyle(color: Colors.black))),
+                    label: Text('Sign Out', style: TextStyle(color: Colors.black, fontFamily: 'Montserrat'))),
                 DataColumn(
-                    label: Text('Total Hours',
-                        style: TextStyle(color: Colors.black))),
+                    label: Text('Total Hours', style: TextStyle(color: Colors.black, fontFamily: 'Montserrat'))),
               ],
               rows: attendanceRecords.map((attendance) {
                 final totalHours = attendance.signOutTime
@@ -411,15 +405,15 @@ Future<void> _onSignOutPressed() async {
                   cells: [
                     DataCell(Text(
                         DateFormat('dd-MM-yyyy').format(attendance.date),
-                        style: TextStyle(color: Colors.black))),
+                        style: TextStyle(color: Colors.black, fontFamily: 'Montserrat'))),
                     DataCell(Text(
                         DateFormat('h:mm:ss a').format(attendance.signInTime),
-                        style: TextStyle(color: Colors.black))),
+                        style: TextStyle(color: Colors.black, fontFamily: 'Montserrat'))),
                     DataCell(Text(
                         DateFormat('h:mm:ss a').format(attendance.signOutTime),
-                        style: TextStyle(color: Colors.black))),
+                        style: TextStyle(color: Colors.black, fontFamily: 'Montserrat'))),
                     DataCell(Text(totalHours.toString(),
-                        style: TextStyle(color: Colors.black))),
+                        style: TextStyle(color: Colors.black, fontFamily: 'Montserrat'))),
                   ],
                 );
               }).toList(),
@@ -470,13 +464,11 @@ Future<void> _onSignOutPressed() async {
           } else if (snapshot.hasError) {
             return Center(
                 child: Text('Error: ${snapshot.error}',
-                    style: TextStyle(
-                        color: Colors.black, fontFamily: 'NotoSans')));
+                    style: TextStyle(color: Colors.black, fontFamily: 'Montserrat')));
           } else if (!snapshot.hasData) {
             return Center(
                 child: Text('User not found',
-                    style: TextStyle(
-                        color: Colors.black, fontFamily: 'NotoSans')));
+                    style: TextStyle(color: Colors.black, fontFamily: 'Montserrat')));
           } else {
             final employee = snapshot.data!;
             return Row(
@@ -548,8 +540,7 @@ Future<void> _onSignOutPressed() async {
               decoration: BoxDecoration(
                 shape: BoxShape.rectangle,
                 borderRadius: BorderRadius.circular(12), // Add rounded corners
-                border: Border.all(
-                    color: Colors.white, width: 2), // Add a white border
+                border: Border.all(color: Colors.white, width: 2), // Add a white border
                 image: DecorationImage(
                   image: MemoryImage(base64Decode(employee.personalPhoto)),
                   fit: BoxFit.cover,
@@ -563,7 +554,7 @@ Future<void> _onSignOutPressed() async {
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
-                fontFamily: 'NotoSans',
+                fontFamily: 'Montserrat',
               ),
             ),
             SizedBox(height: 20),
@@ -595,7 +586,7 @@ Future<void> _onSignOutPressed() async {
               ),
               label: Text(
                 'Log Out',
-                style: TextStyle(color: Color(0xFFAF2C3F)),
+                style: TextStyle(color: Color(0xFFAF2C3F), fontFamily: 'Montserrat'),
               ),
             ),
           ],
@@ -604,202 +595,168 @@ Future<void> _onSignOutPressed() async {
     );
   }
 
-  Widget _buildInfoColumn(Employee employee) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildInfoRow('Employee ID:', employee.companyId.toString(), true),
-        SizedBox(height: 10),
-        _buildInfoRow('Job Title:', employee.jobTitle, true),
-        SizedBox(height: 10),
-        _buildInfoRow('Email:', employee.email, true),
-        SizedBox(height: 10),
-        FutureBuilder<String>(
-          future: _getDirectorName(employee.directorId),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return _buildInfoRow('Director:', 'Loading...', true);
-            } else if (snapshot.hasError) {
-              return _buildInfoRow('Director:', 'Error', true);
-            } else {
-              return _buildInfoRow(
-                  'Director:', snapshot.data ?? 'Unknown', true);
-            }
-          },
-        ),
-        SizedBox(height: 10),
-        _buildInfoRow('Role:', employee.isAdmin ? 'Admin' : 'Employee', true),
-        SizedBox(height: 10),
-      ],
-    );
-  }
+Widget _buildInfoColumn(Employee employee) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      _buildInfoRow('Employee ID:', employee.companyId.toString(), true),
+      SizedBox(height: 10),
+      _buildInfoRow('Job Title:', employee.jobTitle, true),
+      SizedBox(height: 10),
+      _buildInfoRow('Email:', employee.email, true),
+      SizedBox(height: 10),
+      FutureBuilder<String>(
+        future: _getDirectorName(employee.directorId),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return _buildInfoRow('Director:', 'Loading...', true);
+          } else if (snapshot.hasError) {
+            return _buildInfoRow('Director:', 'Error', true);
+          } else {
+            return _buildInfoRow('Director:', snapshot.data ?? 'Unknown', true);
+          }
+        },
+      ),
+      SizedBox(height: 10),
+      _buildInfoRow('Role:', employee.isAdmin ? 'Admin' : 'Employee', true),
+      SizedBox(height: 10),
+    ],
+  );
+}
 
-  Widget _buildInfoRow(String label, String value,
-      [bool increaseSize = false]) {
-    return Row(
-      children: [
-        Text(
-          label,
+Widget _buildInfoRow(String label, String value, [bool increaseSize = false]) {
+  return Row(
+    children: [
+      Text(
+        label,
+        style: TextStyle(
+          fontSize: increaseSize ? 20 : 18,  // Increase size if needed
+          fontWeight: FontWeight.bold,
+          color: Colors.grey[200],  // Set label color to grey
+          fontFamily: 'Montserrat',
+        ),
+      ),
+      SizedBox(width: 10),
+      Expanded(
+        child: Text(
+          value,
           style: TextStyle(
-            fontSize: increaseSize ? 20 : 18, // Increase size if needed
-            fontWeight: FontWeight.bold,
-            color: Colors.grey[200], // Set label color to grey
-            fontFamily: 'NotoSans',
+            fontSize: increaseSize ? 18 : 16,  // Increase size if needed
+            color: Colors.white,  // Set text color to white
+            fontFamily: 'Montserrat',
           ),
         ),
-        SizedBox(width: 10),
-        Expanded(
-          child: Text(
-            value,
-            style: TextStyle(
-              fontSize: increaseSize ? 18 : 16, // Increase size if needed
-              color: Colors.white, // Set text color to white
-              fontFamily: 'NotoSans',
-            ),
-          ),
-        ),
-      ],
-    );
-  }
+      ),
+    ],
+  );
+}
 
   Widget _buildTransactionsView(Employee employee) {
-    return FutureBuilder<List<Attendance>>(
-      future: attendanceDao.getAttendanceForWeek(employee.companyId),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Center(
-            child: Text('Error: ${snapshot.error}',
-                style: TextStyle(color: Colors.black)),
-          );
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return Center(
-            child: Text('No attendance records found',
-                style: TextStyle(color: Colors.black)),
-          );
-        } else {
-          final attendanceRecords = snapshot.data!;
+    final DateTime now = DateTime.now();
+    final Map<String, Map<String, DateTime>> weekTransactions = {
+      'Sunday': {
+        'login': DateTime(now.year, now.month, now.day - now.weekday + 5, 9, 0),
+        'logout': DateTime(now.year, now.month, now.day - now.weekday + 5, 17, 0)
+      },
+      'Monday': {
+        'login': DateTime(now.year, now.month, now.day - now.weekday + 1, 9, 0),
+        'logout': DateTime(now.year, now.month, now.day - now.weekday + 1, 17, 0)
+      },
+      'Tuesday': {
+        'login': DateTime(now.year, now.month, now.day - now.weekday + 2, 9, 43),
+        'logout': DateTime(now.year, now.month, now.day - now.weekday + 2, 0, 0)
+      },
+      'Wednesday': {
+        'login': DateTime(now.year, now.month, now.day - now.weekday + 3, 0, 0),
+        'logout': DateTime(now.year, now.month, now.day - now.weekday + 3, 0, 0)
+      },
+      'Thursday': {
+        'login': DateTime(now.year, now.month, now.day - now.weekday + 4, 9, 0),
+        'logout': DateTime(now.year, now.month, now.day - now.weekday + 4, 0, 0)
+      },
+    };
 
-          // Define weekdays, excluding Fridays and Saturdays
-          final weekdays = [
-            'Sunday',
-            'Monday',
-            'Tuesday',
-            'Wednesday',
-            'Thursday'
-          ];
-
-          // Map to store transactions
-          final weekTransactions = <DateTime, Map<String, DateTime>>{};
-
-          // Process and group attendance records by date
-          for (var record in attendanceRecords) {
-            final day = DateFormat('EEEE').format(record.date);
-            final dayOfWeek = DateFormat('dd-MM-yyyy').format(record.date);
-
-            if (weekdays.contains(day)) {
-              weekTransactions[record.date] = {
-                'login': record.signInTime,
-                'logout': record.signOutTime
-              };
-            }
-          }
-
-          // Sort the transactions by date
-          final sortedDates = weekTransactions.keys.toList()
-            ..sort((a, b) => a.compareTo(b));
-
-          return SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'This Week\'s Transactions',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                      fontFamily: 'NotoSans',
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  Column(
-                    children: sortedDates.map((date) {
-                      final transactions = weekTransactions[date]!;
-                      final dayName = DateFormat('EEEE').format(date);
-                      return Card(
-                        color: Color(0xFFAF2C3F),
-                        elevation: 3,
-                        margin: EdgeInsets.symmetric(vertical: 8.0),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  Text(
-                                    dayName,
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                      fontFamily: 'NotoSans',
-                                    ),
-                                  ),
-                                  SizedBox(width: 10),
-                                  Text(
-                                    '${DateFormat('dd-MM-yyyy').format(date)}',
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      color: Colors.white,
-                                      fontFamily: 'NotoSans',
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  Text(
-                                    'Signed In At: ${_formatTime(transactions['login'])}',
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      color: Colors.white,
-                                      fontFamily: 'NotoSans',
-                                    ),
-                                  ),
-                                  SizedBox(width: 10),
-                                  Text(
-                                    'Signed Out At: ${_formatTime(transactions['logout'])}',
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      color: Colors.white,
-                                      fontFamily: 'NotoSans',
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ],
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'This Week\'s Transactions',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+                fontFamily: 'Montserrat',
               ),
             ),
-          );
-        }
-      },
+            SizedBox(height: 10),
+            Column(
+              children: weekTransactions.keys.map((day) {
+                final transactions = weekTransactions[day]!;
+                return Card(
+                  color: Color(0xFFAF2C3F),
+                  elevation: 3,
+                  margin: EdgeInsets.symmetric(vertical: 8.0),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                              day,
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                fontFamily: 'Montserrat',
+                              ),
+                            ),
+                            SizedBox(width: 10),
+                            Text(
+                              '${DateFormat('dd-MM-yyyy').format(transactions['login']!)}',
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.white,
+                                fontFamily: 'Montserrat',
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Text(
+                              'Signed In At: ${_formatTime(transactions['login'])}',
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.white,
+                                fontFamily: 'Montserrat',
+                              ),
+                            ),
+                            SizedBox(width: 10),
+                            Text(
+                              'Signed Out At: ${_formatTime(transactions['logout'])}',
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.white,
+                                fontFamily: 'Montserrat',
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ],
+        ),
+      ),
     );
-  }
-
-// Helper function to format the time
-  String _formatTime(DateTime? time) {
-    return time != null ? DateFormat('h:mm a').format(time) : 'Not available';
   }
 
   Widget _buildCalendarView() {
@@ -841,7 +798,7 @@ Future<void> _onSignOutPressed() async {
                   child: Text(
                     '${day.day}\n${_holidays[day]?.join(", ")}',
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.blue),
+                    style: TextStyle(color: Colors.blue, fontFamily: 'Montserrat'),
                   ),
                 );
               },
@@ -854,7 +811,7 @@ Future<void> _onSignOutPressed() async {
                     child: Text(
                       day.day.toString(),
                       style: TextStyle().copyWith(
-                          color: Colors.red), // Set weekend text color to red
+                          color: Colors.red, fontFamily: 'Montserrat'), // Set weekend text color to red
                     ),
                   );
                 }
@@ -885,7 +842,7 @@ Future<void> _onSignOutPressed() async {
           color: color,
         ),
         SizedBox(width: 8),
-        Text(label),
+        Text(label, style: TextStyle(fontFamily: 'Montserrat')),
       ],
     );
   }
@@ -905,7 +862,7 @@ Future<void> _onSignOutPressed() async {
                   icon: Icon(Icons.location_on, size: 30),
                   style: ElevatedButton.styleFrom(
                     minimumSize: Size(250, 150),
-                    textStyle: TextStyle(fontSize: 20),
+                    textStyle: TextStyle(fontSize: 20, fontFamily: 'Montserrat'),
                     backgroundColor: Color(0xFFAF2C3F),
                   ),
                   label: Text(_isSignedIn ? 'Sign Out' : 'Sign In'),
@@ -916,7 +873,7 @@ Future<void> _onSignOutPressed() async {
                   icon: Icon(Icons.face, size: 30),
                   style: ElevatedButton.styleFrom(
                     minimumSize: Size(250, 150),
-                    textStyle: TextStyle(fontSize: 20),
+                    textStyle: TextStyle(fontSize: 20, fontFamily: 'Montserrat'),
                     backgroundColor: Color(0xFFAF2C3F),
                   ),
                   label: Text('Face ID'),
@@ -927,7 +884,7 @@ Future<void> _onSignOutPressed() async {
                   icon: Icon(Icons.fingerprint, size: 30),
                   style: ElevatedButton.styleFrom(
                     minimumSize: Size(250, 150),
-                    textStyle: TextStyle(fontSize: 20),
+                    textStyle: TextStyle(fontSize: 20, fontFamily: 'Montserrat'),
                     backgroundColor: Color(0xFFAF2C3F),
                   ),
                   label: Text('Fingerprint'),
@@ -956,25 +913,20 @@ Future<void> _onSignOutPressed() async {
                       borderRadius: BorderRadius.circular(15),
                       child: flutterMap.FlutterMap(
                         options: flutterMap.MapOptions(
-                          center: latlong.LatLng(_currentPosition!.latitude,
-                              _currentPosition!.longitude),
+                          center: latlong.LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
                           zoom: 15,
                         ),
                         children: [
                           flutterMap.TileLayer(
-                            urlTemplate:
-                                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                            urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                             subdomains: ['a', 'b', 'c'],
                           ),
                           flutterMap.MarkerLayer(
                             markers: [
                               flutterMap.Marker(
-                                point: latlong.LatLng(
-                                    _currentPosition!.latitude,
-                                    _currentPosition!.longitude),
+                                point: latlong.LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
                                 builder: (ctx) => Container(
-                                  child: Icon(Icons.location_on,
-                                      size: 40, color: Colors.red),
+                                  child: Icon(Icons.location_on, size: 40, color: Colors.red),
                                 ),
                               ),
                             ],
@@ -991,7 +943,7 @@ Future<void> _onSignOutPressed() async {
 
   Widget _buildVacationsView() {
     return Center(
-      child: Text('Vacations View'),
+      child: Text('Vacations View', style: TextStyle(fontFamily: 'Montserrat')),
     );
   }
 
@@ -1038,7 +990,7 @@ Future<void> _onSignOutPressed() async {
                 items: _employees.map((employee) {
                   return DropdownMenuItem<Employee>(
                     value: employee,
-                    child: Text(employee.name),
+                    child: Text(employee.name, style: TextStyle(fontFamily: 'Montserrat')),
                   );
                 }).toList(),
                 onChanged: (Employee? newValue) {
@@ -1048,7 +1000,7 @@ Future<void> _onSignOutPressed() async {
                 },
                 decoration: InputDecoration(
                   labelText: 'Director',
-                  labelStyle: TextStyle(color: Color(0xFFAF2C3F)),
+                  labelStyle: TextStyle(color: Color(0xFFAF2C3F), fontFamily: 'Montserrat'),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -1063,13 +1015,13 @@ Future<void> _onSignOutPressed() async {
               SizedBox(height: 10),
               Text(
                 'Role',
-                style: TextStyle(color: Color(0xFFAF2C3F), fontSize: 16),
+                style: TextStyle(color: Color(0xFFAF2C3F), fontSize: 16, fontFamily: 'Montserrat'),
               ),
               Row(
                 children: [
                   Expanded(
                     child: RadioListTile<bool>(
-                      title: Text('Admin'),
+                      title: Text('Admin', style: TextStyle(fontFamily: 'Montserrat')),
                       value: true,
                       groupValue: _isAdmin,
                       onChanged: (value) {
@@ -1081,7 +1033,7 @@ Future<void> _onSignOutPressed() async {
                   ),
                   Expanded(
                     child: RadioListTile<bool>(
-                      title: Text('Employee'),
+                      title: Text('Employee', style: TextStyle(fontFamily: 'Montserrat')),
                       value: false,
                       groupValue: _isAdmin,
                       onChanged: (value) {
@@ -1096,7 +1048,7 @@ Future<void> _onSignOutPressed() async {
               SizedBox(height: 10),
               Text(
                 'Personal Photo',
-                style: TextStyle(color: Color(0xFFAF2C3F), fontSize: 16),
+                style: TextStyle(color: Color(0xFFAF2C3F), fontSize: 16, fontFamily: 'Montserrat'),
               ),
               SizedBox(height: 10),
               kIsWeb
@@ -1108,7 +1060,7 @@ Future<void> _onSignOutPressed() async {
                           ),
                           child: Text(
                             'Upload Photo',
-                            style: TextStyle(color: Colors.white),
+                            style: TextStyle(color: Colors.white, fontFamily: 'Montserrat'),
                           ),
                         )
                       : Image.memory(
@@ -1123,7 +1075,7 @@ Future<void> _onSignOutPressed() async {
                           ),
                           child: Text(
                             'Upload Photo',
-                            style: TextStyle(color: Colors.white),
+                            style: TextStyle(color: Colors.white, fontFamily: 'Montserrat'),
                           ),
                         )
                       : Image.file(
@@ -1138,7 +1090,7 @@ Future<void> _onSignOutPressed() async {
                 ),
                 child: Text(
                   'Add User',
-                  style: TextStyle(color: Colors.white),
+                  style: TextStyle(color: Colors.white, fontFamily: 'Montserrat'),
                 ),
               ),
             ],
@@ -1157,12 +1109,12 @@ Future<void> _onSignOutPressed() async {
         } else if (snapshot.hasError) {
           return Center(
             child: Text('Error: ${snapshot.error}',
-                style: TextStyle(color: Colors.black)),
+                style: TextStyle(color: Colors.black, fontFamily: 'Montserrat')),
           );
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return Center(
             child:
-                Text('No users found', style: TextStyle(color: Colors.black)),
+                Text('No users found', style: TextStyle(color: Colors.black, fontFamily: 'Montserrat')),
           );
         } else {
           final employees = snapshot.data!;
@@ -1171,38 +1123,34 @@ Future<void> _onSignOutPressed() async {
             child: DataTable(
               columns: const [
                 DataColumn(
-                    label: Text('ID', style: TextStyle(color: Colors.black))),
+                    label: Text('ID', style: TextStyle(color: Colors.black, fontFamily: 'Montserrat'))),
                 DataColumn(
-                    label: Text('Name', style: TextStyle(color: Colors.black))),
-                DataColumn(
-                    label:
-                        Text('Email', style: TextStyle(color: Colors.black))),
+                    label: Text('Name', style: TextStyle(color: Colors.black, fontFamily: 'Montserrat'))),
                 DataColumn(
                     label:
-                        Text('Photo', style: TextStyle(color: Colors.black))),
+                        Text('Email', style: TextStyle(color: Colors.black, fontFamily: 'Montserrat'))),
                 DataColumn(
-                    label: Text('Job Title',
-                        style: TextStyle(color: Colors.black))),
+                    label: Text('Photo', style: TextStyle(color: Colors.black, fontFamily: 'Montserrat'))),
                 DataColumn(
-                    label: Text('Director',
-                        style: TextStyle(color: Colors.black))),
+                    label: Text('Job Title', style: TextStyle(color: Colors.black, fontFamily: 'Montserrat'))),
                 DataColumn(
-                    label: Text('Is Admin',
-                        style: TextStyle(color: Colors.black))),
+                    label: Text('Director', style: TextStyle(color: Colors.black, fontFamily: 'Montserrat'))),
+                DataColumn(
+                    label: Text('Is Admin', style: TextStyle(color: Colors.black, fontFamily: 'Montserrat'))),
               ],
               rows: employees.map((employee) {
                 return DataRow(
                   cells: [
                     DataCell(Text(employee.companyId.toString(),
-                        style: TextStyle(color: Colors.black))),
+                        style: TextStyle(color: Colors.black, fontFamily: 'Montserrat'))),
                     DataCell(Text(employee.name,
-                        style: TextStyle(color: Colors.black))),
+                        style: TextStyle(color: Colors.black, fontFamily: 'Montserrat'))),
                     DataCell(Text(employee.email,
-                        style: TextStyle(color: Colors.black))),
+                        style: TextStyle(color: Colors.black, fontFamily: 'Montserrat'))),
                     DataCell(
                       employee.personalPhoto.isEmpty
                           ? Text('No Photo',
-                              style: TextStyle(color: Colors.black))
+                              style: TextStyle(color: Colors.black, fontFamily: 'Montserrat'))
                           : Image.memory(
                               base64Decode(employee.personalPhoto),
                               height: 50,
@@ -1210,25 +1158,25 @@ Future<void> _onSignOutPressed() async {
                             ),
                     ),
                     DataCell(Text(employee.jobTitle,
-                        style: TextStyle(color: Colors.black))),
+                        style: TextStyle(color: Colors.black, fontFamily: 'Montserrat'))),
                     DataCell(FutureBuilder<String>(
                       future: _getDirectorName(employee.directorId),
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
                           return Text('Loading...',
-                              style: TextStyle(color: Colors.black));
+                              style: TextStyle(color: Colors.black, fontFamily: 'Montserrat'));
                         } else if (snapshot.hasError) {
                           return Text('Error',
-                              style: TextStyle(color: Colors.black));
+                              style: TextStyle(color: Colors.black, fontFamily: 'Montserrat'));
                         } else {
                           return Text(snapshot.data ?? 'Unknown',
-                              style: TextStyle(color: Colors.black));
+                              style: TextStyle(color: Colors.black, fontFamily: 'Montserrat'));
                         }
                       },
                     )),
                     DataCell(Text(employee.isAdmin ? 'Admin' : 'Employee',
-                        style: TextStyle(color: Colors.black))),
+                        style: TextStyle(color: Colors.black, fontFamily: 'Montserrat'))),
                   ],
                 );
               }).toList(),
@@ -1248,64 +1196,7 @@ Future<void> _onSignOutPressed() async {
     return director.name;
   }
 
-  // Widget _buildInfoColumn(Employee employee) {
-  //   return Column(
-  //     crossAxisAlignment: CrossAxisAlignment.start,
-  //     children: [
-  //       _buildInfoRow('Employee ID:', employee.companyId.toString(), true),
-  //       SizedBox(height: 10),
-  //       _buildInfoRow('Job Title:', employee.jobTitle, true),
-  //       SizedBox(height: 10),
-  //       _buildInfoRow('Email:', employee.email, true),
-  //       SizedBox(height: 10),
-  //       FutureBuilder<String>(
-  //         future: _getDirectorName(employee.directorId),
-  //         builder: (context, snapshot) {
-  //           if (snapshot.connectionState == ConnectionState.waiting) {
-  //             return _buildInfoRow('Director:', 'Loading...', true);
-  //           } else if (snapshot.hasError) {
-  //             return _buildInfoRow('Director:', 'Error', true);
-  //           } else {
-  //             return _buildInfoRow('Director:', snapshot.data ?? 'Unknown', true);
-  //           }
-  //         },
-  //       ),
-  //       SizedBox(height: 10),
-  //       _buildInfoRow('Role:', employee.isAdmin ? 'Admin' : 'Employee', true),
-  //       SizedBox(height: 10),
-  //     ],
-  //   );
-  // }
-
-  // Widget _buildInfoRow(String label, String value, [bool increaseSize = false]) {
-  //   return Row(
-  //     children: [
-  //       Text(
-  //         label,
-  //         style: TextStyle(
-  //           fontSize: increaseSize ? 20 : 18,
-  //           fontWeight: FontWeight.bold,
-  //           color: Color(0xFFAF2C3F),
-  //           fontFamily: 'NotoSans',
-  //         ),
-  //       ),
-  //       SizedBox(width: 10),
-  //       Expanded(
-  //         child: Text(
-  //           value,
-  //           style: TextStyle(
-  //             fontSize: increaseSize ? 18 : 16,
-  //             color: Colors.black,
-  //             fontFamily: 'NotoSans',
-  //           ),
-  //         ),
-  //       ),
-  //     ],
-  //   );
-  // }
-
-  Widget _buildTransactionRow(
-      String day, DateTime loginTime, DateTime logoutTime) {
+  Widget _buildTransactionRow(String day, DateTime loginTime, DateTime logoutTime) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
@@ -1316,13 +1207,13 @@ Future<void> _onSignOutPressed() async {
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
-                fontFamily: 'NotoSans'),
+                fontFamily: 'Montserrat'),
           ),
           SizedBox(width: 10),
           Text(
             'Login: ${_formatTime(loginTime)} - Logout: ${_formatTime(logoutTime)}',
             style: TextStyle(
-                fontSize: 18, color: Colors.black, fontFamily: 'NotoSans'),
+                fontSize: 18, color: Colors.black, fontFamily: 'Montserrat'),
           ),
         ],
       ),

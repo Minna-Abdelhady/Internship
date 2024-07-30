@@ -34,7 +34,7 @@ class _LoginScreenState extends State<LoginScreen> {
             SizedBox(width: 10),
             Text(
               'Login',
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: Colors.white, fontFamily: 'Montserrat'),
             ),
           ],
         ),
@@ -119,9 +119,13 @@ class _LoginScreenState extends State<LoginScreen> {
                                       }
                                     },
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: Color(0xFFAF2C3F), // Set the background color
+                                      backgroundColor: Color(0xFFAF2C3F),
+                                      textStyle: TextStyle(
+                                        fontFamily: 'Montserrat',
+                                        fontSize: 18, // Increased font size
+                                      ),
                                     ),
-                                    child: Text('Login'),
+                                    child: Text('Login', style: TextStyle(fontFamily: 'Montserrat')),
                                   ),
                                 ),
                               ] else ...[
@@ -165,9 +169,13 @@ class _LoginScreenState extends State<LoginScreen> {
                                       }
                                     },
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: Color(0xFFAF2C3F), // Set the background color
+                                      backgroundColor: Color(0xFFAF2C3F),
+                                      textStyle: TextStyle(
+                                        fontFamily: 'Montserrat',
+                                        fontSize: 18, // Increased font size
+                                      ),
                                     ),
-                                    child: Text('Verify and Login'),
+                                    child: Text('Verify and Login', style: TextStyle(fontFamily: 'Montserrat')),
                                   ),
                                 ),
                               ],
@@ -268,9 +276,13 @@ class _LoginScreenState extends State<LoginScreen> {
                                       }
                                     },
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: Color(0xFFAF2C3F), // Set the background color
+                                      backgroundColor: Color(0xFFAF2C3F),
+                                      textStyle: TextStyle(
+                                        fontFamily: 'Montserrat',
+                                        fontSize: 18, // Increased font size
+                                      ),
                                     ),
-                                    child: Text('Login'),
+                                    child: Text('Login', style: TextStyle(fontFamily: 'Montserrat')),
                                   ),
                                 ),
                               ] else ...[
@@ -314,9 +326,13 @@ class _LoginScreenState extends State<LoginScreen> {
                                       }
                                     },
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: Color(0xFFAF2C3F), // Set the background color
+                                      backgroundColor: Color(0xFFAF2C3F),
+                                      textStyle: TextStyle(
+                                        fontFamily: 'Montserrat',
+                                        fontSize: 18, // Increased font size
+                                      ),
                                     ),
-                                    child: Text('Verify and Login'),
+                                    child: Text('Verify and Login', style: TextStyle(fontFamily: 'Montserrat')),
                                   ),
                                 ),
                               ],
@@ -340,7 +356,7 @@ class _LoginScreenState extends State<LoginScreen> {
         controller: controller,
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: TextStyle(color: Color(0xFFAF2C3F)),
+          labelStyle: TextStyle(color: Color(0xFFAF2C3F), fontFamily: 'Montserrat'),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
           ),
@@ -353,6 +369,7 @@ class _LoginScreenState extends State<LoginScreen> {
               }
               return null;
             },
+        style: TextStyle(fontFamily: 'Montserrat'),
       ),
     );
   }
