@@ -20,8 +20,6 @@ import 'package:latlong2/latlong.dart' as latlong;
 import 'package:geolocator/geolocator.dart';
 import '../utils/location_utils.dart';
 
-
-
 class HomeScreen extends StatefulWidget {
   final String email;
 
@@ -31,7 +29,8 @@ class HomeScreen extends StatefulWidget {
   _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
+class _HomeScreenState extends State<HomeScreen>
+    with SingleTickerProviderStateMixin {
   final EmployeeDao employeeDao = EmployeeDao();
   final AttendanceDao attendanceDao = AttendanceDao();
   DateTime? _loginTime;
@@ -64,7 +63,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   bool _isCurrentUserAdmin = false;
   Employee? _currentUser;
 
-   Position? _currentPosition;
+  Position? _currentPosition;
   GoogleMapController? _mapController;
   late TabController _tabController1;
 
@@ -104,7 +103,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   }
 
   Future<void> _pickImage() async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       if (kIsWeb) {
         final bytes = await pickedFile.readAsBytes();
@@ -119,7 +119,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     }
   }
 
- Future<void> _getCurrentLocation() async {
+  Future<void> _getCurrentLocation() async {
     bool serviceEnabled;
     LocationPermission permission;
 
@@ -146,6 +146,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       });
     });
   }
+
   Future<bool> _emailExists(String email) async {
     return await employeeDao.emailExists(email);
   }
@@ -155,7 +156,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   }
 
   Future<void> _addUser() async {
-    if (_formKey.currentState!.validate() && (_personalPhoto != null || _webImage != null)) {
+    if (_formKey.currentState!.validate() &&
+        (_personalPhoto != null || _webImage != null)) {
       final companyIdText = _companyIdController.text;
       final companyIdInt = int.tryParse(companyIdText);
 
@@ -250,12 +252,12 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     return DateFormat('EEEE, MMMM d, y').format(date);
   }
 
-  String _formatTime(DateTime? date) {
-    if (date == null) {
-      return "00:00";
-    }
-    return DateFormat('h:mm a').format(date);
-  }
+  // String _formatTime(DateTime? date) {
+  //   if (date == null) {
+  //     return "00:00";
+  //   }
+  //   return DateFormat('h:mm a').format(date);
+  // }
 
   bool _isSignedIn = false;
 
@@ -428,73 +430,75 @@ Future<void> _onSignOutPressed() async {
     );
   }
 
- @override
-Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: AppBar(
-      automaticallyImplyLeading: false,
-      backgroundColor: Color(0xFFAF2C3F),
-      iconTheme: IconThemeData(
-        color: Colors.white,
-      ),
-      bottom: PreferredSize(
-        preferredSize: Size.fromHeight(-8),
-        child: Container(
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: Color(0xFFAF2C3F),
+        iconTheme: IconThemeData(
           color: Colors.white,
-          child: TabBar(
-            controller: _tabController,
-            labelColor: Color(0xFFAF2C3F),
-            unselectedLabelColor: Color(0xFFAF2C3F),
-            indicatorColor: Color(0xFFAF2C3F),
-            indicator: BoxDecoration(
-              border: Border(
-                bottom: BorderSide(
-                  color: Color(0xFFAF2C3F),
-                  width: 4.0,
+        ),
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(-8),
+          child: Container(
+            color: Colors.white,
+            child: TabBar(
+              controller: _tabController,
+              labelColor: Color(0xFFAF2C3F),
+              unselectedLabelColor: Color(0xFFAF2C3F),
+              indicatorColor: Color(0xFFAF2C3F),
+              indicator: BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(
+                    color: Color(0xFFAF2C3F),
+                    width: 4.0,
+                  ),
                 ),
               ),
+              tabs: _buildTabs(),
             ),
-            tabs: _buildTabs(),
           ),
         ),
       ),
-    ),
-    backgroundColor: Colors.white,
-    body: FutureBuilder<Employee>(
-      future: _fetchEmployeeData(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Center(
-              child: Text('Error: ${snapshot.error}',
-                  style: TextStyle(color: Colors.black, fontFamily: 'NotoSans')));
-        } else if (!snapshot.hasData) {
-          return Center(
-              child: Text('User not found',
-                  style: TextStyle(color: Colors.black, fontFamily: 'NotoSans')));
-        } else {
-          final employee = snapshot.data!;
-          return Row(
-            children: [
-              Flexible(
-                flex: 1, // Original size of the profile side
-                child: _buildProfileSide(employee),
-              ),
-              Flexible(
-                flex: 3, // Original size of the main content
-                child: TabBarView(
-                  controller: _tabController,
-                  children: _buildTabViews(employee),
+      backgroundColor: Colors.white,
+      body: FutureBuilder<Employee>(
+        future: _fetchEmployeeData(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(
+                child: Text('Error: ${snapshot.error}',
+                    style: TextStyle(
+                        color: Colors.black, fontFamily: 'NotoSans')));
+          } else if (!snapshot.hasData) {
+            return Center(
+                child: Text('User not found',
+                    style: TextStyle(
+                        color: Colors.black, fontFamily: 'NotoSans')));
+          } else {
+            final employee = snapshot.data!;
+            return Row(
+              children: [
+                Flexible(
+                  flex: 1, // Original size of the profile side
+                  child: _buildProfileSide(employee),
                 ),
-              ),
-            ],
-          );
-        }
-      },
-    ),
-  );
-}
+                Flexible(
+                  flex: 3, // Original size of the main content
+                  child: TabBarView(
+                    controller: _tabController,
+                    children: _buildTabViews(employee),
+                  ),
+                ),
+              ],
+            );
+          }
+        },
+      ),
+    );
+  }
 
   List<Widget> _buildTabs() {
     List<Widget> tabs = [
@@ -530,238 +534,273 @@ Widget build(BuildContext context) {
     return tabViews;
   }
 
-Widget _buildProfileSide(Employee employee) {
-  return Container(
-    color: Color(0xFFAF2C3F),
-    child: Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 100,
-            height: 100,
-            decoration: BoxDecoration(
-              shape: BoxShape.rectangle,
-              borderRadius: BorderRadius.circular(12), // Add rounded corners
-              border: Border.all(color: Colors.white, width: 2), // Add a white border
-              image: DecorationImage(
-                image: MemoryImage(base64Decode(employee.personalPhoto)),
-                fit: BoxFit.cover,
+  Widget _buildProfileSide(Employee employee) {
+    return Container(
+      color: Color(0xFFAF2C3F),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                shape: BoxShape.rectangle,
+                borderRadius: BorderRadius.circular(12), // Add rounded corners
+                border: Border.all(
+                    color: Colors.white, width: 2), // Add a white border
+                image: DecorationImage(
+                  image: MemoryImage(base64Decode(employee.personalPhoto)),
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
-          ),
-          SizedBox(height: 10),
-          Text(
-            'Welcome, ${employee.name}',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-              fontFamily: 'NotoSans',
+            SizedBox(height: 10),
+            Text(
+              'Welcome, ${employee.name}',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+                fontFamily: 'NotoSans',
+              ),
             ),
-          ),
-          SizedBox(height: 20),
-          _buildInfoColumn(employee),
-          SizedBox(height: 20),
-          Divider(color: Colors.white),
-          Container(
-            color: Color(0xFFAF2C3F),
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildInfoRow('Today:', _formatDate(DateTime.now()), true),
-                _buildInfoRow('Signed In At:', _formatTime(_loginTime), true),
-                _buildInfoRow(
-                  _isSignedOut ? 'Signed Out At:' : 'Expected Sign Out Time:',
-                  _formatTime(_logoutTime),
-                  true,
-                ),
-              ],
+            SizedBox(height: 20),
+            _buildInfoColumn(employee),
+            SizedBox(height: 20),
+            Divider(color: Colors.white),
+            Container(
+              color: Color(0xFFAF2C3F),
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildInfoRow('Today:', _formatDate(DateTime.now()), true),
+                  _buildInfoRow('Signed In At:', _formatTime(_loginTime), true),
+                  _buildInfoRow(
+                    _isSignedOut ? 'Signed Out At:' : 'Expected Sign Out Time:',
+                    _formatTime(_logoutTime),
+                    true,
+                  ),
+                ],
+              ),
             ),
-          ),
-          Spacer(),
-          ElevatedButton.icon(
-            onPressed: _onLogoutPressed,
-            icon: Icon(Icons.logout, color: Color(0xFFAF2C3F)),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
+            Spacer(),
+            ElevatedButton.icon(
+              onPressed: _onLogoutPressed,
+              icon: Icon(Icons.logout, color: Color(0xFFAF2C3F)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+              ),
+              label: Text(
+                'Log Out',
+                style: TextStyle(color: Color(0xFFAF2C3F)),
+              ),
             ),
-            label: Text(
-              'Log Out',
-              style: TextStyle(color: Color(0xFFAF2C3F)),
-            ),
-          ),
-        ],
-      ),
-    ),
-  );
-}
-
-Widget _buildInfoColumn(Employee employee) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      _buildInfoRow('Employee ID:', employee.companyId.toString(), true),
-      SizedBox(height: 10),
-      _buildInfoRow('Job Title:', employee.jobTitle, true),
-      SizedBox(height: 10),
-      _buildInfoRow('Email:', employee.email, true),
-      SizedBox(height: 10),
-      FutureBuilder<String>(
-        future: _getDirectorName(employee.directorId),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return _buildInfoRow('Director:', 'Loading...', true);
-          } else if (snapshot.hasError) {
-            return _buildInfoRow('Director:', 'Error', true);
-          } else {
-            return _buildInfoRow('Director:', snapshot.data ?? 'Unknown', true);
-          }
-        },
-      ),
-      SizedBox(height: 10),
-      _buildInfoRow('Role:', employee.isAdmin ? 'Admin' : 'Employee', true),
-      SizedBox(height: 10),
-    ],
-  );
-}
-
-Widget _buildInfoRow(String label, String value, [bool increaseSize = false]) {
-  return Row(
-    children: [
-      Text(
-        label,
-        style: TextStyle(
-          fontSize: increaseSize ? 20 : 18,  // Increase size if needed
-          fontWeight: FontWeight.bold,
-          color: Colors.grey[200],  // Set label color to grey
-          fontFamily: 'NotoSans',
+          ],
         ),
       ),
-      SizedBox(width: 10),
-      Expanded(
-        child: Text(
-          value,
+    );
+  }
+
+  Widget _buildInfoColumn(Employee employee) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildInfoRow('Employee ID:', employee.companyId.toString(), true),
+        SizedBox(height: 10),
+        _buildInfoRow('Job Title:', employee.jobTitle, true),
+        SizedBox(height: 10),
+        _buildInfoRow('Email:', employee.email, true),
+        SizedBox(height: 10),
+        FutureBuilder<String>(
+          future: _getDirectorName(employee.directorId),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return _buildInfoRow('Director:', 'Loading...', true);
+            } else if (snapshot.hasError) {
+              return _buildInfoRow('Director:', 'Error', true);
+            } else {
+              return _buildInfoRow(
+                  'Director:', snapshot.data ?? 'Unknown', true);
+            }
+          },
+        ),
+        SizedBox(height: 10),
+        _buildInfoRow('Role:', employee.isAdmin ? 'Admin' : 'Employee', true),
+        SizedBox(height: 10),
+      ],
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value,
+      [bool increaseSize = false]) {
+    return Row(
+      children: [
+        Text(
+          label,
           style: TextStyle(
-            fontSize: increaseSize ? 18 : 16,  // Increase size if needed
-            color: Colors.white,  // Set text color to white
+            fontSize: increaseSize ? 20 : 18, // Increase size if needed
+            fontWeight: FontWeight.bold,
+            color: Colors.grey[200], // Set label color to grey
             fontFamily: 'NotoSans',
           ),
         ),
-      ),
-    ],
-  );
-}
-
-Widget _buildTransactionsView(Employee employee) {
-  final DateTime now = DateTime.now();
-  final Map<String, Map<String, DateTime>> weekTransactions = {
-    'Sunday': {
-      'login': DateTime(now.year, now.month, now.day - now.weekday + 5, 9, 0),
-      'logout': DateTime(now.year, now.month, now.day - now.weekday + 5, 17, 0)
-    },
-    'Monday': {
-      'login': DateTime(now.year, now.month, now.day - now.weekday + 1, 9, 0),
-      'logout': DateTime(now.year, now.month, now.day - now.weekday + 1, 17, 0)
-    },
-    'Tuesday': {
-      'login': DateTime(now.year, now.month, now.day - now.weekday + 2, 9, 43),
-      'logout': DateTime(now.year, now.month, now.day - now.weekday + 2, 0, 0)
-    },
-    'Wednesday': {
-      'login': DateTime(now.year, now.month, now.day - now.weekday + 3, 0, 0),
-      'logout': DateTime(now.year, now.month, now.day - now.weekday + 3, 0, 0)
-    },
-    'Thursday': {
-      'login': DateTime(now.year, now.month, now.day - now.weekday + 4, 9, 0),
-      'logout': DateTime(now.year, now.month, now.day - now.weekday + 4, 0, 0)
-    },
-  };
-
-  return SingleChildScrollView(
-    child: Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'This Week\'s Transactions',
+        SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            value,
             style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
+              fontSize: increaseSize ? 18 : 16, // Increase size if needed
+              color: Colors.white, // Set text color to white
               fontFamily: 'NotoSans',
             ),
           ),
-          SizedBox(height: 10),
-          Column(
-            children: weekTransactions.keys.map((day) {
-              final transactions = weekTransactions[day]!;
-              return Card(
-                color: Color(0xFFAF2C3F),
-                elevation: 3,
-                margin: EdgeInsets.symmetric(vertical: 8.0),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            day,
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                              fontFamily: 'NotoSans',
-                            ),
-                          ),
-                          SizedBox(width: 10),
-                          Text(
-                            '${DateFormat('dd-MM-yyyy').format(transactions['login']!)}',
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.white,
-                              fontFamily: 'NotoSans',
-                            ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Text(
-                            'Signed In At: ${_formatTime(transactions['login'])}',
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.white,
-                              fontFamily: 'NotoSans',
-                            ),
-                          ),
-                          SizedBox(width: 10),
-                          Text(
-                            'Signed Out At: ${_formatTime(transactions['logout'])}',
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.white,
-                              fontFamily: 'NotoSans',
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTransactionsView(Employee employee) {
+    return FutureBuilder<List<Attendance>>(
+      future: attendanceDao.getAttendanceForWeek(employee.companyId),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(
+            child: Text('Error: ${snapshot.error}',
+                style: TextStyle(color: Colors.black)),
+          );
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(
+            child: Text('No attendance records found',
+                style: TextStyle(color: Colors.black)),
+          );
+        } else {
+          final attendanceRecords = snapshot.data!;
+
+          // Define weekdays, excluding Fridays and Saturdays
+          final weekdays = [
+            'Sunday',
+            'Monday',
+            'Tuesday',
+            'Wednesday',
+            'Thursday'
+          ];
+
+          // Map to store transactions
+          final weekTransactions = <DateTime, Map<String, DateTime>>{};
+
+          // Process and group attendance records by date
+          for (var record in attendanceRecords) {
+            final day = DateFormat('EEEE').format(record.date);
+            final dayOfWeek = DateFormat('dd-MM-yyyy').format(record.date);
+
+            if (weekdays.contains(day)) {
+              weekTransactions[record.date] = {
+                'login': record.signInTime,
+                'logout': record.signOutTime
+              };
+            }
+          }
+
+          // Sort the transactions by date
+          final sortedDates = weekTransactions.keys.toList()
+            ..sort((a, b) => a.compareTo(b));
+
+          return SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'This Week\'s Transactions',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                      fontFamily: 'NotoSans',
+                    ),
                   ),
-                ),
-              );
-            }).toList(),
-          ),
-        ],
-      ),
-    ),
-  );
-}
+                  SizedBox(height: 10),
+                  Column(
+                    children: sortedDates.map((date) {
+                      final transactions = weekTransactions[date]!;
+                      final dayName = DateFormat('EEEE').format(date);
+                      return Card(
+                        color: Color(0xFFAF2C3F),
+                        elevation: 3,
+                        margin: EdgeInsets.symmetric(vertical: 8.0),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Text(
+                                    dayName,
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                      fontFamily: 'NotoSans',
+                                    ),
+                                  ),
+                                  SizedBox(width: 10),
+                                  Text(
+                                    '${DateFormat('dd-MM-yyyy').format(date)}',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      color: Colors.white,
+                                      fontFamily: 'NotoSans',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  Text(
+                                    'Signed In At: ${_formatTime(transactions['login'])}',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      color: Colors.white,
+                                      fontFamily: 'NotoSans',
+                                    ),
+                                  ),
+                                  SizedBox(width: 10),
+                                  Text(
+                                    'Signed Out At: ${_formatTime(transactions['logout'])}',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      color: Colors.white,
+                                      fontFamily: 'NotoSans',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+      },
+    );
+  }
+
+// Helper function to format the time
+  String _formatTime(DateTime? time) {
+    return time != null ? DateFormat('h:mm a').format(time) : 'Not available';
+  }
 
   Widget _buildCalendarView() {
     return Padding(
@@ -851,99 +890,104 @@ Widget _buildTransactionsView(Employee employee) {
     );
   }
 
- Widget _buildSignInView(Employee employee) {
-  return Padding(
-    padding: const EdgeInsets.all(16.0),
-    child: Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ElevatedButton.icon(
-                onPressed: _isSignedIn ? _onSignOutPressed : _onSignInPressed,
-                icon: Icon(Icons.location_on, size: 30),
-                style: ElevatedButton.styleFrom(
-                  minimumSize: Size(250, 150),
-                  textStyle: TextStyle(fontSize: 20),
-                  backgroundColor: Color(0xFFAF2C3F),
-                ),
-                label: Text(_isSignedIn ? 'Sign Out' : 'Sign In'),
-              ),
-              SizedBox(width: 50),
-              ElevatedButton.icon(
-                onPressed: _onFaceIdPressed,
-                icon: Icon(Icons.face, size: 30),
-                style: ElevatedButton.styleFrom(
-                  minimumSize: Size(250, 150),
-                  textStyle: TextStyle(fontSize: 20),
-                  backgroundColor: Color(0xFFAF2C3F),
-                ),
-                label: Text('Face ID'),
-              ),
-              SizedBox(width: 50),
-              ElevatedButton.icon(
-                onPressed: _onFingerprintPressed,
-                icon: Icon(Icons.fingerprint, size: 30),
-                style: ElevatedButton.styleFrom(
-                  minimumSize: Size(250, 150),
-                  textStyle: TextStyle(fontSize: 20),
-                  backgroundColor: Color(0xFFAF2C3F),
-                ),
-                label: Text('Fingerprint'),
-              ),
-            ],
-          ),
-          SizedBox(height: 50),
-          _currentPosition == null
-              ? CircularProgressIndicator()
-              : Container(
-                  height: 300,
-                  width: 400,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(15),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 10,
-                        offset: Offset(0, 5),
-                      ),
-                    ],
+  Widget _buildSignInView(Employee employee) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton.icon(
+                  onPressed: _isSignedIn ? _onSignOutPressed : _onSignInPressed,
+                  icon: Icon(Icons.location_on, size: 30),
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: Size(250, 150),
+                    textStyle: TextStyle(fontSize: 20),
+                    backgroundColor: Color(0xFFAF2C3F),
                   ),
-                  margin: EdgeInsets.all(10),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(15),
-                    child: flutterMap.FlutterMap(
-                      options: flutterMap.MapOptions(
-                        center: latlong.LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
-                        zoom: 15,
-                      ),
-                      children: [
-                        flutterMap.TileLayer(
-                          urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                          subdomains: ['a', 'b', 'c'],
-                        ),
-                        flutterMap.MarkerLayer(
-                          markers: [
-                            flutterMap.Marker(
-                              point: latlong.LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
-                              builder: (ctx) => Container(
-                                child: Icon(Icons.location_on, size: 40, color: Colors.red),
-                              ),
-                            ),
-                          ],
+                  label: Text(_isSignedIn ? 'Sign Out' : 'Sign In'),
+                ),
+                SizedBox(width: 50),
+                ElevatedButton.icon(
+                  onPressed: _onFaceIdPressed,
+                  icon: Icon(Icons.face, size: 30),
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: Size(250, 150),
+                    textStyle: TextStyle(fontSize: 20),
+                    backgroundColor: Color(0xFFAF2C3F),
+                  ),
+                  label: Text('Face ID'),
+                ),
+                SizedBox(width: 50),
+                ElevatedButton.icon(
+                  onPressed: _onFingerprintPressed,
+                  icon: Icon(Icons.fingerprint, size: 30),
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: Size(250, 150),
+                    textStyle: TextStyle(fontSize: 20),
+                    backgroundColor: Color(0xFFAF2C3F),
+                  ),
+                  label: Text('Fingerprint'),
+                ),
+              ],
+            ),
+            SizedBox(height: 50),
+            _currentPosition == null
+                ? CircularProgressIndicator()
+                : Container(
+                    height: 300,
+                    width: 400,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(15),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 10,
+                          offset: Offset(0, 5),
                         ),
                       ],
                     ),
+                    margin: EdgeInsets.all(10),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(15),
+                      child: flutterMap.FlutterMap(
+                        options: flutterMap.MapOptions(
+                          center: latlong.LatLng(_currentPosition!.latitude,
+                              _currentPosition!.longitude),
+                          zoom: 15,
+                        ),
+                        children: [
+                          flutterMap.TileLayer(
+                            urlTemplate:
+                                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                            subdomains: ['a', 'b', 'c'],
+                          ),
+                          flutterMap.MarkerLayer(
+                            markers: [
+                              flutterMap.Marker(
+                                point: latlong.LatLng(
+                                    _currentPosition!.latitude,
+                                    _currentPosition!.longitude),
+                                builder: (ctx) => Container(
+                                  child: Icon(Icons.location_on,
+                                      size: 40, color: Colors.red),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-        ],
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _buildVacationsView() {
     return Center(
@@ -1260,7 +1304,8 @@ Widget _buildTransactionsView(Employee employee) {
   //   );
   // }
 
-  Widget _buildTransactionRow(String day, DateTime loginTime, DateTime logoutTime) {
+  Widget _buildTransactionRow(
+      String day, DateTime loginTime, DateTime logoutTime) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(

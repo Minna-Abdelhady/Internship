@@ -7,6 +7,7 @@ import 'models/log.dart';
 import 'models/code.dart';
 import 'screens/login_screen.dart';
 import 'database/dao/employee_dao.dart';
+import 'database/dao/attendance_dao.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,10 +35,25 @@ void main() async {
     await Hive.openBox<Employee>('employees');
     await Hive.openBox<Attendance>('attendance');
 
+    // Insert dummy data for employees and attendance
     final employeeDao = EmployeeDao();
-    await employeeDao.insertDummyData(); // Insert dummy data
+    await employeeDao.insertDummyData(); // Insert dummy employee data
+    print('Employee dummy data inserted.');
 
-    print('Dummy data inserted.');
+    final attendanceDao = AttendanceDao();
+    await attendanceDao.insertDummyAttendanceData(); // Insert dummy attendance data
+    print('Attendance dummy data inserted.');
+
+    // var box = Hive.box<Attendance>('attendance');
+    // print('Box content: ${box.values.toList()}');
+
+    // final attendances = await AttendanceDao().getAttendanceForWeek(3);
+    // print('Fetched attendances: $attendances');
+
+    // DateTime now = DateTime.now();
+    // DateTime startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+    // DateTime endOfWeek = startOfWeek.add(Duration(days: 6));
+    // print('Start of week: $startOfWeek, End of week: $endOfWeek');
 
     runApp(MyApp());
   } catch (e) {
