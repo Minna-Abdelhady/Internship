@@ -252,9 +252,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   String _formatTime(DateTime? date) {
     if (date == null) {
-      return "00:00:00";
+      return "00:00";
     }
-    return DateFormat('h:mm:ss a').format(date);
+    return DateFormat('h:mm a').format(date);
   }
 
   bool _isSignedIn = false;
@@ -420,75 +420,73 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: Color(0xFFAF2C3F),
-        iconTheme: IconThemeData(
+ @override
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      automaticallyImplyLeading: false,
+      backgroundColor: Color(0xFFAF2C3F),
+      iconTheme: IconThemeData(
+        color: Colors.white,
+      ),
+      bottom: PreferredSize(
+        preferredSize: Size.fromHeight(-8),
+        child: Container(
           color: Colors.white,
-        ),
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(0),
-          child: Container(
-            color: Color(0xFFAF2C3F),
-            child: TabBar(
-              controller: _tabController,
-              labelColor: Colors.white,
-              unselectedLabelColor: Colors.white,
-              indicatorColor: Colors.white,
-              indicator: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(
-                    color: Colors.white,
-                    width: 4.0,
-                  ),
+          child: TabBar(
+            controller: _tabController,
+            labelColor: Color(0xFFAF2C3F),
+            unselectedLabelColor: Color(0xFFAF2C3F),
+            indicatorColor: Color(0xFFAF2C3F),
+            indicator: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(
+                  color: Color(0xFFAF2C3F),
+                  width: 4.0,
                 ),
               ),
-              tabs: _buildTabs(),
             ),
+            tabs: _buildTabs(),
           ),
         ),
       ),
-      backgroundColor: Colors.white,
-      body: FutureBuilder<Employee>(
-        future: _fetchEmployeeData(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(
-                child: Text('Error: ${snapshot.error}',
-                    style: TextStyle(
-                        color: Colors.black, fontFamily: 'NotoSans')));
-          } else if (!snapshot.hasData) {
-            return Center(
-                child: Text('User not found',
-                    style: TextStyle(
-                        color: Colors.black, fontFamily: 'NotoSans')));
-          } else {
-            final employee = snapshot.data!;
-            return Row(
-              children: [
-                Flexible(
-                  flex: 1,
-                  child: _buildProfileSide(employee),
+    ),
+    backgroundColor: Colors.white,
+    body: FutureBuilder<Employee>(
+      future: _fetchEmployeeData(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(
+              child: Text('Error: ${snapshot.error}',
+                  style: TextStyle(color: Colors.black, fontFamily: 'NotoSans')));
+        } else if (!snapshot.hasData) {
+          return Center(
+              child: Text('User not found',
+                  style: TextStyle(color: Colors.black, fontFamily: 'NotoSans')));
+        } else {
+          final employee = snapshot.data!;
+          return Row(
+            children: [
+              Flexible(
+                flex: 1, // Original size of the profile side
+                child: _buildProfileSide(employee),
+              ),
+              Flexible(
+                flex: 3, // Original size of the main content
+                child: TabBarView(
+                  controller: _tabController,
+                  children: _buildTabViews(employee),
                 ),
-                Flexible(
-                  flex: 3,
-                  child: TabBarView(
-                    controller: _tabController,
-                    children: _buildTabViews(employee),
-                  ),
-                ),
-              ],
-            );
-          }
-        },
-      ),
-    );
-  }
+              ),
+            ],
+          );
+        }
+      },
+    ),
+  );
+}
 
   List<Widget> _buildTabs() {
     List<Widget> tabs = [
@@ -524,9 +522,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     return tabViews;
   }
 
-  Widget _buildProfileSide(Employee employee) {
+Widget _buildProfileSide(Employee employee) {
   return Container(
-    color: Color(0xFFAF2C3F),  // Set the background color
+    color: Color(0xFFAF2C3F),
     child: Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -537,6 +535,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             height: 100,
             decoration: BoxDecoration(
               shape: BoxShape.rectangle,
+              borderRadius: BorderRadius.circular(12), // Add rounded corners
+              border: Border.all(color: Colors.white, width: 2), // Add a white border
               image: DecorationImage(
                 image: MemoryImage(base64Decode(employee.personalPhoto)),
                 fit: BoxFit.cover,
@@ -549,14 +549,14 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
-              color: Colors.white,  // Set the text color to white
+              color: Colors.white,
               fontFamily: 'NotoSans',
             ),
           ),
           SizedBox(height: 20),
           _buildInfoColumn(employee),
           SizedBox(height: 20),
-          Divider(color: Colors.black),
+          Divider(color: Colors.white),
           Container(
             color: Color(0xFFAF2C3F),
             padding: const EdgeInsets.all(8.0),
@@ -578,11 +578,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             onPressed: _onLogoutPressed,
             icon: Icon(Icons.logout, color: Color(0xFFAF2C3F)),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white, // Set the button background color to white
+              backgroundColor: Colors.white,
             ),
             label: Text(
               'Log Out',
-              style: TextStyle(color: Color(0xFFAF2C3F)),  // Set the button text color
+              style: TextStyle(color: Color(0xFFAF2C3F)),
             ),
           ),
         ],
@@ -647,99 +647,113 @@ Widget _buildInfoRow(String label, String value, [bool increaseSize = false]) {
   );
 }
 
-  Widget _buildTransactionsView(Employee employee) {
-    final DateTime now = DateTime.now();
-    final Map<String, Map<String, DateTime>> weekTransactions = {
-      'Sunday': {
-        'login': DateTime(now.year, now.month, now.day - now.weekday + 5, 9, 0),
-        'logout': DateTime(now.year, now.month, now.day - now.weekday + 5, 17, 0)
-      },
-      'Monday': {
-        'login': DateTime(now.year, now.month, now.day - now.weekday + 1, 9, 0),
-        'logout': DateTime(now.year, now.month, now.day - now.weekday + 1, 17, 0)
-      },
-      'Tuesday': {
-        'login': DateTime(now.year, now.month, now.day - now.weekday + 2, 9, 43),
-        'logout': DateTime(now.year, now.month, now.day - now.weekday + 2, 0, 0)
-      },
-      'Wednesday': {
-        'login': DateTime(now.year, now.month, now.day - now.weekday + 3, 0, 0),
-        'logout': DateTime(now.year, now.month, now.day - now.weekday + 3, 0, 0)
-      },
-      'Thursday': {
-        'login': DateTime(now.year, now.month, now.day - now.weekday + 4, 9, 0),
-        'logout': DateTime(now.year, now.month, now.day - now.weekday + 4, 0, 0)
-      },
-    };
+Widget _buildTransactionsView(Employee employee) {
+  final DateTime now = DateTime.now();
+  final Map<String, Map<String, DateTime>> weekTransactions = {
+    'Sunday': {
+      'login': DateTime(now.year, now.month, now.day - now.weekday + 5, 9, 0),
+      'logout': DateTime(now.year, now.month, now.day - now.weekday + 5, 17, 0)
+    },
+    'Monday': {
+      'login': DateTime(now.year, now.month, now.day - now.weekday + 1, 9, 0),
+      'logout': DateTime(now.year, now.month, now.day - now.weekday + 1, 17, 0)
+    },
+    'Tuesday': {
+      'login': DateTime(now.year, now.month, now.day - now.weekday + 2, 9, 43),
+      'logout': DateTime(now.year, now.month, now.day - now.weekday + 2, 0, 0)
+    },
+    'Wednesday': {
+      'login': DateTime(now.year, now.month, now.day - now.weekday + 3, 0, 0),
+      'logout': DateTime(now.year, now.month, now.day - now.weekday + 3, 0, 0)
+    },
+    'Thursday': {
+      'login': DateTime(now.year, now.month, now.day - now.weekday + 4, 9, 0),
+      'logout': DateTime(now.year, now.month, now.day - now.weekday + 4, 0, 0)
+    },
+  };
 
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'This Week\'s Transactions',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-                fontFamily: 'NotoSans',
-              ),
+  return SingleChildScrollView(
+    child: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'This Week\'s Transactions',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+              fontFamily: 'NotoSans',
             ),
-            SizedBox(height: 10),
-            Column(
-              children: weekTransactions.keys.map((day) {
-                final transactions = weekTransactions[day]!;
-                return Card(
-                  elevation: 3,
-                  margin: EdgeInsets.symmetric(vertical: 8.0),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          day,
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                            fontFamily: 'NotoSans',
+          ),
+          SizedBox(height: 10),
+          Column(
+            children: weekTransactions.keys.map((day) {
+              final transactions = weekTransactions[day]!;
+              return Card(
+                color: Color(0xFFAF2C3F),
+                elevation: 3,
+                margin: EdgeInsets.symmetric(vertical: 8.0),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            day,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              fontFamily: 'NotoSans',
+                            ),
                           ),
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              'Login: ${_formatTime(transactions['login'])}',
-                              style: TextStyle(
-                                fontSize: 18,
-                                color: Colors.black,
-                                fontFamily: 'NotoSans',
-                              ),
+                          SizedBox(width: 10),
+                          Text(
+                            '${DateFormat('dd-MM-yyyy').format(transactions['login']!)}',
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.white,
+                              fontFamily: 'NotoSans',
                             ),
-                            Text(
-                              'Logout: ${_formatTime(transactions['logout'])}',
-                              style: TextStyle(
-                                fontSize: 18,
-                                color: Colors.black,
-                                fontFamily: 'NotoSans',
-                              ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          Text(
+                            'Signed In At: ${_formatTime(transactions['login'])}',
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.white,
+                              fontFamily: 'NotoSans',
                             ),
-                          ],
-                        ),
-                      ],
-                    ),
+                          ),
+                          SizedBox(width: 10),
+                          Text(
+                            'Signed Out At: ${_formatTime(transactions['logout'])}',
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.white,
+                              fontFamily: 'NotoSans',
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                );
-              }).toList(),
-            ),
-          ],
-        ),
+                ),
+              );
+            }).toList(),
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildCalendarView() {
     return Padding(
@@ -879,27 +893,42 @@ Widget _buildInfoRow(String label, String value, [bool increaseSize = false]) {
               : Container(
                   height: 300,
                   width: 400,
-                  child: flutterMap.FlutterMap(
-                    options: flutterMap.MapOptions(
-                      center: latlong.LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
-                      zoom: 15,
-                    ),
-                    children: [
-                      flutterMap.TileLayer(
-                        urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                        subdomains: ['a', 'b', 'c'],
-                      ),
-                      flutterMap.MarkerLayer(
-                        markers: [
-                          flutterMap.Marker(
-                            point: latlong.LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
-                            builder: (ctx) => Container(
-                              child: Icon(Icons.location_on, size: 40, color: Colors.red),
-                            ),
-                          ),
-                        ],
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(15),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 10,
+                        offset: Offset(0, 5),
                       ),
                     ],
+                  ),
+                  margin: EdgeInsets.all(10),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(15),
+                    child: flutterMap.FlutterMap(
+                      options: flutterMap.MapOptions(
+                        center: latlong.LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
+                        zoom: 15,
+                      ),
+                      children: [
+                        flutterMap.TileLayer(
+                          urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                          subdomains: ['a', 'b', 'c'],
+                        ),
+                        flutterMap.MarkerLayer(
+                          markers: [
+                            flutterMap.Marker(
+                              point: latlong.LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
+                              builder: (ctx) => Container(
+                                child: Icon(Icons.location_on, size: 40, color: Colors.red),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
         ],
