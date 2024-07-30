@@ -682,20 +682,25 @@ class _HomeScreenState extends State<HomeScreen>
             'Thursday'
           ];
 
-          // Process and group attendance records by day of the week, excluding weekends
-          final weekTransactions = <String, Map<String, DateTime>>{};
+          // Map to store transactions
+          final weekTransactions = <DateTime, Map<String, DateTime>>{};
 
+          // Process and group attendance records by date
           for (var record in attendanceRecords) {
             final day = DateFormat('EEEE').format(record.date);
+            final dayOfWeek = DateFormat('dd-MM-yyyy').format(record.date);
+
             if (weekdays.contains(day)) {
-              weekTransactions.putIfAbsent(
-                  day,
-                  () => {
-                        'login': record.signInTime,
-                        'logout': record.signOutTime
-                      });
+              weekTransactions[record.date] = {
+                'login': record.signInTime,
+                'logout': record.signOutTime
+              };
             }
           }
+
+          // Sort the transactions by date
+          final sortedDates = weekTransactions.keys.toList()
+            ..sort((a, b) => a.compareTo(b));
 
           return SingleChildScrollView(
             child: Padding(
@@ -714,9 +719,9 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
                   SizedBox(height: 10),
                   Column(
-                    children: weekdays.map((day) {
-                      final transactions = weekTransactions[day] ??
-                          {'login': DateTime.now(), 'logout': DateTime.now()};
+                    children: sortedDates.map((date) {
+                      final transactions = weekTransactions[date]!;
+                      final dayName = DateFormat('EEEE').format(date);
                       return Card(
                         color: Color(0xFFAF2C3F),
                         elevation: 3,
@@ -729,7 +734,7 @@ class _HomeScreenState extends State<HomeScreen>
                               Row(
                                 children: [
                                   Text(
-                                    day,
+                                    dayName,
                                     style: TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
@@ -739,7 +744,7 @@ class _HomeScreenState extends State<HomeScreen>
                                   ),
                                   SizedBox(width: 10),
                                   Text(
-                                    '${DateFormat('dd-MM-yyyy').format(transactions['login']!)}',
+                                    '${DateFormat('dd-MM-yyyy').format(date)}',
                                     style: TextStyle(
                                       fontSize: 18,
                                       color: Colors.white,
