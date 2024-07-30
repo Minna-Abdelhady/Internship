@@ -252,9 +252,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   String _formatTime(DateTime? date) {
     if (date == null) {
-      return "00:00";
+      return "00:00:00";
     }
-    return DateFormat('h:mm a').format(date);
+    return DateFormat('h:mm:ss a').format(date);
   }
 
   bool _isSignedIn = false;
@@ -346,7 +346,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         obscureText: obscureText,
         decoration: InputDecoration(
           labelText: labelText,
-          labelStyle: TextStyle(color: Color(0xFF930000)),
+          labelStyle: TextStyle(color: Color(0xFFAF2C3F)),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
           ),
@@ -400,13 +400,13 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 return DataRow(
                   cells: [
                     DataCell(Text(
-                        DateFormat('yyyy-MM-dd').format(attendance.date),
+                        DateFormat('dd-MM-yyyy').format(attendance.date),
                         style: TextStyle(color: Colors.black))),
                     DataCell(Text(
-                        DateFormat('h:mm a').format(attendance.signInTime),
+                        DateFormat('h:mm:ss a').format(attendance.signInTime),
                         style: TextStyle(color: Colors.black))),
                     DataCell(Text(
-                        DateFormat('h:mm a').format(attendance.signOutTime),
+                        DateFormat('h:mm:ss a').format(attendance.signOutTime),
                         style: TextStyle(color: Colors.black))),
                     DataCell(Text(totalHours.toString(),
                         style: TextStyle(color: Colors.black))),
@@ -425,14 +425,14 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: Color(0xFF930000),
+        backgroundColor: Color(0xFFAF2C3F),
         iconTheme: IconThemeData(
           color: Colors.white,
         ),
         bottom: PreferredSize(
           preferredSize: Size.fromHeight(0),
           child: Container(
-            color: Color(0xFF930000),
+            color: Color(0xFFAF2C3F),
             child: TabBar(
               controller: _tabController,
               labelColor: Colors.white,
@@ -525,67 +525,127 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   }
 
   Widget _buildProfileSide(Employee employee) {
-    return Container(
-      color: Colors.grey[200],
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 100,
-              height: 100,
-              decoration: BoxDecoration(
-                shape: BoxShape.rectangle,
-                image: DecorationImage(
-                  image: MemoryImage(base64Decode(employee.personalPhoto)),
-                  fit: BoxFit.cover,
+  return Container(
+    color: Color(0xFFAF2C3F),  // Set the background color
+    child: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 100,
+            height: 100,
+            decoration: BoxDecoration(
+              shape: BoxShape.rectangle,
+              image: DecorationImage(
+                image: MemoryImage(base64Decode(employee.personalPhoto)),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          SizedBox(height: 10),
+          Text(
+            'Welcome, ${employee.name}',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,  // Set the text color to white
+              fontFamily: 'NotoSans',
+            ),
+          ),
+          SizedBox(height: 20),
+          _buildInfoColumn(employee),
+          SizedBox(height: 20),
+          Divider(color: Colors.black),
+          Container(
+            color: Color(0xFFAF2C3F),
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildInfoRow('Today:', _formatDate(DateTime.now()), true),
+                _buildInfoRow('Signed In At:', _formatTime(_loginTime), true),
+                _buildInfoRow(
+                  _isSignedOut ? 'Signed Out At:' : 'Expected Sign Out Time:',
+                  _formatTime(_logoutTime),
+                  true,
                 ),
-              ),
+              ],
             ),
-            SizedBox(height: 10),
-            Text(
-              'Welcome, ${employee.name}',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF930000),
-                fontFamily: 'NotoSans',
-              ),
+          ),
+          Spacer(),
+          ElevatedButton.icon(
+            onPressed: _onLogoutPressed,
+            icon: Icon(Icons.logout, color: Color(0xFFAF2C3F)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white, // Set the button background color to white
             ),
-            SizedBox(height: 20),
-            _buildInfoColumn(employee),
-            SizedBox(height: 20),
-            Divider(color: Colors.black),
-            Container(
-              color: Colors.grey[300],
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildInfoRow('Today:', _formatDate(DateTime.now())),
-                  _buildInfoRow('Signed In At:', _formatTime(_loginTime)),
-                  _buildInfoRow(
-                    _isSignedOut ? 'Signed Out At:' : 'Expected Sign Out Time:',
-                    _formatTime(_logoutTime),
-                  ),
-                ],
-              ),
+            label: Text(
+              'Log Out',
+              style: TextStyle(color: Color(0xFFAF2C3F)),  // Set the button text color
             ),
-            Spacer(),
-            ElevatedButton.icon(
-              onPressed: _onLogoutPressed,
-              icon: Icon(Icons.logout),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF930000),
-              ),
-              label: Text('Log Out'),
-            ),
-          ],
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+Widget _buildInfoColumn(Employee employee) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      _buildInfoRow('Employee ID:', employee.companyId.toString(), true),
+      SizedBox(height: 10),
+      _buildInfoRow('Job Title:', employee.jobTitle, true),
+      SizedBox(height: 10),
+      _buildInfoRow('Email:', employee.email, true),
+      SizedBox(height: 10),
+      FutureBuilder<String>(
+        future: _getDirectorName(employee.directorId),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return _buildInfoRow('Director:', 'Loading...', true);
+          } else if (snapshot.hasError) {
+            return _buildInfoRow('Director:', 'Error', true);
+          } else {
+            return _buildInfoRow('Director:', snapshot.data ?? 'Unknown', true);
+          }
+        },
+      ),
+      SizedBox(height: 10),
+      _buildInfoRow('Role:', employee.isAdmin ? 'Admin' : 'Employee', true),
+      SizedBox(height: 10),
+    ],
+  );
+}
+
+Widget _buildInfoRow(String label, String value, [bool increaseSize = false]) {
+  return Row(
+    children: [
+      Text(
+        label,
+        style: TextStyle(
+          fontSize: increaseSize ? 20 : 18,  // Increase size if needed
+          fontWeight: FontWeight.bold,
+          color: Colors.grey[200],  // Set label color to grey
+          fontFamily: 'NotoSans',
         ),
       ),
-    );
-  }
+      SizedBox(width: 10),
+      Expanded(
+        child: Text(
+          value,
+          style: TextStyle(
+            fontSize: increaseSize ? 18 : 16,  // Increase size if needed
+            color: Colors.white,  // Set text color to white
+            fontFamily: 'NotoSans',
+          ),
+        ),
+      ),
+    ],
+  );
+}
 
   Widget _buildTransactionsView(Employee employee) {
     final DateTime now = DateTime.now();
@@ -696,11 +756,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             calendarStyle: CalendarStyle(
               isTodayHighlighted: true,
               selectedDecoration: BoxDecoration(
-                color: Color(0xFF930000),
+                color: Color(0xFFAF2C3F),
                 shape: BoxShape.circle,
               ),
               todayDecoration: BoxDecoration(
-                color: Color.fromARGB(255, 162, 7, 7),
+                color: Colors.red,
                 shape: BoxShape.circle,
               ),
             ),
@@ -785,6 +845,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 style: ElevatedButton.styleFrom(
                   minimumSize: Size(250, 150),
                   textStyle: TextStyle(fontSize: 20),
+                  backgroundColor: Color(0xFFAF2C3F),
                 ),
                 label: Text(_isSignedIn ? 'Sign Out' : 'Sign In'),
               ),
@@ -795,6 +856,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 style: ElevatedButton.styleFrom(
                   minimumSize: Size(250, 150),
                   textStyle: TextStyle(fontSize: 20),
+                  backgroundColor: Color(0xFFAF2C3F),
                 ),
                 label: Text('Face ID'),
               ),
@@ -805,6 +867,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 style: ElevatedButton.styleFrom(
                   minimumSize: Size(250, 150),
                   textStyle: TextStyle(fontSize: 20),
+                  backgroundColor: Color(0xFFAF2C3F),
                 ),
                 label: Text('Fingerprint'),
               ),
@@ -814,7 +877,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           _currentPosition == null
               ? CircularProgressIndicator()
               : Container(
-                  height: 200,
+                  height: 300,
+                  width: 400,
                   child: flutterMap.FlutterMap(
                     options: flutterMap.MapOptions(
                       center: latlong.LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
@@ -903,7 +967,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 },
                 decoration: InputDecoration(
                   labelText: 'Director',
-                  labelStyle: TextStyle(color: Color(0xFF930000)),
+                  labelStyle: TextStyle(color: Color(0xFFAF2C3F)),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -918,7 +982,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               SizedBox(height: 10),
               Text(
                 'Role',
-                style: TextStyle(color: Color(0xFF930000), fontSize: 16),
+                style: TextStyle(color: Color(0xFFAF2C3F), fontSize: 16),
               ),
               Row(
                 children: [
@@ -951,7 +1015,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               SizedBox(height: 10),
               Text(
                 'Personal Photo',
-                style: TextStyle(color: Color(0xFF930000), fontSize: 16),
+                style: TextStyle(color: Color(0xFFAF2C3F), fontSize: 16),
               ),
               SizedBox(height: 10),
               kIsWeb
@@ -959,7 +1023,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       ? ElevatedButton(
                           onPressed: _pickImage,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xFF930000),
+                            backgroundColor: Color(0xFFAF2C3F),
                           ),
                           child: Text(
                             'Upload Photo',
@@ -974,7 +1038,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       ? ElevatedButton(
                           onPressed: _pickImage,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xFF930000),
+                            backgroundColor: Color(0xFFAF2C3F),
                           ),
                           child: Text(
                             'Upload Photo',
@@ -989,7 +1053,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               ElevatedButton(
                 onPressed: _addUser,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF930000),
+                  backgroundColor: Color(0xFFAF2C3F),
                 ),
                 child: Text(
                   'Add User',
@@ -1103,61 +1167,61 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     return director.name;
   }
 
-  Widget _buildInfoColumn(Employee employee) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildInfoRow('Employee ID:', employee.companyId.toString(), true),
-        SizedBox(height: 10),
-        _buildInfoRow('Job Title:', employee.jobTitle, true),
-        SizedBox(height: 10),
-        _buildInfoRow('Email:', employee.email, true),
-        SizedBox(height: 10),
-        FutureBuilder<String>(
-          future: _getDirectorName(employee.directorId),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return _buildInfoRow('Director:', 'Loading...', true);
-            } else if (snapshot.hasError) {
-              return _buildInfoRow('Director:', 'Error', true);
-            } else {
-              return _buildInfoRow('Director:', snapshot.data ?? 'Unknown', true);
-            }
-          },
-        ),
-        SizedBox(height: 10),
-        _buildInfoRow('Role:', employee.isAdmin ? 'Admin' : 'Employee', true),
-        SizedBox(height: 10),
-      ],
-    );
-  }
+  // Widget _buildInfoColumn(Employee employee) {
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       _buildInfoRow('Employee ID:', employee.companyId.toString(), true),
+  //       SizedBox(height: 10),
+  //       _buildInfoRow('Job Title:', employee.jobTitle, true),
+  //       SizedBox(height: 10),
+  //       _buildInfoRow('Email:', employee.email, true),
+  //       SizedBox(height: 10),
+  //       FutureBuilder<String>(
+  //         future: _getDirectorName(employee.directorId),
+  //         builder: (context, snapshot) {
+  //           if (snapshot.connectionState == ConnectionState.waiting) {
+  //             return _buildInfoRow('Director:', 'Loading...', true);
+  //           } else if (snapshot.hasError) {
+  //             return _buildInfoRow('Director:', 'Error', true);
+  //           } else {
+  //             return _buildInfoRow('Director:', snapshot.data ?? 'Unknown', true);
+  //           }
+  //         },
+  //       ),
+  //       SizedBox(height: 10),
+  //       _buildInfoRow('Role:', employee.isAdmin ? 'Admin' : 'Employee', true),
+  //       SizedBox(height: 10),
+  //     ],
+  //   );
+  // }
 
-  Widget _buildInfoRow(String label, String value, [bool increaseSize = false]) {
-    return Row(
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: increaseSize ? 20 : 18,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF930000),
-            fontFamily: 'NotoSans',
-          ),
-        ),
-        SizedBox(width: 10),
-        Expanded(
-          child: Text(
-            value,
-            style: TextStyle(
-              fontSize: increaseSize ? 18 : 16,
-              color: Colors.black,
-              fontFamily: 'NotoSans',
-            ),
-          ),
-        ),
-      ],
-    );
-  }
+  // Widget _buildInfoRow(String label, String value, [bool increaseSize = false]) {
+  //   return Row(
+  //     children: [
+  //       Text(
+  //         label,
+  //         style: TextStyle(
+  //           fontSize: increaseSize ? 20 : 18,
+  //           fontWeight: FontWeight.bold,
+  //           color: Color(0xFFAF2C3F),
+  //           fontFamily: 'NotoSans',
+  //         ),
+  //       ),
+  //       SizedBox(width: 10),
+  //       Expanded(
+  //         child: Text(
+  //           value,
+  //           style: TextStyle(
+  //             fontSize: increaseSize ? 18 : 16,
+  //             color: Colors.black,
+  //             fontFamily: 'NotoSans',
+  //           ),
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
 
   Widget _buildTransactionRow(String day, DateTime loginTime, DateTime logoutTime) {
     return Padding(
