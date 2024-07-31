@@ -259,84 +259,97 @@ class _HomeScreenState extends State<HomeScreen>
 
   bool _isSignedIn = false;
 
-  Future<void> _onSignInPressed() async {
-    if (_currentPosition == null ||
-        !isWithinCompanyBounds(
-            _currentPosition!.latitude, _currentPosition!.longitude)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('You are out of the company bounds')));
-      return;
-    }
+Future<void> _onSignInPressed() async {
+  if (_currentPosition == null || !isWithinCompanyBounds(_currentPosition!.latitude, _currentPosition!.longitude)) {
+    _showPopupMessage('You are out of the company bounds');
+    return;
+  }
 
-    setState(() {
-      _loginTime = DateTime.now();
-      _logoutTime = _loginTime!.add(Duration(hours: 8));
-      _isSignInButtonEnabled = false;
-      _isSignOutButtonEnabled = true;
-      _isSignedOut = false;
-      _isSignedIn = true;
-    });
+  setState(() {
+    _loginTime = DateTime.now();
+    _logoutTime = _loginTime!.add(Duration(hours: 8));
+    _isSignInButtonEnabled = false;
+    _isSignOutButtonEnabled = true;
+    _isSignedOut = false;
+    _isSignedIn = true;
+  });
 
-    final attendance = Attendance(
+  final attendance = Attendance(
+    userId: _currentUser!.companyId,
+    transactionType: 'Sign In',
+    date: DateTime.now(),
+    signInTime: _loginTime!,
+    signOutTime: _logoutTime!,
+  );
+
+  await attendanceDao.createOrUpdateAttendance(attendance);
+
+  print('Sign In Time: ${_formatTime(_loginTime!)}');
+  setState(() {});
+}
+
+Future<void> _onSignOutPressed() async {
+  if (_currentPosition == null || !isWithinCompanyBounds(_currentPosition!.latitude, _currentPosition!.longitude)) {
+    _showPopupMessage('You are out of the company bounds');
+    return;
+  }
+
+  setState(() {
+    _logoutTime = DateTime.now();
+    _isSignedOut = true;
+    _isSignInButtonEnabled = true;
+    _isSignOutButtonEnabled = false;
+    _isSignedIn = false;
+  });
+
+  final attendances = await attendanceDao.getAttendanceByUserId(_currentUser!.companyId);
+  final todayAttendance = attendances.lastWhere(
+    (attendance) =>
+        attendance.date.year == DateTime.now().year &&
+        attendance.date.month == DateTime.now().month &&
+        attendance.date.day == DateTime.now().day,
+    orElse: () => Attendance(
       userId: _currentUser!.companyId,
-      transactionType: 'Sign In',
+      transactionType: 'Sign Out',
       date: DateTime.now(),
       signInTime: _loginTime!,
       signOutTime: _logoutTime!,
-    );
+    ),
+  );
 
-    await attendanceDao.createOrUpdateAttendance(attendance);
+  final updatedAttendance = Attendance(
+    userId: todayAttendance.userId,
+    transactionType: 'Sign Out',
+    date: todayAttendance.date,
+    signInTime: todayAttendance.signInTime,
+    signOutTime: _logoutTime!,
+  );
 
-    print('Sign In Time: ${_formatTime(_loginTime!)}');
-    setState(() {});
-  }
+  await attendanceDao.createOrUpdateAttendance(updatedAttendance);
 
-  Future<void> _onSignOutPressed() async {
-    if (_currentPosition == null ||
-        !isWithinCompanyBounds(
-            _currentPosition!.latitude, _currentPosition!.longitude)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('You are out of the company bounds')));
-      return;
-    }
+  print('Sign Out Time: ${_formatTime(_logoutTime!)}');
+  setState(() {});
+}
 
-    setState(() {
-      _logoutTime = DateTime.now();
-      _isSignedOut = true;
-      _isSignInButtonEnabled = true;
-      _isSignOutButtonEnabled = false;
-      _isSignedIn = false;
-    });
-
-    final attendances =
-        await attendanceDao.getAttendanceByUserId(_currentUser!.companyId);
-    final todayAttendance = attendances.lastWhere(
-      (attendance) =>
-          attendance.date.year == DateTime.now().year &&
-          attendance.date.month == DateTime.now().month &&
-          attendance.date.day == DateTime.now().day,
-      orElse: () => Attendance(
-        userId: _currentUser!.companyId,
-        transactionType: 'Sign Out',
-        date: DateTime.now(),
-        signInTime: _loginTime!,
-        signOutTime: _logoutTime!,
-      ),
-    );
-
-    final updatedAttendance = Attendance(
-      userId: todayAttendance.userId,
-      transactionType: 'Sign Out',
-      date: todayAttendance.date,
-      signInTime: todayAttendance.signInTime,
-      signOutTime: _logoutTime!,
-    );
-
-    await attendanceDao.createOrUpdateAttendance(updatedAttendance);
-
-    print('Sign Out Time: ${_formatTime(_logoutTime!)}');
-    setState(() {});
-  }
+void _showPopupMessage(String message) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Alert'),
+        content: Text(message),
+        actions: <Widget>[
+          TextButton(
+            child: Text('OK'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
 
   void _onFaceIdPressed() {
     print('Face ID pressed');
