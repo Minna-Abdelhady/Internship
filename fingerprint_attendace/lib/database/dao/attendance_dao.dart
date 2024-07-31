@@ -5,7 +5,8 @@ class AttendanceDao {
   final Box<Attendance> _attendanceBox = Hive.box<Attendance>('attendance');
 
   Future<void> createOrUpdateAttendance(Attendance attendance) async {
-    final key = '${attendance.userId}_${attendance.date.toIso8601String()}';
+    final key =
+        '${attendance.userId}_${attendance.date.toIso8601String()}_${attendance.signInTime.toIso8601String()}';
     await _attendanceBox.put(key, attendance);
   }
 
@@ -65,6 +66,13 @@ class AttendanceDao {
         transactionType: 'Sign In',
         date: lastWorkingDay1,
         signInTime: lastWorkingDay1.add(Duration(hours: 9)),
+        signOutTime: lastWorkingDay1.add(Duration(hours: 12)),
+      ),
+      Attendance(
+        userId: 3,
+        transactionType: 'Sign In',
+        date: lastWorkingDay1,
+        signInTime: lastWorkingDay1.add(Duration(hours: 13)),
         signOutTime: lastWorkingDay1.add(Duration(hours: 17)),
       ),
       Attendance(
@@ -72,6 +80,13 @@ class AttendanceDao {
         transactionType: 'Sign In',
         date: lastWorkingDay2,
         signInTime: lastWorkingDay2.add(Duration(hours: 9)),
+        signOutTime: lastWorkingDay2.add(Duration(hours: 12)),
+      ),
+      Attendance(
+        userId: 3,
+        transactionType: 'Sign In',
+        date: lastWorkingDay2,
+        signInTime: lastWorkingDay2.add(Duration(hours: 13)),
         signOutTime: lastWorkingDay2.add(Duration(hours: 17)),
       ),
       Attendance(
@@ -79,6 +94,13 @@ class AttendanceDao {
         transactionType: 'Sign In',
         date: lastWorkingDay3,
         signInTime: lastWorkingDay3.add(Duration(hours: 9)),
+        signOutTime: lastWorkingDay3.add(Duration(hours: 12)),
+      ),
+      Attendance(
+        userId: 3,
+        transactionType: 'Sign In',
+        date: lastWorkingDay3,
+        signInTime: lastWorkingDay3.add(Duration(hours: 13)),
         signOutTime: lastWorkingDay3.add(Duration(hours: 17)),
       ),
       Attendance(
@@ -86,6 +108,13 @@ class AttendanceDao {
         transactionType: 'Sign In',
         date: lastWorkingDay4,
         signInTime: lastWorkingDay4.add(Duration(hours: 9)),
+        signOutTime: lastWorkingDay4.add(Duration(hours: 12)),
+      ),
+      Attendance(
+        userId: 3,
+        transactionType: 'Sign In',
+        date: lastWorkingDay4,
+        signInTime: lastWorkingDay4.add(Duration(hours: 13)),
         signOutTime: lastWorkingDay4.add(Duration(hours: 17)),
       ),
       Attendance(
@@ -93,16 +122,17 @@ class AttendanceDao {
         transactionType: 'Sign In',
         date: lastWorkingDay5,
         signInTime: lastWorkingDay5.add(Duration(hours: 9)),
+        signOutTime: lastWorkingDay5.add(Duration(hours: 12)),
+      ),
+      Attendance(
+        userId: 3,
+        transactionType: 'Sign In',
+        date: lastWorkingDay5,
+        signInTime: lastWorkingDay5.add(Duration(hours: 13)),
         signOutTime: lastWorkingDay5.add(Duration(hours: 17)),
       ),
     ];
 
-    for (var attendance in dummyAttendances) {
-      final key = '${attendance.userId}_${attendance.date.toIso8601String()}';
-      await box.put(key, attendance);
-      print('Inserted dummy attendance: $attendance');
-    }
-
-    print('Dummy attendance data for the last 5 working days added');
+    await box.addAll(dummyAttendances);
   }
 }

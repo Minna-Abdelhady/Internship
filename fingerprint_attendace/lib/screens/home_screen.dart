@@ -711,24 +711,33 @@ class _HomeScreenState extends State<HomeScreen>
           ];
 
           // Map to store transactions
-          final weekTransactions = <DateTime, Map<String, DateTime>>{};
+          final weekTransactions = <String, Map<String, DateTime>>{};
 
           // Process and group attendance records by date
           for (var record in attendanceRecords) {
+            final dateStr = DateFormat('yyyy-MM-dd').format(record.date);
             final day = DateFormat('EEEE').format(record.date);
-            final dayOfWeek = DateFormat('dd-MM-yyyy').format(record.date);
 
             if (weekdays.contains(day)) {
-              weekTransactions[record.date] = {
-                'login': record.signInTime,
-                'logout': record.signOutTime
-              };
+              if (!weekTransactions.containsKey(dateStr)) {
+                weekTransactions[dateStr] = {
+                  'login': record.signInTime,
+                  'logout': record.signOutTime,
+                };
+              } else {
+                final existingRecord = weekTransactions[dateStr]!;
+                if (record.signInTime.isBefore(existingRecord['login']!)) {
+                  existingRecord['login'] = record.signInTime;
+                }
+                if (record.signOutTime.isAfter(existingRecord['logout']!)) {
+                  existingRecord['logout'] = record.signOutTime;
+                }
+              }
             }
           }
 
           // Sort the transactions by date
-          final sortedDates = weekTransactions.keys.toList()
-            ..sort((a, b) => a.compareTo(b));
+          final sortedDates = weekTransactions.keys.toList()..sort();
 
           return SingleChildScrollView(
             child: Padding(
@@ -747,8 +756,9 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
                   SizedBox(height: 10),
                   Column(
-                    children: sortedDates.map((date) {
-                      final transactions = weekTransactions[date]!;
+                    children: sortedDates.map((dateStr) {
+                      final transactions = weekTransactions[dateStr]!;
+                      final date = DateTime.parse(dateStr);
                       final dayName = DateFormat('EEEE').format(date);
                       return Card(
                         color: Color(0xFFAF2C3F),
