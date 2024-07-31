@@ -713,12 +713,16 @@ class _HomeScreenState extends State<HomeScreen>
           // Map to store transactions
           final weekTransactions = <String, Map<String, DateTime>>{};
 
+          // Get today's date
+          final today = DateTime.now();
+
           // Process and group attendance records by date
           for (var record in attendanceRecords) {
             final dateStr = DateFormat('yyyy-MM-dd').format(record.date);
             final day = DateFormat('EEEE').format(record.date);
 
-            if (weekdays.contains(day)) {
+            // Exclude today's date
+            if (record.date.isBefore(today) && weekdays.contains(day)) {
               if (!weekTransactions.containsKey(dateStr)) {
                 weekTransactions[dateStr] = {
                   'login': record.signInTime,

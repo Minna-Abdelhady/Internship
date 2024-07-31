@@ -72,7 +72,7 @@ class AttendanceDao {
         userId: 3,
         transactionType: 'Sign In',
         date: lastWorkingDay1,
-        signInTime: lastWorkingDay1.add(Duration(hours: 13)),
+        signInTime: lastWorkingDay1.add(Duration(hours: 12)),
         signOutTime: lastWorkingDay1.add(Duration(hours: 17)),
       ),
       Attendance(
@@ -86,7 +86,7 @@ class AttendanceDao {
         userId: 3,
         transactionType: 'Sign In',
         date: lastWorkingDay2,
-        signInTime: lastWorkingDay2.add(Duration(hours: 13)),
+        signInTime: lastWorkingDay2.add(Duration(hours: 12)),
         signOutTime: lastWorkingDay2.add(Duration(hours: 17)),
       ),
       Attendance(
@@ -100,7 +100,7 @@ class AttendanceDao {
         userId: 3,
         transactionType: 'Sign In',
         date: lastWorkingDay3,
-        signInTime: lastWorkingDay3.add(Duration(hours: 13)),
+        signInTime: lastWorkingDay3.add(Duration(hours: 12)),
         signOutTime: lastWorkingDay3.add(Duration(hours: 17)),
       ),
       Attendance(
@@ -114,7 +114,7 @@ class AttendanceDao {
         userId: 3,
         transactionType: 'Sign In',
         date: lastWorkingDay4,
-        signInTime: lastWorkingDay4.add(Duration(hours: 13)),
+        signInTime: lastWorkingDay4.add(Duration(hours: 12)),
         signOutTime: lastWorkingDay4.add(Duration(hours: 17)),
       ),
       Attendance(
@@ -128,7 +128,7 @@ class AttendanceDao {
         userId: 3,
         transactionType: 'Sign In',
         date: lastWorkingDay5,
-        signInTime: lastWorkingDay5.add(Duration(hours: 13)),
+        signInTime: lastWorkingDay5.add(Duration(hours: 12)),
         signOutTime: lastWorkingDay5.add(Duration(hours: 17)),
       ),
     ];
