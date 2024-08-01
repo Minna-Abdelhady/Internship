@@ -6,7 +6,7 @@ import 'dart:math';
 
 const double companyLatitude = 30.076058613651153;
 const double companyLongitude = 31.315532711837214;
-const double companyRadius = 50; // Radius in meters
+const double companyRadius = 100; // Radius in meters
 
 double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
   const int earthRadius = 6371000; // Earth radius in meters
