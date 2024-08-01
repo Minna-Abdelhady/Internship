@@ -259,97 +259,102 @@ class _HomeScreenState extends State<HomeScreen>
 
   bool _isSignedIn = false;
 
-Future<void> _onSignInPressed() async {
-  if (_currentPosition == null || !isWithinCompanyBounds(_currentPosition!.latitude, _currentPosition!.longitude)) {
-    _showPopupMessage('You are out of the company bounds');
-    return;
-  }
+  Future<void> _onSignInPressed() async {
+    if (_currentPosition == null ||
+        !isWithinCompanyBounds(
+            _currentPosition!.latitude, _currentPosition!.longitude)) {
+      _showPopupMessage('You are out of the company bounds');
+      return;
+    }
 
-  setState(() {
-    _loginTime = DateTime.now();
-    _logoutTime = _loginTime!.add(Duration(hours: 8));
-    _isSignInButtonEnabled = false;
-    _isSignOutButtonEnabled = true;
-    _isSignedOut = false;
-    _isSignedIn = true;
-  });
+    setState(() {
+      _loginTime = DateTime.now();
+      _logoutTime = _loginTime!.add(Duration(hours: 8));
+      _isSignInButtonEnabled = false;
+      _isSignOutButtonEnabled = true;
+      _isSignedOut = false;
+      _isSignedIn = true;
+    });
 
-  final attendance = Attendance(
-    userId: _currentUser!.companyId,
-    transactionType: 'Sign In',
-    date: DateTime.now(),
-    signInTime: _loginTime!,
-    signOutTime: _logoutTime!,
-  );
-
-  await attendanceDao.createOrUpdateAttendance(attendance);
-
-  print('Sign In Time: ${_formatTime(_loginTime!)}');
-  setState(() {});
-}
-
-Future<void> _onSignOutPressed() async {
-  if (_currentPosition == null || !isWithinCompanyBounds(_currentPosition!.latitude, _currentPosition!.longitude)) {
-    _showPopupMessage('You are out of the company bounds');
-    return;
-  }
-
-  setState(() {
-    _logoutTime = DateTime.now();
-    _isSignedOut = true;
-    _isSignInButtonEnabled = true;
-    _isSignOutButtonEnabled = false;
-    _isSignedIn = false;
-  });
-
-  final attendances = await attendanceDao.getAttendanceByUserId(_currentUser!.companyId);
-  final todayAttendance = attendances.lastWhere(
-    (attendance) =>
-        attendance.date.year == DateTime.now().year &&
-        attendance.date.month == DateTime.now().month &&
-        attendance.date.day == DateTime.now().day,
-    orElse: () => Attendance(
+    final attendance = Attendance(
       userId: _currentUser!.companyId,
-      transactionType: 'Sign Out',
+      transactionType: 'Sign In',
       date: DateTime.now(),
       signInTime: _loginTime!,
       signOutTime: _logoutTime!,
-    ),
-  );
+    );
 
-  final updatedAttendance = Attendance(
-    userId: todayAttendance.userId,
-    transactionType: 'Sign Out',
-    date: todayAttendance.date,
-    signInTime: todayAttendance.signInTime,
-    signOutTime: _logoutTime!,
-  );
+    await attendanceDao.createOrUpdateAttendance(attendance);
 
-  await attendanceDao.createOrUpdateAttendance(updatedAttendance);
+    print('Sign In Time: ${_formatTime(_loginTime!)}');
+    setState(() {});
+  }
 
-  print('Sign Out Time: ${_formatTime(_logoutTime!)}');
-  setState(() {});
-}
+  Future<void> _onSignOutPressed() async {
+    if (_currentPosition == null ||
+        !isWithinCompanyBounds(
+            _currentPosition!.latitude, _currentPosition!.longitude)) {
+      _showPopupMessage('You are out of the company bounds');
+      return;
+    }
 
-void _showPopupMessage(String message) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text('Alert'),
-        content: Text(message),
-        actions: <Widget>[
-          TextButton(
-            child: Text('OK'),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-        ],
-      );
-    },
-  );
-}
+    setState(() {
+      _logoutTime = DateTime.now();
+      _isSignedOut = true;
+      _isSignInButtonEnabled = true;
+      _isSignOutButtonEnabled = false;
+      _isSignedIn = false;
+    });
+
+    final attendances =
+        await attendanceDao.getAttendanceByUserId(_currentUser!.companyId);
+    final todayAttendance = attendances.lastWhere(
+      (attendance) =>
+          attendance.date.year == DateTime.now().year &&
+          attendance.date.month == DateTime.now().month &&
+          attendance.date.day == DateTime.now().day,
+      orElse: () => Attendance(
+        userId: _currentUser!.companyId,
+        transactionType: 'Sign Out',
+        date: DateTime.now(),
+        signInTime: _loginTime!,
+        signOutTime: _logoutTime!,
+      ),
+    );
+
+    final updatedAttendance = Attendance(
+      userId: todayAttendance.userId,
+      transactionType: 'Sign Out',
+      date: todayAttendance.date,
+      signInTime: todayAttendance.signInTime,
+      signOutTime: _logoutTime!,
+    );
+
+    await attendanceDao.createOrUpdateAttendance(updatedAttendance);
+
+    print('Sign Out Time: ${_formatTime(_logoutTime!)}');
+    setState(() {});
+  }
+
+  void _showPopupMessage(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Alert'),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   void _onFaceIdPressed() {
     print('Face ID pressed');
@@ -471,28 +476,64 @@ void _showPopupMessage(String message) {
         iconTheme: IconThemeData(
           color: Colors.white,
         ),
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(-8),
-          child: Container(
-            color: Colors.white,
-            child: TabBar(
-              controller: _tabController,
-              labelColor: Color(0xFFAF2C3F),
-              unselectedLabelColor: Color(0xFFAF2C3F),
-              indicatorColor: Color(0xFFAF2C3F),
-              indicator: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(
-                    color: Color(0xFFAF2C3F),
-                    width: 4.0,
+        title: MediaQuery.of(context).size.width > 600
+            ? null
+            : Text(''),
+        bottom: MediaQuery.of(context).size.width > 600
+            ? PreferredSize(
+                preferredSize: Size.fromHeight(-8.0),
+                child: Container(
+                  color: Colors.white,
+                  child: TabBar(
+                    controller: _tabController,
+                    labelColor: Color(0xFFAF2C3F),
+                    unselectedLabelColor: Color(0xFFAF2C3F),
+                    indicatorColor: Color(0xFFAF2C3F),
+                    indicator: BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(
+                          color: Color(0xFFAF2C3F),
+                          width: 4.0,
+                        ),
+                      ),
+                    ),
+                    tabs: _buildTabs(),
                   ),
                 ),
+              )
+            : null,
+        actions: [
+          if (MediaQuery.of(context).size.width <= 600)
+            Builder(
+              builder: (context) => IconButton(
+                icon: Icon(Icons.menu),
+                onPressed: () {
+                  // Open drawer for small screens
+                  Scaffold.of(context).openDrawer();
+                },
               ),
-              tabs: _buildTabs(),
             ),
-          ),
-        ),
+        ],
       ),
+      drawer: MediaQuery.of(context).size.width <= 600
+          ? Drawer(
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: [
+                  DrawerHeader(
+                    child: Text(
+                      'Menu',
+                      style: TextStyle(color: Colors.white, fontSize: 24),
+                    ),
+                    decoration: BoxDecoration(
+                      color: Color(0xFFAF2C3F),
+                    ),
+                  ),
+                  ..._buildDrawerItems(),
+                ],
+              ),
+            )
+          : null, // Hide drawer on larger screens
       backgroundColor: Colors.white,
       body: FutureBuilder<Employee>(
         future: _fetchEmployeeData(),
@@ -501,30 +542,45 @@ void _showPopupMessage(String message) {
             return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(
-                child: Text('Error: ${snapshot.error}',
-                    style: TextStyle(
-                        color: Colors.black, fontFamily: 'Montserrat')));
+              child: Text(
+                'Error: ${snapshot.error}',
+                style: TextStyle(color: Colors.black, fontFamily: 'Montserrat'),
+              ),
+            );
           } else if (!snapshot.hasData) {
             return Center(
-                child: Text('User not found',
-                    style: TextStyle(
-                        color: Colors.black, fontFamily: 'Montserrat')));
+              child: Text(
+                'User not found',
+                style: TextStyle(color: Colors.black, fontFamily: 'Montserrat'),
+              ),
+            );
           } else {
             final employee = snapshot.data!;
-            return Row(
-              children: [
-                Flexible(
-                  flex: 1, // Original size of the profile side
-                  child: _buildProfileSide(employee),
-                ),
-                Flexible(
-                  flex: 3, // Original size of the main content
-                  child: TabBarView(
+            return LayoutBuilder(
+              builder: (context, constraints) {
+                if (constraints.maxWidth > 600) {
+                  return Row(
+                    children: [
+                      Flexible(
+                        flex: 1, // Original size of the profile side
+                        child: _buildProfileSide(employee),
+                      ),
+                      Flexible(
+                        flex: 3, // Original size of the main content
+                        child: TabBarView(
+                          controller: _tabController,
+                          children: _buildTabViews(employee),
+                        ),
+                      ),
+                    ],
+                  );
+                } else {
+                  return TabBarView(
                     controller: _tabController,
                     children: _buildTabViews(employee),
-                  ),
-                ),
-              ],
+                  );
+                }
+              },
             );
           }
         },
@@ -537,7 +593,6 @@ void _showPopupMessage(String message) {
       Tab(text: 'Sign In'),
       Tab(text: 'This Week\'s Transactions'),
       Tab(text: 'Calendar'),
-      // Tab(text: 'Vacations'),
       Tab(text: 'View Attendance'),
     ];
     if (_isCurrentUserAdmin) {
@@ -549,12 +604,63 @@ void _showPopupMessage(String message) {
     return tabs;
   }
 
+  List<Widget> _buildDrawerItems() {
+    List<Widget> drawerItems = [
+      ListTile(
+        title: Text('Sign In'),
+        onTap: () {
+          Navigator.pop(context);
+          _tabController.index = 0;
+        },
+      ),
+      ListTile(
+        title: Text('This Week\'s Transactions'),
+        onTap: () {
+          Navigator.pop(context);
+          _tabController.index = 1;
+        },
+      ),
+      ListTile(
+        title: Text('Calendar'),
+        onTap: () {
+          Navigator.pop(context);
+          _tabController.index = 2;
+        },
+      ),
+      ListTile(
+        title: Text('View Attendance'),
+        onTap: () {
+          Navigator.pop(context);
+          _tabController.index = 3;
+        },
+      ),
+    ];
+    if (_isCurrentUserAdmin) {
+      drawerItems.addAll([
+        ListTile(
+          title: Text('Create User'),
+          onTap: () {
+            Navigator.pop(context);
+            _tabController.index = 4;
+          },
+        ),
+        ListTile(
+          title: Text('View Users'),
+          onTap: () {
+            Navigator.pop(context);
+            _tabController.index = 5;
+          },
+        ),
+      ]);
+    }
+    return drawerItems;
+  }
+
   List<Widget> _buildTabViews(Employee employee) {
     List<Widget> tabViews = [
       _buildSignInView(employee),
       _buildTransactionsView(employee),
       _buildCalendarView(),
-      // _buildVacationsView(),
       _buildAttendanceView(employee),
     ];
     if (_isCurrentUserAdmin) {
