@@ -478,7 +478,10 @@ class _HomeScreenState extends State<HomeScreen>
         ),
         title: MediaQuery.of(context).size.width > 600
             ? null
-            : Text(''),
+            : Image.asset(
+                'assets/company_logo.jpg', // Path to your logo file
+                height: 40, // Adjust the height as needed
+              ),
         bottom: MediaQuery.of(context).size.width > 600
             ? PreferredSize(
                 preferredSize: Size.fromHeight(-8.0),
@@ -508,7 +511,6 @@ class _HomeScreenState extends State<HomeScreen>
               builder: (context) => IconButton(
                 icon: Icon(Icons.menu),
                 onPressed: () {
-                  // Open drawer for small screens
                   Scaffold.of(context).openDrawer();
                 },
               ),
@@ -533,7 +535,7 @@ class _HomeScreenState extends State<HomeScreen>
                 ],
               ),
             )
-          : null, // Hide drawer on larger screens
+          : null,
       backgroundColor: Colors.white,
       body: FutureBuilder<Employee>(
         future: _fetchEmployeeData(),
@@ -862,88 +864,95 @@ class _HomeScreenState extends State<HomeScreen>
           // Sort the transactions by date
           final sortedDates = weekTransactions.keys.toList()..sort();
 
-          return SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'This Week\'s Transactions',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                      fontFamily: 'NotoSans',
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  Column(
-                    children: sortedDates.map((dateStr) {
-                      final transactions = weekTransactions[dateStr]!;
-                      final date = DateTime.parse(dateStr);
-                      final dayName = DateFormat('EEEE').format(date);
-                      return Card(
-                        color: Color(0xFFAF2C3F),
-                        elevation: 3,
-                        margin: EdgeInsets.symmetric(vertical: 8.0),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  Text(
-                                    dayName,
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                      fontFamily: 'NotoSans',
-                                    ),
-                                  ),
-                                  SizedBox(width: 10),
-                                  Text(
-                                    '${DateFormat('dd-MM-yyyy').format(date)}',
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      color: Colors.white,
-                                      fontFamily: 'NotoSans',
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  Text(
-                                    'Signed In At: ${_formatTime(transactions['login'])}',
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      color: Colors.white,
-                                      fontFamily: 'NotoSans',
-                                    ),
-                                  ),
-                                  SizedBox(width: 10),
-                                  Text(
-                                    'Signed Out At: ${_formatTime(transactions['logout'])}',
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      color: Colors.white,
-                                      fontFamily: 'NotoSans',
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              bool isLargeScreen = constraints.maxWidth > 600;
+              return SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'This Week\'s Transactions',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                          fontFamily: 'NotoSans',
                         ),
-                      );
-                    }).toList(),
+                      ),
+                      SizedBox(height: 10),
+                      Column(
+                        children: sortedDates.map((dateStr) {
+                          final transactions = weekTransactions[dateStr]!;
+                          final date = DateTime.parse(dateStr);
+                          final dayName = DateFormat('EEEE').format(date);
+                          return Card(
+                            color: Color(0xFFAF2C3F),
+                            elevation: 3,
+                            margin: EdgeInsets.symmetric(vertical: 8.0),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text(
+                                        dayName,
+                                        style: TextStyle(
+                                          fontSize: isLargeScreen ? 18 : 14,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                          fontFamily: 'NotoSans',
+                                        ),
+                                      ),
+                                      SizedBox(width: 10),
+                                      Text(
+                                        '${DateFormat('dd-MM-yyyy').format(date)}',
+                                        style: TextStyle(
+                                          fontSize: isLargeScreen ? 18 : 14,
+                                          color: Colors.white,
+                                          fontFamily: 'NotoSans',
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Text(
+                                        'Signed In At: ${_formatTime(transactions['login'])}',
+                                        style: TextStyle(
+                                          fontSize: isLargeScreen ? 18 : 14,
+                                          color: Colors.white,
+                                          fontFamily: 'NotoSans',
+                                        ),
+                                      ),
+                                      SizedBox(height: 5),
+                                      Text(
+                                        'Signed Out At: ${_formatTime(transactions['logout'])}',
+                                        style: TextStyle(
+                                          fontSize: isLargeScreen ? 18 : 14,
+                                          color: Colors.white,
+                                          fontFamily: 'NotoSans',
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
+                ),
+              );
+            },
           );
         }
       },
