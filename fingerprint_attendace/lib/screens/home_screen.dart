@@ -467,128 +467,140 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: Color(0xFFAF2C3F),
-        iconTheme: IconThemeData(
-          color: Colors.white,
-        ),
-        title: MediaQuery.of(context).size.width > 600
-            ? null
-            : Image.asset(
-                'assets/company_logo.jpg', // Path to your logo file
-                height: 40, // Adjust the height as needed
-              ),
-        bottom: MediaQuery.of(context).size.width > 600
-            ? PreferredSize(
-                preferredSize: Size.fromHeight(-8.0),
-                child: Container(
-                  color: Colors.white,
-                  child: TabBar(
-                    controller: _tabController,
-                    labelColor: Color(0xFFAF2C3F),
-                    unselectedLabelColor: Color(0xFFAF2C3F),
-                    indicatorColor: Color(0xFFAF2C3F),
-                    indicator: BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(
-                          color: Color(0xFFAF2C3F),
-                          width: 4.0,
-                        ),
-                      ),
-                    ),
-                    tabs: _buildTabs(),
-                  ),
-                ),
-              )
-            : null,
-        actions: [
-          if (MediaQuery.of(context).size.width <= 600)
-            Builder(
+@override
+Widget build(BuildContext context) {
+  // Define the threshold for switching between mobile and desktop views
+  const double desktopWidthThreshold = 1400;
+  const double desktopHeightThreshold = 560;
+
+  // Get the current screen size
+  final screenSize = MediaQuery.of(context).size;
+
+  // Determine if the view should be mobile or desktop
+  bool isMobileView = screenSize.width < desktopWidthThreshold || screenSize.height < desktopHeightThreshold;
+
+  return Scaffold(
+    appBar: AppBar(
+      automaticallyImplyLeading: false,
+      backgroundColor: Color(0xFFAF2C3F),
+      iconTheme: IconThemeData(
+        color: Colors.white,
+      ),
+      title: isMobileView
+          ? Builder(
               builder: (context) => IconButton(
                 icon: Icon(Icons.menu),
                 onPressed: () {
                   Scaffold.of(context).openDrawer();
                 },
               ),
-            ),
-        ],
-      ),
-      drawer: MediaQuery.of(context).size.width <= 600
-          ? Drawer(
-              child: ListView(
-                padding: EdgeInsets.zero,
-                children: [
-                  DrawerHeader(
-                    child: Text(
-                      'Menu',
-                      style: TextStyle(color: Colors.white, fontSize: 24),
-                    ),
-                    decoration: BoxDecoration(
-                      color: Color(0xFFAF2C3F),
+            )
+          : null,
+      bottom: !isMobileView
+          ? PreferredSize(
+              preferredSize: Size.fromHeight(-8.0),
+              child: Container(
+                color: Colors.white,
+                child: TabBar(
+                  controller: _tabController,
+                  labelColor: Color(0xFFAF2C3F),
+                  unselectedLabelColor: Color(0xFFAF2C3F),
+                  indicatorColor: Color(0xFFAF2C3F),
+                  indicator: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(
+                        color: Color(0xFFAF2C3F),
+                        width: 4.0,
+                      ),
                     ),
                   ),
-                  ..._buildDrawerItems(),
-                ],
+                  tabs: _buildTabs(),
+                ),
               ),
             )
           : null,
-      backgroundColor: Colors.white,
-      body: FutureBuilder<Employee>(
-        future: _fetchEmployeeData(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(
-              child: Text(
-                'Error: ${snapshot.error}',
-                style: TextStyle(color: Colors.black, fontFamily: 'Montserrat'),
+      actions: isMobileView
+          ? [
+              Image.asset(
+                'assets/company_logo.jpg', // Path to your logo file
+                height: 40, // Adjust the height as needed
               ),
-            );
-          } else if (!snapshot.hasData) {
-            return Center(
-              child: Text(
-                'User not found',
-                style: TextStyle(color: Colors.black, fontFamily: 'Montserrat'),
-              ),
-            );
-          } else {
-            final employee = snapshot.data!;
-            return LayoutBuilder(
-              builder: (context, constraints) {
-                if (constraints.maxWidth > 600) {
-                  return Row(
-                    children: [
-                      Flexible(
-                        flex: 1, // Original size of the profile side
-                        child: _buildProfileSide(employee),
+            ]
+          : [],
+    ),
+    drawer: isMobileView
+        ? Drawer(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                DrawerHeader(
+                  child: Text(
+                    'Menu',
+                    style: TextStyle(color: Colors.white, fontSize: 24),
+                  ),
+                  decoration: BoxDecoration(
+                    color: Color(0xFFAF2C3F),
+                  ),
+                ),
+                ..._buildDrawerItems(),
+              ],
+            ),
+          )
+        : null,
+    backgroundColor: Colors.white,
+    body: FutureBuilder<Employee>(
+      future: _fetchEmployeeData(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(
+            child: Text(
+              'Error: ${snapshot.error}',
+              style: TextStyle(color: Colors.black, fontFamily: 'Montserrat'),
+            ),
+          );
+        } else if (!snapshot.hasData) {
+          return Center(
+            child: Text(
+              'User not found',
+              style: TextStyle(color: Colors.black, fontFamily: 'Montserrat'),
+            ),
+          );
+        } else {
+          final employee = snapshot.data!;
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              if (!isMobileView) {
+                return Row(
+                  children: [
+                    Flexible(
+                      flex: 1, // Original size of the profile side
+                      child: _buildProfileSide(employee),
+                    ),
+                    Flexible(
+                      flex: 3, // Original size of the main content
+                      child: TabBarView(
+                        controller: _tabController,
+                        children: _buildTabViews(employee),
                       ),
-                      Flexible(
-                        flex: 3, // Original size of the main content
-                        child: TabBarView(
-                          controller: _tabController,
-                          children: _buildTabViews(employee),
-                        ),
-                      ),
-                    ],
-                  );
-                } else {
-                  return TabBarView(
-                    controller: _tabController,
-                    children: _buildTabViews(employee),
-                  );
-                }
-              },
-            );
-          }
-        },
-      ),
-    );
-  }
+                    ),
+                  ],
+                );
+              } else {
+                return TabBarView(
+                  controller: _tabController,
+                  children: _buildTabViews(employee),
+                );
+              }
+            },
+          );
+        }
+      },
+    ),
+  );
+}
+
 
   List<Widget> _buildTabs() {
     List<Widget> tabs = [
