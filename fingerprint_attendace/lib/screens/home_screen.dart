@@ -250,13 +250,6 @@ class _HomeScreenState extends State<HomeScreen>
     return DateFormat('EEEE, MMMM d, y').format(date);
   }
 
-  // String _formatTime(DateTime? date) {
-  //   if (date == null) {
-  //     return "00:00";
-  //   }
-  //   return DateFormat('h:mm a').format(date);
-  // }
-
   bool _isSignedIn = false;
 
   Future<void> _onSignInPressed() async {
@@ -467,140 +460,140 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-@override
-Widget build(BuildContext context) {
-  // Define the threshold for switching between mobile and desktop views
-  const double desktopWidthThreshold = 1400;
-  const double desktopHeightThreshold = 560;
+  @override
+  Widget build(BuildContext context) {
+    // Define the threshold for switching between mobile and desktop views
+    const double desktopWidthThreshold = 1400;
+    const double desktopHeightThreshold = 560;
 
-  // Get the current screen size
-  final screenSize = MediaQuery.of(context).size;
+    // Get the current screen size
+    final screenSize = MediaQuery.of(context).size;
 
-  // Determine if the view should be mobile or desktop
-  bool isMobileView = screenSize.width < desktopWidthThreshold || screenSize.height < desktopHeightThreshold;
+    // Determine if the view should be mobile or desktop
+    bool isMobileView = screenSize.width < desktopWidthThreshold ||
+        screenSize.height < desktopHeightThreshold;
 
-  return Scaffold(
-    appBar: AppBar(
-      automaticallyImplyLeading: false,
-      backgroundColor: Color(0xFFAF2C3F),
-      iconTheme: IconThemeData(
-        color: Colors.white,
+    return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: Color(0xFFAF2C3F),
+        iconTheme: IconThemeData(
+          color: Colors.white,
+        ),
+        title: isMobileView
+            ? Builder(
+                builder: (context) => IconButton(
+                  icon: Icon(Icons.menu),
+                  onPressed: () {
+                    Scaffold.of(context).openDrawer();
+                  },
+                ),
+              )
+            : null,
+        bottom: !isMobileView
+            ? PreferredSize(
+                preferredSize: Size.fromHeight(-8.0),
+                child: Container(
+                  color: Colors.white,
+                  child: TabBar(
+                    controller: _tabController,
+                    labelColor: Color(0xFFAF2C3F),
+                    unselectedLabelColor: Color(0xFFAF2C3F),
+                    indicatorColor: Color(0xFFAF2C3F),
+                    indicator: BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(
+                          color: Color(0xFFAF2C3F),
+                          width: 4.0,
+                        ),
+                      ),
+                    ),
+                    tabs: _buildTabs(),
+                  ),
+                ),
+              )
+            : null,
+        actions: isMobileView
+            ? [
+                Image.asset(
+                  'assets/company_logo.jpg', // Path to your logo file
+                  height: 40, // Adjust the height as needed
+                ),
+              ]
+            : [],
       ),
-      title: isMobileView
-          ? Builder(
-              builder: (context) => IconButton(
-                icon: Icon(Icons.menu),
-                onPressed: () {
-                  Scaffold.of(context).openDrawer();
-                },
+      drawer: isMobileView
+          ? Drawer(
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: [
+                  DrawerHeader(
+                    child: Text(
+                      'Menu',
+                      style: TextStyle(color: Colors.white, fontSize: 24),
+                    ),
+                    decoration: BoxDecoration(
+                      color: Color(0xFFAF2C3F),
+                    ),
+                  ),
+                  ..._buildDrawerItems(),
+                ],
               ),
             )
           : null,
-      bottom: !isMobileView
-          ? PreferredSize(
-              preferredSize: Size.fromHeight(-8.0),
-              child: Container(
-                color: Colors.white,
-                child: TabBar(
-                  controller: _tabController,
-                  labelColor: Color(0xFFAF2C3F),
-                  unselectedLabelColor: Color(0xFFAF2C3F),
-                  indicatorColor: Color(0xFFAF2C3F),
-                  indicator: BoxDecoration(
-                    border: Border(
-                      bottom: BorderSide(
-                        color: Color(0xFFAF2C3F),
-                        width: 4.0,
-                      ),
-                    ),
-                  ),
-                  tabs: _buildTabs(),
-                ),
+      backgroundColor: Colors.white,
+      body: FutureBuilder<Employee>(
+        future: _fetchEmployeeData(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(
+              child: Text(
+                'Error: ${snapshot.error}',
+                style: TextStyle(color: Colors.black, fontFamily: 'Montserrat'),
               ),
-            )
-          : null,
-      actions: isMobileView
-          ? [
-              Image.asset(
-                'assets/company_logo.jpg', // Path to your logo file
-                height: 40, // Adjust the height as needed
+            );
+          } else if (!snapshot.hasData) {
+            return Center(
+              child: Text(
+                'User not found',
+                style: TextStyle(color: Colors.black, fontFamily: 'Montserrat'),
               ),
-            ]
-          : [],
-    ),
-    drawer: isMobileView
-        ? Drawer(
-            child: ListView(
-              padding: EdgeInsets.zero,
-              children: [
-                DrawerHeader(
-                  child: Text(
-                    'Menu',
-                    style: TextStyle(color: Colors.white, fontSize: 24),
-                  ),
-                  decoration: BoxDecoration(
-                    color: Color(0xFFAF2C3F),
-                  ),
-                ),
-                ..._buildDrawerItems(),
-              ],
-            ),
-          )
-        : null,
-    backgroundColor: Colors.white,
-    body: FutureBuilder<Employee>(
-      future: _fetchEmployeeData(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Center(
-            child: Text(
-              'Error: ${snapshot.error}',
-              style: TextStyle(color: Colors.black, fontFamily: 'Montserrat'),
-            ),
-          );
-        } else if (!snapshot.hasData) {
-          return Center(
-            child: Text(
-              'User not found',
-              style: TextStyle(color: Colors.black, fontFamily: 'Montserrat'),
-            ),
-          );
-        } else {
-          final employee = snapshot.data!;
-          return LayoutBuilder(
-            builder: (context, constraints) {
-              if (!isMobileView) {
-                return Row(
-                  children: [
-                    Flexible(
-                      flex: 1, // Original size of the profile side
-                      child: _buildProfileSide(employee),
-                    ),
-                    Flexible(
-                      flex: 3, // Original size of the main content
-                      child: TabBarView(
-                        controller: _tabController,
-                        children: _buildTabViews(employee),
+            );
+          } else {
+            final employee = snapshot.data!;
+            return LayoutBuilder(
+              builder: (context, constraints) {
+                if (!isMobileView) {
+                  return Row(
+                    children: [
+                      Flexible(
+                        flex: 1, // Original size of the profile side
+                        child: _buildProfileSide(employee),
                       ),
-                    ),
-                  ],
-                );
-              } else {
-                return TabBarView(
-                  controller: _tabController,
-                  children: _buildTabViews(employee),
-                );
-              }
-            },
-          );
-        }
-      },
-    ),
-  );
-}
-
+                      Flexible(
+                        flex: 3, // Original size of the main content
+                        child: TabBarView(
+                          controller: _tabController,
+                          children: _buildTabViews(employee),
+                        ),
+                      ),
+                    ],
+                  );
+                } else {
+                  return TabBarView(
+                    controller: _tabController,
+                    children: _buildTabViews(employee),
+                  );
+                }
+              },
+            );
+          }
+        },
+      ),
+    );
+  }
 
   List<Widget> _buildTabs() {
     List<Widget> tabs = [
@@ -971,7 +964,6 @@ Widget build(BuildContext context) {
     );
   }
 
-// Helper function to format the time
   String _formatTime(DateTime? time) {
     return time != null ? DateFormat('h:mm a').format(time) : 'Not available';
   }
@@ -1168,12 +1160,6 @@ Widget build(BuildContext context) {
       ),
     );
   }
-
-  // Widget _buildVacationsView() {
-  //   return Center(
-  //     child: Text('Vacations View', style: TextStyle(fontFamily: 'Montserrat')),
-  //   );
-  // }
 
   Widget _buildCreateUserView() {
     return Padding(
