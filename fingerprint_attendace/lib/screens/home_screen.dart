@@ -391,43 +391,58 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  Widget _buildAttendanceView(Employee employee) {
-    return FutureBuilder<List<Attendance>>(
-      future: attendanceDao.getAttendanceByUserId(employee.companyId),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Center(
-              child: Text('Error: ${snapshot.error}',
-                  style: TextStyle(
-                      color: Colors.black, fontFamily: 'Montserrat')));
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return Center(
-              child: Text('No attendance records found',
-                  style: TextStyle(
-                      color: Colors.black, fontFamily: 'Montserrat')));
-        } else {
-          final attendanceRecords = snapshot.data!;
-          return SingleChildScrollView(
+Widget _buildAttendanceView(Employee employee) {
+  return FutureBuilder<List<Attendance>>(
+    future: attendanceDao.getAttendanceByUserId(employee.companyId),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return Center(child: CircularProgressIndicator());
+      } else if (snapshot.hasError) {
+        return Center(
+            child: Text('Error: ${snapshot.error}',
+                style: TextStyle(
+                    color: Colors.black, fontFamily: 'Montserrat')));
+      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+        return Center(
+            child: Text('No attendance records found',
+                style: TextStyle(
+                    color: Colors.black, fontFamily: 'Montserrat')));
+      } else {
+        final attendanceRecords = snapshot.data!;
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: SingleChildScrollView(
             child: DataTable(
-              columns: const [
+              columnSpacing: 20.0,
+              columns: [
                 DataColumn(
-                    label: Text('Date',
-                        style: TextStyle(
-                            color: Colors.black, fontFamily: 'Montserrat'))),
+                  label: Text(
+                    'Date',
+                    style: TextStyle(
+                        color: Colors.black, fontFamily: 'Montserrat'),
+                  ),
+                ),
                 DataColumn(
-                    label: Text('Sign In',
-                        style: TextStyle(
-                            color: Colors.black, fontFamily: 'Montserrat'))),
+                  label: Text(
+                    'Sign In',
+                    style: TextStyle(
+                        color: Colors.black, fontFamily: 'Montserrat'),
+                  ),
+                ),
                 DataColumn(
-                    label: Text('Sign Out',
-                        style: TextStyle(
-                            color: Colors.black, fontFamily: 'Montserrat'))),
+                  label: Text(
+                    'Sign Out',
+                    style: TextStyle(
+                        color: Colors.black, fontFamily: 'Montserrat'),
+                  ),
+                ),
                 DataColumn(
-                    label: Text('Total Hours',
-                        style: TextStyle(
-                            color: Colors.black, fontFamily: 'Montserrat'))),
+                  label: Text(
+                    'Total Hours',
+                    style: TextStyle(
+                        color: Colors.black, fontFamily: 'Montserrat'),
+                  ),
+                ),
               ],
               rows: attendanceRecords.map((attendance) {
                 final totalHours = attendance.signOutTime
@@ -454,11 +469,12 @@ class _HomeScreenState extends State<HomeScreen>
                 );
               }).toList(),
             ),
-          );
-        }
-      },
-    );
-  }
+          ),
+        );
+      }
+    },
+  );
+}
 
 @override
 Widget build(BuildContext context) {

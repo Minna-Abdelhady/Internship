@@ -135,7 +135,7 @@ class EmployeeDao {
     final imageBytes = byteData.buffer.asUint8List();
     final base64Image = base64Encode(imageBytes);
 
-    final byteData1 = await rootBundle.load('assets/Nouna.jpg');
+    final byteData1 = await rootBundle.load('assets/Dina_Aref.jpg');
     final imageBytes1 = byteData1.buffer.asUint8List();
     final base64Image1 = base64Encode(imageBytes1);
 
