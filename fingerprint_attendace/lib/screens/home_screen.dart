@@ -460,141 +460,192 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    // Define the threshold for switching between mobile and desktop views
-    const double desktopWidthThreshold = 1400;
-    const double desktopHeightThreshold = 560;
+@override
+Widget build(BuildContext context) {
+  // Define the threshold for switching between mobile and desktop views
+  const double desktopWidthThreshold = 1400;
+  const double desktopHeightThreshold = 560;
 
-    // Get the current screen size
-    final screenSize = MediaQuery.of(context).size;
+  // Get the current screen size
+  final screenSize = MediaQuery.of(context).size;
 
-    // Determine if the view should be mobile or desktop
-    bool isMobileView = screenSize.width < desktopWidthThreshold ||
-        screenSize.height < desktopHeightThreshold;
+  // Determine if the view should be mobile or desktop
+  bool isMobileView = screenSize.width < desktopWidthThreshold ||
+      screenSize.height < desktopHeightThreshold;
 
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: Color(0xFFAF2C3F),
-        iconTheme: IconThemeData(
-          color: Colors.white,
-        ),
-        title: isMobileView
-            ? Builder(
-                builder: (context) => IconButton(
-                  icon: Icon(Icons.menu),
-                  onPressed: () {
-                    Scaffold.of(context).openDrawer();
-                  },
-                ),
-              )
-            : null,
-        bottom: !isMobileView
-            ? PreferredSize(
-                preferredSize: Size.fromHeight(-8.0),
-                child: Container(
-                  color: Colors.white,
-                  child: TabBar(
-                    controller: _tabController,
-                    labelColor: Color(0xFFAF2C3F),
-                    unselectedLabelColor: Color(0xFFAF2C3F),
-                    indicatorColor: Color(0xFFAF2C3F),
-                    indicator: BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(
-                          color: Color(0xFFAF2C3F),
-                          width: 4.0,
-                        ),
-                      ),
-                    ),
-                    tabs: _buildTabs(),
-                  ),
-                ),
-              )
-            : null,
-        actions: isMobileView
-            ? [
-                Image.asset(
-                  'assets/company_logo.jpg', // Path to your logo file
-                  height: 40, // Adjust the height as needed
-                ),
-              ]
-            : [],
+  return Scaffold(
+    appBar: AppBar(
+      automaticallyImplyLeading: false,
+      backgroundColor: Color(0xFFAF2C3F),
+      iconTheme: IconThemeData(
+        color: Colors.white,
       ),
-      drawer: isMobileView
-          ? Drawer(
-              child: ListView(
-                padding: EdgeInsets.zero,
-                children: [
-                  DrawerHeader(
-                    child: Text(
-                      'Menu',
-                      style: TextStyle(color: Colors.white, fontSize: 24),
-                    ),
-                    decoration: BoxDecoration(
-                      color: Color(0xFFAF2C3F),
-                    ),
-                  ),
-                  ..._buildDrawerItems(),
-                ],
+      title: isMobileView
+          ? Builder(
+              builder: (context) => IconButton(
+                icon: Icon(Icons.menu),
+                onPressed: () {
+                  Scaffold.of(context).openDrawer();
+                },
               ),
             )
           : null,
-      backgroundColor: Colors.white,
-      body: FutureBuilder<Employee>(
-        future: _fetchEmployeeData(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(
-              child: Text(
-                'Error: ${snapshot.error}',
-                style: TextStyle(color: Colors.black, fontFamily: 'Montserrat'),
-              ),
-            );
-          } else if (!snapshot.hasData) {
-            return Center(
-              child: Text(
-                'User not found',
-                style: TextStyle(color: Colors.black, fontFamily: 'Montserrat'),
-              ),
-            );
-          } else {
-            final employee = snapshot.data!;
-            return LayoutBuilder(
-              builder: (context, constraints) {
-                if (!isMobileView) {
-                  return Row(
-                    children: [
-                      Flexible(
-                        flex: 1, // Original size of the profile side
-                        child: _buildProfileSide(employee),
+      bottom: !isMobileView
+          ? PreferredSize(
+              preferredSize: Size.fromHeight(-8.0),
+              child: Container(
+                color: Colors.white,
+                child: TabBar(
+                  controller: _tabController,
+                  labelColor: Color(0xFFAF2C3F),
+                  unselectedLabelColor: Color(0xFFAF2C3F),
+                  indicatorColor: Color(0xFFAF2C3F),
+                  indicator: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(
+                        color: Color(0xFFAF2C3F),
+                        width: 4.0,
                       ),
-                      Flexible(
-                        flex: 3, // Original size of the main content
-                        child: TabBarView(
-                          controller: _tabController,
-                          children: _buildTabViews(employee),
-                        ),
+                    ),
+                  ),
+                  tabs: _buildTabs(),
+                ),
+              ),
+            )
+          : null,
+      actions: isMobileView
+          ? [
+              Image.asset(
+                'assets/company_logo.jpg', // Path to your logo file
+                height: 40, // Adjust the height as needed
+              ),
+            ]
+          : [],
+    ),
+    drawer: isMobileView
+        ? Drawer(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                DrawerHeader(
+                  child: Text(
+                    'Menu',
+                    style: TextStyle(color: Colors.white, fontSize: 24),
+                  ),
+                  decoration: BoxDecoration(
+                    color: Color(0xFFAF2C3F),
+                  ),
+                ),
+                ..._buildDrawerItems(),
+              ],
+            ),
+          )
+        : null,
+    backgroundColor: Colors.white,
+    body: FutureBuilder<Employee>(
+      future: _fetchEmployeeData(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(
+            child: Text(
+              'Error: ${snapshot.error}',
+              style: TextStyle(color: Colors.black, fontFamily: 'Montserrat'),
+            ),
+          );
+        } else if (!snapshot.hasData) {
+          return Center(
+            child: Text(
+              'User not found',
+              style: TextStyle(color: Colors.black, fontFamily: 'Montserrat'),
+            ),
+          );
+        } else {
+          final employee = snapshot.data!;
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              if (!isMobileView) {
+                return Row(
+                  children: [
+                    Flexible(
+                      flex: 1, // Original size of the profile side
+                      child: _buildProfileSide(employee, isMobileView),
+                    ),
+                    Flexible(
+                      flex: 3, // Original size of the main content
+                      child: TabBarView(
+                        controller: _tabController,
+                        children: _buildTabViews(employee),
                       ),
-                    ],
-                  );
-                } else {
-                  return TabBarView(
-                    controller: _tabController,
-                    children: _buildTabViews(employee),
-                  );
-                }
-              },
-            );
-          }
-        },
-      ),
-    );
-  }
+                    ),
+                  ],
+                );
+              } else {
+                return Column(
+                  children: [
+                    _buildMobileProfile(employee),
+                    Expanded(
+                      child: TabBarView(
+                        controller: _tabController,
+                        children: _buildTabViews(employee),
+                      ),
+                    ),
+                  ],
+                );
+              }
+            },
+          );
+        }
+      },
+    ),
+  );
+}
 
+Widget _buildMobileProfile(Employee employee) {
+  return Container(
+    color: Color(0xFFAF2C3F),
+    padding: const EdgeInsets.all(16.0),
+    child: Row(
+      children: [
+        Container(
+          width: 100,
+          height: 90,
+          decoration: BoxDecoration(
+            shape: BoxShape.rectangle,
+            borderRadius: BorderRadius.circular(12), // Add rounded corners
+            border: Border.all(
+                color: Colors.white, width: 1), // Add a white border
+            image: DecorationImage(
+              image: MemoryImage(base64Decode(employee.personalPhoto)),
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+        SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Welcome, ${employee.name}',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  fontFamily: 'Montserrat',
+                ),
+              ),
+              SizedBox(height: 10),
+              _buildInfoColumn(employee, true), // Pass true for mobile view
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
+}
+ 
   List<Widget> _buildTabs() {
     List<Widget> tabs = [
       Tab(text: 'Sign In'),
@@ -679,135 +730,134 @@ class _HomeScreenState extends State<HomeScreen>
     return tabViews;
   }
 
-  Widget _buildProfileSide(Employee employee) {
-    return Container(
+Widget _buildProfileSide(Employee employee, bool isMobileView) {
+  return SingleChildScrollView(
+    child: Container(
       color: Color(0xFFAF2C3F),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 100,
-              height: 100,
-              decoration: BoxDecoration(
-                shape: BoxShape.rectangle,
-                borderRadius: BorderRadius.circular(12), // Add rounded corners
-                border: Border.all(
-                    color: Colors.white, width: 2), // Add a white border
-                image: DecorationImage(
-                  image: MemoryImage(base64Decode(employee.personalPhoto)),
-                  fit: BoxFit.cover,
-                ),
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 100,
+            height: 232,
+            decoration: BoxDecoration(
+              shape: BoxShape.rectangle,
+              borderRadius: BorderRadius.circular(12), // Add rounded corners
+              border: Border.all(
+                  color: Colors.white, width: 1), // Add a white border
+              image: DecorationImage(
+                image: MemoryImage(base64Decode(employee.personalPhoto)),
+                fit: BoxFit.cover,
               ),
             ),
-            SizedBox(height: 10),
-            Text(
-              'Welcome, ${employee.name}',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-                fontFamily: 'Montserrat',
-              ),
-            ),
-            SizedBox(height: 20),
-            _buildInfoColumn(employee),
-            SizedBox(height: 20),
-            Divider(color: Colors.white),
-            Container(
-              color: Color(0xFFAF2C3F),
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildInfoRow('Today:', _formatDate(DateTime.now()), true),
-                  _buildInfoRow('Signed In At:', _formatTime(_loginTime), true),
-                  _buildInfoRow(
-                    _isSignedOut ? 'Signed Out At:' : 'Expected Sign Out Time:',
-                    _formatTime(_logoutTime),
-                    true,
-                  ),
-                ],
-              ),
-            ),
-            Spacer(),
-            ElevatedButton.icon(
-              onPressed: _onLogoutPressed,
-              icon: Icon(Icons.logout, color: Color(0xFFAF2C3F)),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-              ),
-              label: Text(
-                'Log Out',
-                style: TextStyle(
-                    color: Color(0xFFAF2C3F), fontFamily: 'Montserrat'),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInfoColumn(Employee employee) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildInfoRow('Employee ID:', employee.companyId.toString(), true),
-        SizedBox(height: 10),
-        _buildInfoRow('Job Title:', employee.jobTitle, true),
-        SizedBox(height: 10),
-        _buildInfoRow('Email:', employee.email, true),
-        SizedBox(height: 10),
-        FutureBuilder<String>(
-          future: _getDirectorName(employee.directorId),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return _buildInfoRow('Director:', 'Loading...', true);
-            } else if (snapshot.hasError) {
-              return _buildInfoRow('Director:', 'Error', true);
-            } else {
-              return _buildInfoRow(
-                  'Director:', snapshot.data ?? 'Unknown', true);
-            }
-          },
-        ),
-        SizedBox(height: 10),
-        _buildInfoRow('Role:', employee.isAdmin ? 'Admin' : 'Employee', true),
-        SizedBox(height: 10),
-      ],
-    );
-  }
-
-  Widget _buildInfoRow(String label, String value,
-      [bool increaseSize = false]) {
-    return Row(
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: increaseSize ? 20 : 18, // Increase size if needed
-            fontWeight: FontWeight.bold,
-            color: Colors.grey[200], // Set label color to grey
-            fontFamily: 'Montserrat',
           ),
-        ),
-        SizedBox(width: 10),
-        Expanded(
-          child: Text(
-            value,
+          SizedBox(height: 10),
+          Text(
+            'Welcome, ${employee.name}',
             style: TextStyle(
-              fontSize: increaseSize ? 18 : 16, // Increase size if needed
-              color: Colors.white, // Set text color to white
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
               fontFamily: 'Montserrat',
             ),
           ),
-        ),
-      ],
-    );
-  }
+          SizedBox(height: 15),
+          _buildInfoColumn(employee, isMobileView),
+          SizedBox(height: 15),
+          Divider(color: Colors.white),
+          Container(
+            color: Color(0xFFAF2C3F),
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildInfoRow('Today:', _formatDate(DateTime.now()), true, isMobileView),
+                _buildInfoRow('Signed In At:', _formatTime(_loginTime), true, isMobileView),
+                _buildInfoRow(
+                  _isSignedOut ? 'Signed Out At:' : 'Expected Sign Out Time:',
+                  _formatTime(_logoutTime),
+                  true, isMobileView,
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 20),
+          ElevatedButton.icon(
+            onPressed: _onLogoutPressed,
+            icon: Icon(Icons.logout, color: Color(0xFFAF2C3F)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+            ),
+            label: Text(
+              'Log Out',
+              style: TextStyle(
+                  color: Color(0xFFAF2C3F), fontFamily: 'Montserrat'),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
 
+Widget _buildInfoColumn(Employee employee, bool isMobileView) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      _buildInfoRow('Employee ID:', employee.companyId.toString(), true, isMobileView),
+      SizedBox(height: 3),
+      _buildInfoRow('Job Title:', employee.jobTitle, true, isMobileView),
+      SizedBox(height: 3),
+      _buildInfoRow('Email:', employee.email, true, isMobileView),
+      SizedBox(height: 3),
+      FutureBuilder<String>(
+        future: _getDirectorName(employee.directorId),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return _buildInfoRow('Director:', 'Loading...', true, isMobileView);
+          } else if (snapshot.hasError) {
+            return _buildInfoRow('Director:', 'Error', true, isMobileView);
+          } else {
+            return _buildInfoRow(
+                'Director:', snapshot.data ?? 'Unknown', true, isMobileView);
+          }
+        },
+      ),
+      SizedBox(height: 3),
+      _buildInfoRow('Role:', employee.isAdmin ? 'Admin' : 'Employee', true, isMobileView),
+      SizedBox(height: 3),
+    ],
+  );
+}
+
+Widget _buildInfoRow(String label, String value, bool increaseSize, bool isMobileView) {
+  return Row(
+    children: [
+      Text(
+        label,
+        style: TextStyle(
+          fontSize: increaseSize ? (isMobileView ? 14 : 18) : (isMobileView ? 12 : 16), // Adjust size for mobile
+          fontWeight: FontWeight.bold,
+          color: Colors.grey[200], // Set label color to grey
+          fontFamily: 'Montserrat',
+        ),
+      ),
+      SizedBox(width: 10),
+      Expanded(
+        child: Text(
+          value,
+          style: TextStyle(
+            fontSize: increaseSize ? (isMobileView ? 12 : 16) : (isMobileView ? 10 : 14), // Adjust size for mobile
+            color: Colors.white, // Set text color to white
+            fontFamily: 'Montserrat',
+          ),
+        ),
+      ),
+    ],
+  );
+}  
+  
   Widget _buildTransactionsView(Employee employee) {
     return FutureBuilder<List<Attendance>>(
       future: attendanceDao.getAttendanceForWeek(employee.companyId),
@@ -1059,108 +1109,107 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  Widget _buildSignInView(Employee employee) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton.icon(
-                  onPressed: _isSignedIn ? _onSignOutPressed : _onSignInPressed,
-                  icon: Icon(Icons.location_on, size: 30),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size(250, 150),
-                    textStyle:
-                        TextStyle(fontSize: 20, fontFamily: 'Montserrat'),
-                    backgroundColor: Color(0xFFAF2C3F),
-                  ),
-                  label: Text(_isSignedIn ? 'Sign Out' : 'Sign In'),
+Widget _buildSignInView(Employee employee) {
+  return Padding(
+    padding: const EdgeInsets.all(16.0),
+    child: Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton.icon(
+                onPressed: _isSignedIn ? _onSignOutPressed : _onSignInPressed,
+                icon: Icon(Icons.location_on, size: 30),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: Size(250, 150),
+                  textStyle:
+                      TextStyle(fontSize: 20, fontFamily: 'Montserrat'),
+                  backgroundColor: Color(0xFFAF2C3F),
                 ),
-                SizedBox(width: 50),
-                ElevatedButton.icon(
-                  onPressed: _onFaceIdPressed,
-                  icon: Icon(Icons.face, size: 30),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size(250, 150),
-                    textStyle:
-                        TextStyle(fontSize: 20, fontFamily: 'Montserrat'),
-                    backgroundColor: Color(0xFFAF2C3F),
-                  ),
-                  label: Text('Face ID'),
+                label: Text(_isSignedIn ? 'Sign Out' : 'Sign In'),
+              ),
+              SizedBox(width: 50),
+              ElevatedButton.icon(
+                onPressed: _onFaceIdPressed,
+                icon: Icon(Icons.face, size: 30),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: Size(250, 150),
+                  textStyle:
+                      TextStyle(fontSize: 20, fontFamily: 'Montserrat'),
+                  backgroundColor: Color(0xFFAF2C3F),
                 ),
-                SizedBox(width: 50),
-                ElevatedButton.icon(
-                  onPressed: _onFingerprintPressed,
-                  icon: Icon(Icons.fingerprint, size: 30),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size(250, 150),
-                    textStyle:
-                        TextStyle(fontSize: 20, fontFamily: 'Montserrat'),
-                    backgroundColor: Color(0xFFAF2C3F),
-                  ),
-                  label: Text('Fingerprint'),
+                label: Text('Face ID'),
+              ),
+              SizedBox(width: 50),
+              ElevatedButton.icon(
+                onPressed: _onFingerprintPressed,
+                icon: Icon(Icons.fingerprint, size: 30),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: Size(250, 150),
+                  textStyle:
+                      TextStyle(fontSize: 20, fontFamily: 'Montserrat'),
+                  backgroundColor: Color(0xFFAF2C3F),
                 ),
-              ],
-            ),
-            SizedBox(height: 50),
-            _currentPosition == null
-                ? CircularProgressIndicator()
-                : Container(
-                    height: 300,
-                    width: 400,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(15),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black26,
-                          blurRadius: 10,
-                          offset: Offset(0, 5),
+                label: Text('Fingerprint'),
+              ),
+            ],
+          ),
+          SizedBox(height: 50),
+          _currentPosition == null
+              ? CircularProgressIndicator()
+              : Container(
+                  height: 300,
+                  width: 400,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(15),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 10,
+                        offset: Offset(0, 5),
+                      ),
+                    ],
+                  ),
+                  margin: EdgeInsets.all(10),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(15),
+                    child: flutterMap.FlutterMap(
+                      options: flutterMap.MapOptions(
+                        center: latlong.LatLng(_currentPosition!.latitude,
+                            _currentPosition!.longitude),
+                        zoom: 15,
+                      ),
+                      children: [
+                        flutterMap.TileLayer(
+                          urlTemplate:
+                              "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                          subdomains: ['a', 'b', 'c'],
+                        ),
+                        flutterMap.MarkerLayer(
+                          markers: [
+                            flutterMap.Marker(
+                              point: latlong.LatLng(
+                                  _currentPosition!.latitude,
+                                  _currentPosition!.longitude),
+                              builder: (ctx) => Container(
+                                child: Icon(Icons.location_on,
+                                    size: 40, color: Colors.red),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                    margin: EdgeInsets.all(10),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(15),
-                      child: flutterMap.FlutterMap(
-                        options: flutterMap.MapOptions(
-                          center: latlong.LatLng(_currentPosition!.latitude,
-                              _currentPosition!.longitude),
-                          zoom: 15,
-                        ),
-                        children: [
-                          flutterMap.TileLayer(
-                            urlTemplate:
-                                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                            subdomains: ['a', 'b', 'c'],
-                          ),
-                          flutterMap.MarkerLayer(
-                            markers: [
-                              flutterMap.Marker(
-                                point: latlong.LatLng(
-                                    _currentPosition!.latitude,
-                                    _currentPosition!.longitude),
-                                builder: (ctx) => Container(
-                                  child: Icon(Icons.location_on,
-                                      size: 40, color: Colors.red),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
                   ),
-          ],
-        ),
+                ),
+        ],
       ),
-    );
-  }
-
+    ),
+  );
+}  
   Widget _buildCreateUserView() {
     return Padding(
       padding: const EdgeInsets.all(16.0),
