@@ -644,8 +644,8 @@ Widget _buildMobileProfile(Employee employee) {
       ],
     ),
   );
-}
- 
+} 
+  
   List<Widget> _buildTabs() {
     List<Widget> tabs = [
       Tab(text: 'Sign In'),
@@ -857,7 +857,7 @@ Widget _buildInfoRow(String label, String value, bool increaseSize, bool isMobil
     ],
   );
 }  
-  
+ 
   Widget _buildTransactionsView(Employee employee) {
     return FutureBuilder<List<Attendance>>(
       future: attendanceDao.getAttendanceForWeek(employee.companyId),
@@ -1018,82 +1018,159 @@ Widget _buildInfoRow(String label, String value, bool increaseSize, bool isMobil
     return time != null ? DateFormat('h:mm a').format(time) : 'Not available';
   }
 
-  Widget _buildCalendarView() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        children: [
-          TableCalendar(
-            firstDay: DateTime.utc(2020, 10, 16),
-            lastDay: DateTime.utc(2030, 3, 14),
-            focusedDay: DateTime.now(),
-            calendarFormat: CalendarFormat.month,
-            startingDayOfWeek: StartingDayOfWeek.sunday,
-            daysOfWeekVisible: true,
-            calendarStyle: CalendarStyle(
-              isTodayHighlighted: true,
-              selectedDecoration: BoxDecoration(
-                color: Color(0xFFAF2C3F),
-                shape: BoxShape.circle,
-              ),
-              todayDecoration: BoxDecoration(
-                color: Colors.red,
-                shape: BoxShape.circle,
-              ),
-            ),
-            headerStyle: HeaderStyle(
-              formatButtonVisible: false,
-              titleCentered: true,
-            ),
-            holidayPredicate: (day) {
-              return _holidays.containsKey(day);
-            },
-            onDaySelected: (selectedDay, focusedDay) {
-              // Handle day selection
-            },
-            calendarBuilders: CalendarBuilders(
-              holidayBuilder: (context, day, focusedDay) {
-                return Center(
-                  child: Text(
-                    '${day.day}\n${_holidays[day]?.join(", ")}',
-                    textAlign: TextAlign.center,
-                    style:
-                        TextStyle(color: Colors.blue, fontFamily: 'Montserrat'),
-                  ),
-                );
-              },
-              defaultBuilder: (context, day, focusedDay) {
-                if (day.weekday == DateTime.friday ||
-                    day.weekday == DateTime.saturday) {
-                  return Container(
-                    margin: const EdgeInsets.all(4.0),
-                    alignment: Alignment.center,
-                    child: Text(
-                      day.day.toString(),
-                      style: TextStyle().copyWith(
-                          color: Colors.red,
-                          fontFamily:
-                              'Montserrat'), // Set weekend text color to red
+Widget _buildCalendarView() {
+  return Padding(
+    padding: const EdgeInsets.all(16.0),
+    child: LayoutBuilder(
+      builder: (context, constraints) {
+        bool isMobileView = constraints.maxWidth < 600;
+        if (isMobileView) {
+          return SingleChildScrollView(
+            child: Column(
+              children: [
+                TableCalendar(
+                  firstDay: DateTime.utc(2020, 10, 16),
+                  lastDay: DateTime.utc(2030, 3, 14),
+                  focusedDay: DateTime.now(),
+                  calendarFormat: CalendarFormat.month,
+                  startingDayOfWeek: StartingDayOfWeek.sunday,
+                  daysOfWeekVisible: true,
+                  calendarStyle: CalendarStyle(
+                    isTodayHighlighted: true,
+                    selectedDecoration: BoxDecoration(
+                      color: Color(0xFFAF2C3F),
+                      shape: BoxShape.circle,
                     ),
-                  );
-                }
-                return null;
-              },
+                    todayDecoration: BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  headerStyle: HeaderStyle(
+                    formatButtonVisible: false,
+                    titleCentered: true,
+                  ),
+                  holidayPredicate: (day) {
+                    return _holidays.containsKey(day);
+                  },
+                  onDaySelected: (selectedDay, focusedDay) {
+                    // Handle day selection
+                  },
+                  calendarBuilders: CalendarBuilders(
+                    holidayBuilder: (context, day, focusedDay) {
+                      return Center(
+                        child: Text(
+                          '${day.day}\n${_holidays[day]?.join(", ")}',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: Colors.blue, fontFamily: 'Montserrat'),
+                        ),
+                      );
+                    },
+                    defaultBuilder: (context, day, focusedDay) {
+                      if (day.weekday == DateTime.friday || day.weekday == DateTime.saturday) {
+                        return Container(
+                          margin: const EdgeInsets.all(4.0),
+                          alignment: Alignment.center,
+                          child: Text(
+                            day.day.toString(),
+                            style: TextStyle().copyWith(
+                              color: Colors.red,
+                              fontFamily: 'Montserrat', // Set weekend text color to red
+                            ),
+                          ),
+                        );
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                SizedBox(height: 16.0),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _buildColorIndicator(Colors.red, 'Weekend'),
+                    SizedBox(width: 16.0),
+                    _buildColorIndicator(Colors.blue, 'Holiday'),
+                  ],
+                ),
+              ],
             ),
-          ),
-          SizedBox(height: 16.0),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          );
+        } else {
+          return Column(
             children: [
-              _buildColorIndicator(Colors.red, 'Weekend'),
-              SizedBox(width: 16.0),
-              _buildColorIndicator(Colors.blue, 'Holiday'),
+              TableCalendar(
+                firstDay: DateTime.utc(2020, 10, 16),
+                lastDay: DateTime.utc(2030, 3, 14),
+                focusedDay: DateTime.now(),
+                calendarFormat: CalendarFormat.month,
+                startingDayOfWeek: StartingDayOfWeek.sunday,
+                daysOfWeekVisible: true,
+                calendarStyle: CalendarStyle(
+                  isTodayHighlighted: true,
+                  selectedDecoration: BoxDecoration(
+                    color: Color(0xFFAF2C3F),
+                    shape: BoxShape.circle,
+                  ),
+                  todayDecoration: BoxDecoration(
+                    color: Colors.red,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                headerStyle: HeaderStyle(
+                  formatButtonVisible: false,
+                  titleCentered: true,
+                ),
+                holidayPredicate: (day) {
+                  return _holidays.containsKey(day);
+                },
+                onDaySelected: (selectedDay, focusedDay) {
+                  // Handle day selection
+                },
+                calendarBuilders: CalendarBuilders(
+                  holidayBuilder: (context, day, focusedDay) {
+                    return Center(
+                      child: Text(
+                        '${day.day}\n${_holidays[day]?.join(", ")}',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.blue, fontFamily: 'Montserrat'),
+                      ),
+                    );
+                  },
+                  defaultBuilder: (context, day, focusedDay) {
+                    if (day.weekday == DateTime.friday || day.weekday == DateTime.saturday) {
+                      return Container(
+                        margin: const EdgeInsets.all(4.0),
+                        alignment: Alignment.center,
+                        child: Text(
+                          day.day.toString(),
+                          style: TextStyle().copyWith(
+                            color: Colors.red,
+                            fontFamily: 'Montserrat', // Set weekend text color to red
+                          ),
+                        ),
+                      );
+                    }
+                    return null;
+                  },
+                ),
+              ),
+              SizedBox(height: 16.0),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _buildColorIndicator(Colors.red, 'Weekend'),
+                  SizedBox(width: 16.0),
+                  _buildColorIndicator(Colors.blue, 'Holiday'),
+                ],
+              ),
             ],
-          ),
-        ],
-      ),
-    );
-  }
+          );
+        }
+      },
+    ),
+  );
+}
 
   Widget _buildColorIndicator(Color color, String label) {
     return Row(
@@ -1113,103 +1190,154 @@ Widget _buildSignInView(Employee employee) {
   return Padding(
     padding: const EdgeInsets.all(16.0),
     child: Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ElevatedButton.icon(
-                onPressed: _isSignedIn ? _onSignOutPressed : _onSignInPressed,
-                icon: Icon(Icons.location_on, size: 30),
-                style: ElevatedButton.styleFrom(
-                  minimumSize: Size(250, 150),
-                  textStyle:
-                      TextStyle(fontSize: 20, fontFamily: 'Montserrat'),
-                  backgroundColor: Color(0xFFAF2C3F),
-                ),
-                label: Text(_isSignedIn ? 'Sign Out' : 'Sign In'),
-              ),
-              SizedBox(width: 50),
-              ElevatedButton.icon(
-                onPressed: _onFaceIdPressed,
-                icon: Icon(Icons.face, size: 30),
-                style: ElevatedButton.styleFrom(
-                  minimumSize: Size(250, 150),
-                  textStyle:
-                      TextStyle(fontSize: 20, fontFamily: 'Montserrat'),
-                  backgroundColor: Color(0xFFAF2C3F),
-                ),
-                label: Text('Face ID'),
-              ),
-              SizedBox(width: 50),
-              ElevatedButton.icon(
-                onPressed: _onFingerprintPressed,
-                icon: Icon(Icons.fingerprint, size: 30),
-                style: ElevatedButton.styleFrom(
-                  minimumSize: Size(250, 150),
-                  textStyle:
-                      TextStyle(fontSize: 20, fontFamily: 'Montserrat'),
-                  backgroundColor: Color(0xFFAF2C3F),
-                ),
-                label: Text('Fingerprint'),
-              ),
-            ],
-          ),
-          SizedBox(height: 50),
-          _currentPosition == null
-              ? CircularProgressIndicator()
-              : Container(
-                  height: 300,
-                  width: 400,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(15),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 10,
-                        offset: Offset(0, 5),
-                      ),
-                    ],
-                  ),
-                  margin: EdgeInsets.all(10),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(15),
-                    child: flutterMap.FlutterMap(
-                      options: flutterMap.MapOptions(
-                        center: latlong.LatLng(_currentPosition!.latitude,
-                            _currentPosition!.longitude),
-                        zoom: 15,
-                      ),
-                      children: [
-                        flutterMap.TileLayer(
-                          urlTemplate:
-                              "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                          subdomains: ['a', 'b', 'c'],
-                        ),
-                        flutterMap.MarkerLayer(
-                          markers: [
-                            flutterMap.Marker(
-                              point: latlong.LatLng(
-                                  _currentPosition!.latitude,
-                                  _currentPosition!.longitude),
-                              builder: (ctx) => Container(
-                                child: Icon(Icons.location_on,
-                                    size: 40, color: Colors.red),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          bool isMobileView = constraints.maxWidth < 600;
+          if (isMobileView) {
+            return SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: _isSignedIn ? _onSignOutPressed : _onSignInPressed,
+                    icon: Icon(Icons.location_on, size: 20),
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: Size(200, 60),
+                      textStyle: TextStyle(fontSize: 16, fontFamily: 'Montserrat'),
+                      backgroundColor: Color(0xFFAF2C3F),
                     ),
+                    label: Text(_isSignedIn ? 'Sign Out' : 'Sign In'),
                   ),
+                  SizedBox(height: 20),
+                  ElevatedButton.icon(
+                    onPressed: _onFaceIdPressed,
+                    icon: Icon(Icons.face, size: 20),
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: Size(200, 60),
+                      textStyle: TextStyle(fontSize: 16, fontFamily: 'Montserrat'),
+                      backgroundColor: Color(0xFFAF2C3F),
+                    ),
+                    label: Text('Face ID'),
+                  ),
+                  SizedBox(height: 20),
+                  ElevatedButton.icon(
+                    onPressed: _onFingerprintPressed,
+                    icon: Icon(Icons.fingerprint, size: 20),
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: Size(200, 60),
+                      textStyle: TextStyle(fontSize: 16, fontFamily: 'Montserrat'),
+                      backgroundColor: Color(0xFFAF2C3F),
+                    ),
+                    label: Text('Fingerprint'),
+                  ),
+                  SizedBox(height: 20),
+                  _buildMapView(),
+                ],
+              ),
+            );
+          } else {
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: _isSignedIn ? _onSignOutPressed : _onSignInPressed,
+                      icon: Icon(Icons.location_on, size: 30),
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: Size(250, 150),
+                        textStyle: TextStyle(fontSize: 20, fontFamily: 'Montserrat'),
+                        backgroundColor: Color(0xFFAF2C3F),
+                      ),
+                      label: Text(_isSignedIn ? 'Sign Out' : 'Sign In'),
+                    ),
+                    SizedBox(width: 50),
+                    ElevatedButton.icon(
+                      onPressed: _onFaceIdPressed,
+                      icon: Icon(Icons.face, size: 30),
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: Size(250, 150),
+                        textStyle: TextStyle(fontSize: 20, fontFamily: 'Montserrat'),
+                        backgroundColor: Color(0xFFAF2C3F),
+                      ),
+                      label: Text('Face ID'),
+                    ),
+                    SizedBox(width: 50),
+                    ElevatedButton.icon(
+                      onPressed: _onFingerprintPressed,
+                      icon: Icon(Icons.fingerprint, size: 30),
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: Size(250, 150),
+                        textStyle: TextStyle(fontSize: 20, fontFamily: 'Montserrat'),
+                        backgroundColor: Color(0xFFAF2C3F),
+                      ),
+                      label: Text('Fingerprint'),
+                    ),
+                  ],
                 ),
-        ],
+                SizedBox(height: 50),
+                _buildMapView(),
+              ],
+            );
+          }
+        },
       ),
     ),
   );
+}
+
+Widget _buildMapView() {
+  return _currentPosition == null
+      ? CircularProgressIndicator()
+      : Container(
+          height: 300,
+          width: 400,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(15),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black26,
+                blurRadius: 10,
+                offset: Offset(0, 5),
+              ),
+            ],
+          ),
+          margin: EdgeInsets.all(10),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(15),
+            child: flutterMap.FlutterMap(
+              options: flutterMap.MapOptions(
+                center: latlong.LatLng(_currentPosition!.latitude,
+                    _currentPosition!.longitude),
+                zoom: 15,
+              ),
+              children: [
+                flutterMap.TileLayer(
+                  urlTemplate:
+                      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                  subdomains: ['a', 'b', 'c'],
+                ),
+                flutterMap.MarkerLayer(
+                  markers: [
+                    flutterMap.Marker(
+                      point: latlong.LatLng(
+                          _currentPosition!.latitude,
+                          _currentPosition!.longitude),
+                      builder: (ctx) => Container(
+                        child: Icon(Icons.location_on,
+                            size: 40, color: Colors.red),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
 }  
+  
   Widget _buildCreateUserView() {
     return Padding(
       padding: const EdgeInsets.all(16.0),
