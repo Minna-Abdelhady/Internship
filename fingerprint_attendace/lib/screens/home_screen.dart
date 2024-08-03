@@ -463,8 +463,8 @@ class _HomeScreenState extends State<HomeScreen>
 @override
 Widget build(BuildContext context) {
   // Define the threshold for switching between mobile and desktop views
-  const double desktopWidthThreshold = 1400;
-  const double desktopHeightThreshold = 560;
+  const double desktopWidthThreshold = 1366;
+  const double desktopHeightThreshold = 600;
 
   // Get the current screen size
   final screenSize = MediaQuery.of(context).size;
@@ -515,9 +515,12 @@ Widget build(BuildContext context) {
           : null,
       actions: isMobileView
           ? [
-              Image.asset(
-                'assets/company_logo.jpg', // Path to your logo file
-                height: 40, // Adjust the height as needed
+              Padding(
+                padding: const EdgeInsets.only(right: 8.0), // Adjust padding as needed
+                child: Image.asset(
+                  'assets/arrow_mm.png', // Path to your logo file
+                  height: 40, // Adjust the height as needed
+                ),
               ),
             ]
           : [],
@@ -569,11 +572,14 @@ Widget build(BuildContext context) {
                 return Row(
                   children: [
                     Flexible(
-                      flex: 1, // Original size of the profile side
-                      child: _buildProfileSide(employee, isMobileView),
+                      flex: 1,
+                      child: Container(
+                        color: Color(0xFFAF2C3F),
+                        child: _buildDesktopProfileSide(employee),
+                      ),
                     ),
                     Flexible(
-                      flex: 3, // Original size of the main content
+                      flex: 3,
                       child: TabBarView(
                         controller: _tabController,
                         children: _buildTabViews(employee),
@@ -582,16 +588,19 @@ Widget build(BuildContext context) {
                   ],
                 );
               } else {
-                return Column(
-                  children: [
-                    _buildMobileProfile(employee),
-                    Expanded(
-                      child: TabBarView(
-                        controller: _tabController,
-                        children: _buildTabViews(employee),
+                return SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      _buildMobileProfile(employee),
+                      Container(
+                        height: screenSize.height, // Make the TabBarView fill the remaining space
+                        child: TabBarView(
+                          controller: _tabController,
+                          children: _buildTabViews(employee),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 );
               }
             },
@@ -602,49 +611,156 @@ Widget build(BuildContext context) {
   );
 }
 
+Widget _buildDesktopProfileSide(Employee employee) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          children: [
+            Image.asset(
+              'assets/arrow_mm.png', // Path to your logo file
+              height: 60, // Adjust the height as needed
+            ),
+            SizedBox(width: 16),
+            Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                shape: BoxShape.rectangle,
+                borderRadius: BorderRadius.circular(12), // Add rounded corners
+                border: Border.all(
+                    color: Colors.white, width: 2), // Add a white border
+                image: DecorationImage(
+                  image: MemoryImage(base64Decode(employee.personalPhoto)),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Text(
+          'Welcome, ${employee.name}',
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+            fontFamily: 'Montserrat',
+          ),
+        ),
+      ),
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: _buildInfoColumn(employee, false), // Pass false for desktop view
+      ),
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Divider(color: Colors.white),
+            _buildInfoRow('Today:', _formatDate(DateTime.now()), true, false),
+            _buildInfoRow('Signed In At:', _formatTime(_loginTime), true, false),
+            _buildInfoRow(
+              _isSignedOut ? 'Signed Out At:' : 'Expected Sign Out Time:',
+              _formatTime(_logoutTime),
+              true, false,
+            ),
+          ],
+        ),
+      ),
+      Spacer(),
+      Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: ElevatedButton.icon(
+          onPressed: _onLogoutPressed,
+          icon: Icon(Icons.logout, color: Color(0xFFAF2C3F)),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.white,
+            minimumSize: Size(double.infinity, 50), // Full width button
+          ),
+          label: Text(
+            'Log Out',
+            style: TextStyle(
+                color: Color(0xFFAF2C3F), fontFamily: 'Montserrat'),
+          ),
+        ),
+      ),
+    ],
+  );
+}
+
 Widget _buildMobileProfile(Employee employee) {
   return Container(
     color: Color(0xFFAF2C3F),
     padding: const EdgeInsets.all(16.0),
-    child: Row(
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          width: 100,
-          height: 90,
-          decoration: BoxDecoration(
-            shape: BoxShape.rectangle,
-            borderRadius: BorderRadius.circular(12), // Add rounded corners
-            border: Border.all(
-                color: Colors.white, width: 1), // Add a white border
-            image: DecorationImage(
-              image: MemoryImage(base64Decode(employee.personalPhoto)),
-              fit: BoxFit.cover,
-            ),
-          ),
-        ),
-        SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Welcome, ${employee.name}',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  fontFamily: 'Montserrat',
+        Row(
+          children: [
+            Column(
+              children: [
+                Container(
+                  width: 100,
+                  height: 90,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.rectangle,
+                    borderRadius: BorderRadius.circular(12), // Add rounded corners
+                    border: Border.all(
+                        color: Colors.white, width: 1), // Add a white border
+                    image: DecorationImage(
+                      image: MemoryImage(base64Decode(employee.personalPhoto)),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                 ),
+                SizedBox(height: 8),
+                ElevatedButton.icon(
+                  onPressed: _onLogoutPressed,
+                  icon: Icon(Icons.logout, color: Color(0xFFAF2C3F), size: 16),
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: Size(90, 30), // Smaller size
+                    backgroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0), // Adjust padding
+                  ),
+                  label: Text(
+                    'Log Out',
+                    style: TextStyle(
+                        color: Color(0xFFAF2C3F), fontFamily: 'Montserrat', fontSize: 12),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Welcome, ${employee.name}',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      fontFamily: 'Montserrat',
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  _buildInfoColumn(employee, true), // Pass true for mobile view
+                ],
               ),
-              SizedBox(height: 10),
-              _buildInfoColumn(employee, true), // Pass true for mobile view
-            ],
-          ),
+            ),
+          ],
         ),
       ],
     ),
   );
-} 
+}  
   
   List<Widget> _buildTabs() {
     List<Widget> tabs = [
@@ -732,70 +848,73 @@ Widget _buildMobileProfile(Employee employee) {
 
 Widget _buildProfileSide(Employee employee, bool isMobileView) {
   return SingleChildScrollView(
-    child: Container(
-      color: Color(0xFFAF2C3F),
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 100,
-            height: 232,
-            decoration: BoxDecoration(
-              shape: BoxShape.rectangle,
-              borderRadius: BorderRadius.circular(12), // Add rounded corners
-              border: Border.all(
-                  color: Colors.white, width: 1), // Add a white border
-              image: DecorationImage(
-                image: MemoryImage(base64Decode(employee.personalPhoto)),
-                fit: BoxFit.cover,
+    child: ConstrainedBox(
+      constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.height),
+      child: Container(
+        color: Color(0xFFAF2C3F),
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: isMobileView ? 100 : 80, // Adjust width for full screen
+              height: isMobileView ? 100 : 80, // Adjust height for full screen
+              decoration: BoxDecoration(
+                shape: BoxShape.rectangle,
+                borderRadius: BorderRadius.circular(12), // Add rounded corners
+                border: Border.all(
+                    color: Colors.white, width: 1), // Add a white border
+                image: DecorationImage(
+                  image: MemoryImage(base64Decode(employee.personalPhoto)),
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
-          ),
-          SizedBox(height: 10),
-          Text(
-            'Welcome, ${employee.name}',
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-              fontFamily: 'Montserrat',
-            ),
-          ),
-          SizedBox(height: 15),
-          _buildInfoColumn(employee, isMobileView),
-          SizedBox(height: 15),
-          Divider(color: Colors.white),
-          Container(
-            color: Color(0xFFAF2C3F),
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildInfoRow('Today:', _formatDate(DateTime.now()), true, isMobileView),
-                _buildInfoRow('Signed In At:', _formatTime(_loginTime), true, isMobileView),
-                _buildInfoRow(
-                  _isSignedOut ? 'Signed Out At:' : 'Expected Sign Out Time:',
-                  _formatTime(_logoutTime),
-                  true, isMobileView,
-                ),
-              ],
-            ),
-          ),
-          SizedBox(height: 20),
-          ElevatedButton.icon(
-            onPressed: _onLogoutPressed,
-            icon: Icon(Icons.logout, color: Color(0xFFAF2C3F)),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-            ),
-            label: Text(
-              'Log Out',
+            SizedBox(height: 10),
+            Text(
+              'Welcome, ${employee.name}',
               style: TextStyle(
-                  color: Color(0xFFAF2C3F), fontFamily: 'Montserrat'),
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+                fontFamily: 'Montserrat',
+              ),
             ),
-          ),
-        ],
+            SizedBox(height: 15),
+            _buildInfoColumn(employee, isMobileView),
+            SizedBox(height: 15),
+            Divider(color: Colors.white),
+            Container(
+              color: Color(0xFFAF2C3F),
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildInfoRow('Today:', _formatDate(DateTime.now()), true, isMobileView),
+                  _buildInfoRow('Signed In At:', _formatTime(_loginTime), true, isMobileView),
+                  _buildInfoRow(
+                    _isSignedOut ? 'Signed Out At:' : 'Expected Sign Out Time:',
+                    _formatTime(_logoutTime),
+                    true, isMobileView,
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton.icon(
+              onPressed: _onLogoutPressed,
+              icon: Icon(Icons.logout, color: Color(0xFFAF2C3F)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+              ),
+              label: Text(
+                'Log Out',
+                style: TextStyle(
+                    color: Color(0xFFAF2C3F), fontFamily: 'Montserrat'),
+              ),
+            ),
+          ],
+        ),
       ),
     ),
   );
@@ -857,7 +976,7 @@ Widget _buildInfoRow(String label, String value, bool increaseSize, bool isMobil
     ],
   );
 }  
- 
+  
   Widget _buildTransactionsView(Employee employee) {
     return FutureBuilder<List<Attendance>>(
       future: attendanceDao.getAttendanceForWeek(employee.companyId),
@@ -1170,8 +1289,8 @@ Widget _buildCalendarView() {
       },
     ),
   );
-}
-
+} 
+ 
   Widget _buildColorIndicator(Color color, String label) {
     return Row(
       children: [
@@ -1336,7 +1455,7 @@ Widget _buildMapView() {
             ),
           ),
         );
-}  
+}
   
   Widget _buildCreateUserView() {
     return Padding(
