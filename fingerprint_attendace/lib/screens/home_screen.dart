@@ -757,6 +757,24 @@ Widget _buildMobileProfile(Employee employee) {
             ),
           ],
         ),
+        SizedBox(height: 15),
+        Divider(color: Colors.white),
+        Container(
+          color: Color(0xFFAF2C3F),
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildInfoRow('Today:', _formatDate(DateTime.now()), true, true),
+              _buildInfoRow('Signed In At:', _formatTime(_loginTime), true, true),
+              _buildInfoRow(
+                _isSignedOut ? 'Signed Out At:' : 'Expected Sign Out Time:',
+                _formatTime(_logoutTime),
+                true, true,
+              ),
+            ],
+          ),
+        ),
       ],
     ),
   );
@@ -1289,21 +1307,28 @@ Widget _buildCalendarView() {
       },
     ),
   );
-} 
- 
-  Widget _buildColorIndicator(Color color, String label) {
-    return Row(
-      children: [
-        Container(
-          width: 20,
-          height: 20,
-          color: color,
+}
+
+Widget _buildColorIndicator(Color color, String text) {
+  return Row(
+    children: [
+      Container(
+        width: 16,
+        height: 16,
+        color: color,
+      ),
+      SizedBox(width: 8),
+      Text(
+        text,
+        style: TextStyle(
+          fontSize: 16,
+          color: Colors.black,
+          fontFamily: 'Montserrat',
         ),
-        SizedBox(width: 8),
-        Text(label, style: TextStyle(fontFamily: 'Montserrat')),
-      ],
-    );
-  }
+      ),
+    ],
+  );
+}
 
 Widget _buildSignInView(Employee employee) {
   return Padding(
@@ -1455,7 +1480,7 @@ Widget _buildMapView() {
             ),
           ),
         );
-}
+}  
   
   Widget _buildCreateUserView() {
     return Padding(
